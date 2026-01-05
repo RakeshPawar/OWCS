@@ -1,0 +1,33 @@
+{
+  "name": "owcs",
+  "version": "1.0.0",
+  "description": "Open Web Component Specification - Generate OWCS specs from framework code",
+  "main": "dist/index.js",
+  "bin": {
+    "owcs": "dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "web-components",
+    "angular",
+    "specification",
+    "ast",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "js-yaml": "^4.1.0",
+    "typescript": "^5.3.3",
+    "ajv": "^8.12.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.10.6"
+  }
+}
