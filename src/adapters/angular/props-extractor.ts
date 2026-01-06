@@ -9,7 +9,7 @@ import {
 } from '../../core/ast-walker';
 
 /**
- * Extracts props from an Angular component class using @Input() decorators
+ * Extracts props from an Angular component class using @Input() decorators and input signals
  */
 export function extractProps(
   classDecl: ts.ClassDeclaration,
@@ -23,6 +23,12 @@ export function extractProps(
     
     if (inputDecorator) {
       const prop = extractInputProp(property, inputDecorator, typeChecker);
+      if (prop) {
+        props.push(prop);
+      }
+    } else if (property.initializer) {
+      // Check for input signal: input() or input.required()
+      const prop = extractInputSignalProp(property, typeChecker);
       if (prop) {
         props.push(prop);
       }
@@ -63,6 +69,90 @@ function extractInputProp(
     attribute,
     schema,
     required,
+    source: 'input',
+  };
+}
+
+/**
+ * Extracts a single prop from a property with input signal (input() or input.required())
+ */
+function extractInputSignalProp(
+  property: ts.PropertyDeclaration,
+  typeChecker: ts.TypeChecker
+): PropModel | undefined {
+  const propertyName = property.name;
+  
+  if (!ts.isIdentifier(propertyName)) {
+    return undefined;
+  }
+  
+  const name = propertyName.text;
+  const initializer = property.initializer;
+  
+  if (!initializer) {
+    return undefined;
+  }
+  
+  // Check if it's a call to input() or input.required()
+  let callExpression: ts.CallExpression | undefined;
+  let isRequired = false;
+  
+  if (ts.isCallExpression(initializer)) {
+    const expr = initializer.expression;
+    
+    // Check for input() direct call
+    if (ts.isIdentifier(expr) && expr.text === 'input') {
+      callExpression = initializer;
+      isRequired = false;
+    }
+    // Check for input.required() call
+    else if (ts.isPropertyAccessExpression(expr)) {
+      if (ts.isIdentifier(expr.expression) && 
+          expr.expression.text === 'input' && 
+          expr.name.text === 'required') {
+        callExpression = initializer;
+        isRequired = true;
+      }
+    }
+  }
+  
+  if (!callExpression) {
+    return undefined;
+  }
+  
+  // Extract type from generic type argument
+  let schema: JSONSchema = { type: 'any' };
+  
+  if (callExpression.typeArguments && callExpression.typeArguments.length > 0) {
+    schema = typeToJsonSchema(callExpression.typeArguments[0], property, typeChecker);
+  }
+  
+  // Check for alias in options: input({ alias: 'customName' })
+  let attribute = name;
+  
+  if (callExpression.arguments.length > 0) {
+    const firstArg = callExpression.arguments[0];
+    
+    // Check if it's an options object with alias property
+    if (ts.isObjectLiteralExpression(firstArg)) {
+      for (const prop of firstArg.properties) {
+        if (ts.isPropertyAssignment(prop) && 
+            ts.isIdentifier(prop.name) && 
+            prop.name.text === 'alias') {
+          const aliasValue = getStringLiteralValue(prop.initializer);
+          if (aliasValue) {
+            attribute = aliasValue;
+          }
+        }
+      }
+    }
+  }
+  
+  return {
+    name,
+    attribute,
+    schema,
+    required: isRequired,
     source: 'input',
   };
 }

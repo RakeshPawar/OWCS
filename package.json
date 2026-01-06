@@ -9,7 +9,17 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "publish:npm": "npm publish",
+    "publish:dry": "npm publish --dry-run",
+    "version:patch": "npm version patch",
+    "version:minor": "npm version minor",
+    "version:major": "npm version major",
+    "verdaccio:start": "verdaccio --config ./verdaccio.yaml",
+    "verdaccio:publish": "npm publish --registry http://localhost:4873",
+    "verdaccio:unpublish": "npm unpublish owcs --registry http://localhost:4873 --force",
+    "verdaccio:set": "npm set registry http://localhost:4873",
+    "verdaccio:reset": "npm config delete registry"
   },
   "keywords": [
     "web-components",

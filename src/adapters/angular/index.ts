@@ -53,6 +53,9 @@ export class AngularAdapter {
       module: ts.ModuleKind.ES2015,
       experimentalDecorators: true,
       emitDecoratorMetadata: true,
+      moduleResolution: ts.ModuleResolutionKind.NodeJs,
+      esModuleInterop: true,
+      allowSyntheticDefaultImports: true,
     });
   }
   

@@ -1,0 +1,79 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug CLI",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/src/cli/index.ts",
+      "preLaunchTask": "npm: build",
+      "args": ["${workspaceFolder}/examples/angular/src/user-card.component.ts"],
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "sourceMaps": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug CLI (Custom Args)",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/src/cli/index.ts",
+      "preLaunchTask": "npm: build",
+      "args": [
+        "${input:componentPath}",
+        "--output",
+        "${input:outputPath}"
+      ],
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "sourceMaps": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Programmatic Usage",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/examples/programmatic-usage.ts",
+      "preLaunchTask": "npm: build",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "sourceMaps": true,
+      "console": "integratedTerminal",
+      "runtimeArgs": ["-r", "ts-node/register"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Current TypeScript File",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${file}",
+      "preLaunchTask": "npm: build",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "sourceMaps": true,
+      "console": "integratedTerminal",
+      "runtimeArgs": ["-r", "ts-node/register"]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Process",
+      "skipFiles": ["<node_internals>/**"],
+      "processId": "${command:PickProcess}",
+      "sourceMaps": true
+    }
+  ],
+  "inputs": [
+    {
+      "id": "componentPath",
+      "type": "promptString",
+      "description": "Path to the component file",
+      "default": "${workspaceFolder}/examples/angular/src/user-card.component.ts"
+    },
+    {
+      "id": "outputPath",
+      "type": "promptString",
+      "description": "Output path for the generated spec",
+      "default": "${workspaceFolder}/owcs.yaml"
+    }
+  ]
+}

@@ -38,7 +38,7 @@ export function extractEvents(
 }
 
 /**
- * Extracts events from @Output() decorators
+ * Extracts events from @Output() decorators and output signals
  */
 function extractOutputEvents(
   classDecl: ts.ClassDeclaration,
@@ -52,6 +52,12 @@ function extractOutputEvents(
     
     if (outputDecorator) {
       const event = extractOutputEvent(property, typeChecker);
+      if (event) {
+        events.push(event);
+      }
+    } else if (property.initializer) {
+      // Check for output signal: output()
+      const event = extractOutputSignalEvent(property, typeChecker);
       if (event) {
         events.push(event);
       }
@@ -82,6 +88,78 @@ function extractOutputEvent(
   return {
     name,
     type: 'EventEmitter',
+    payloadSchema,
+    source: 'output',
+  };
+}
+
+/**
+ * Extracts a single event from a property with output signal (output())
+ */
+function extractOutputSignalEvent(
+  property: ts.PropertyDeclaration,
+  typeChecker: ts.TypeChecker
+): EventModel | undefined {
+  const propertyName = property.name;
+  
+  if (!ts.isIdentifier(propertyName)) {
+    return undefined;
+  }
+  
+  const name = propertyName.text;
+  const initializer = property.initializer;
+  
+  if (!initializer) {
+    return undefined;
+  }
+  
+  // Check if it's a call to output()
+  let callExpression: ts.CallExpression | undefined;
+  
+  if (ts.isCallExpression(initializer)) {
+    const expr = initializer.expression;
+    
+    // Check for output() direct call
+    if (ts.isIdentifier(expr) && expr.text === 'output') {
+      callExpression = initializer;
+    }
+  }
+  
+  if (!callExpression) {
+    return undefined;
+  }
+  
+  // Extract type from generic type argument
+  let payloadSchema: JSONSchema | undefined;
+  
+  if (callExpression.typeArguments && callExpression.typeArguments.length > 0) {
+    payloadSchema = typeNodeToJsonSchema(callExpression.typeArguments[0], typeChecker);
+  }
+  
+  // Check for alias in options: output({ alias: 'customName' })
+  let eventName = name;
+  
+  if (callExpression.arguments.length > 0) {
+    const firstArg = callExpression.arguments[0];
+    
+    // Check if it's an options object with alias property
+    if (ts.isObjectLiteralExpression(firstArg)) {
+      for (const prop of firstArg.properties) {
+        if (ts.isPropertyAssignment(prop) && 
+            ts.isIdentifier(prop.name) && 
+            prop.name.text === 'alias') {
+          const aliasValue = getStringLiteralValue(prop.initializer);
+          if (aliasValue) {
+            eventName = aliasValue;
+          }
+        }
+      }
+    }
+  }
+  
+  return {
+    name: eventName,
+    type: 'OutputSignal',
     payloadSchema,
     source: 'output',
   };

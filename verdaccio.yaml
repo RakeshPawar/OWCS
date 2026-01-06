@@ -1,0 +1,60 @@
+# Verdaccio Configuration for Local Development
+
+storage: ./verdaccio-storage
+auth:
+  htpasswd:
+    file: ./htpasswd
+    # Maximum amount of users allowed to register, defaults to "+infinity".
+    max_users: 1000
+    # Hash algorithm, possible options are: "bcrypt", "md5", "sha1", "crypt".
+    algorithm: bcrypt
+
+# List of uplink configurations
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+    max_fails: 3
+    timeout: 30s
+
+# Package access control
+packages:
+  # Local packages - full access
+  'owcs':
+    access: $all
+    publish: $authenticated
+    unpublish: $authenticated
+    proxy: npmjs
+
+  '@*/*':
+    access: $all
+    publish: $authenticated
+    unpublish: $authenticated
+    proxy: npmjs
+
+  '**':
+    access: $all
+    publish: $authenticated
+    unpublish: $authenticated
+    proxy: npmjs
+
+# Server configuration
+listen:
+  - 0.0.0.0:4873
+
+# Web interface
+web:
+  enable: true
+  title: OWCS Local Registry
+
+# Logs settings
+logs: { type: stdout, format: pretty, level: http }
+
+# User rate limit (optional, for security)
+max_body_size: 100mb
+
+# Notifications (optional)
+# notify:
+#   method: POST
+#   headers: [{ "Content-Type": "application/json" }]
+#   endpoint: http://localhost:3000/api/notify
+#   content: '{"name": "{{name}}", "version": "{{version}}"}'

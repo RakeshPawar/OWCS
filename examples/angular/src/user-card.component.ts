@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, Injector } from '@angular/core';
+import { Component, Input, Output, EventEmitter, input, output } from '@angular/core';
 
 /**
  * Example Angular component that will be analyzed by OWCS
@@ -24,7 +24,7 @@ export class UserCardComponent {
   /**
    * User's name (required)
    */
-  @Input() name!: string;
+   name= input.required<string>();
   
   /**
    * User's age (optional)
@@ -47,7 +47,7 @@ export class UserCardComponent {
   /**
    * Click event emitter
    */
-  @Output() clicked = new EventEmitter<{ timestamp: number }>();
+  clicked = output<{ timestamp: number }>();
   
   /**
    * User updated event with custom event
@@ -83,10 +83,3 @@ export class UserCardComponent {
   }
 }
 
-export function registerUserCard(injector: Injector) {
-  
-  if (!customElements.get('user-card')) {
-    // FIX: Ensure no trailing spaces in tag name
-    customElements.define('user-card', UserCardComponent);
-  }
-}
