@@ -1,5 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { createCustomElement } from '@angular/elements';
+import { Component, Input, Output, EventEmitter, Injector } from '@angular/core';
 
 /**
  * Example Angular component that will be analyzed by OWCS
@@ -84,9 +83,10 @@ export class UserCardComponent {
   }
 }
 
- if (!customElements.get('user-card')) {
-      const ce = createCustomElement(UserCardComponent, {
-        injector: null as any
-      });
-      customElements.define('user-card  ', ce  as CustomElementConstructor);
+export function registerUserCard(injector: Injector) {
+  
+  if (!customElements.get('user-card')) {
+    // FIX: Ensure no trailing spaces in tag name
+    customElements.define('user-card', UserCardComponent);
   }
+}
