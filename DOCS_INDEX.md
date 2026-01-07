@@ -13,14 +13,14 @@ Welcome to the **OWCS (Open Web Component Specification)** library documentation
    - CLI commands
    - API reference
 
-2. **[QUICKSTART.md](QUICKSTART.md)** - Quick start guide
+2. **[QUICKSTART.md](docs/QUICKSTART.md)** - Quick start guide
    - Installation steps
    - Running examples
    - What gets analyzed
    - Output formats
    - Common issues
 
-3. **[COMPLETE_GUIDE.md](COMPLETE_GUIDE.md)** - Comprehensive guide
+3. **[COMPLETE_GUIDE.md](docs/COMPLETE_GUIDE.md)** - Comprehensive guide
    - Full API documentation
    - Architecture details
    - Examples
@@ -29,13 +29,13 @@ Welcome to the **OWCS (Open Web Component Specification)** library documentation
 
 ### Architecture & Design
 
-4. **[STRUCTURE.md](STRUCTURE.md)** - Project structure
+4. **[STRUCTURE.md](docs/STRUCTURE.md)** - Project structure
    - Directory layout
    - File descriptions
    - Architecture flow
    - Adding new adapters
 
-5. **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Implementation details
+5. **[IMPLEMENTATION_SUMMARY.md](docs/IMPLEMENTATION_SUMMARY.md)** - Implementation details
    - What was built
    - Technical highlights
    - Statistics
@@ -55,16 +55,6 @@ Welcome to the **OWCS (Open Web Component Specification)** library documentation
 8. **[examples/angular/user-card.component.ts](examples/angular/user-card.component.ts)** - Sample component
    - Real Angular component
    - All supported patterns
-
-### Scripts
-
-9. **[demo.sh](demo.sh)** - Demo script
-   - Full workflow demonstration
-   - Generates all output formats
-
-10. **[build.sh](build.sh)** - Build script
-    - Build process
-    - Post-build tasks
 
 ## 🎯 Where to Start
 
@@ -120,7 +110,6 @@ import {
 | Add a new framework adapter          | STRUCTURE.md (Adding adapters)  |
 | Understand implementation details     | IMPLEMENTATION_SUMMARY.md       |
 | Troubleshoot issues                  | COMPLETE_GUIDE.md (Troubleshooting) |
-| Run the demo                         | demo.sh                        |
 
 ## 🚀 Try It Now
 
@@ -130,9 +119,6 @@ npm install
 
 # 2. Build the project
 npm run build
-
-# 3. Run the demo
-./demo.sh
 
 # 4. Try generating a spec
 npx owcs generate -p examples/angular

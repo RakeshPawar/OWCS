@@ -25,10 +25,6 @@ npm install
 # Build the project
 npm run build
 
-# Run tests (via demo)
-./demo.sh
-```
-
 ## Quick Start
 
 ### CLI Usage
@@ -324,21 +320,6 @@ config:
 ```
 
 ## Testing
-
-### Run the Demo
-
-```bash
-# Full demo showing all features
-./demo.sh
-```
-
-This will:
-1. Build the project
-2. Generate YAML specification
-3. Generate JSON specification
-4. Generate OpenAPI specification
-5. Validate the outputs
-6. Display spec information
 
 ### Manual Testing
 

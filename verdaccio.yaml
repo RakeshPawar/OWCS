@@ -15,6 +15,7 @@ uplinks:
     url: https://registry.npmjs.org/
     max_fails: 3
     timeout: 30s
+    cache: true
 
 # Package access control
 packages:

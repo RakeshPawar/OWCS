@@ -201,7 +201,6 @@ Vue Source → VueAdapter → IntermediateModel (future)
 21. `STRUCTURE.md` - Project structure
 22. `QUICKSTART.md` - Quick start guide
 23. `examples/EXAMPLE_OUTPUT.md` - Expected outputs
-24. `build.sh` - Build script
 25. `.gitignore` - Git ignore rules
 
 ## 🚀 Usage Examples
