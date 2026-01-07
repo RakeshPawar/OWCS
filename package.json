@@ -2,33 +2,40 @@
   "name": "owcs",
   "version": "1.0.0",
   "description": "Open Web Component Specification - Generate OWCS specs from framework code",
+  "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "bin": {
     "owcs": "dist/cli/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "engines": {
+    "node": ">=20.0.0"
   },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "prepublishOnly": "npm run build",
-    "publish:npm": "npm publish",
-    "publish:dry": "npm publish --dry-run",
-    "version:patch": "npm version patch",
-    "version:minor": "npm version minor",
-    "version:major": "npm version major",
     "verdaccio:start": "verdaccio --config ./verdaccio.yaml",
     "verdaccio:publish": "npm publish --registry http://localhost:4873",
-    "verdaccio:unpublish": "npm unpublish owcs --registry http://localhost:4873 --force",
-    "verdaccio:set": "npm set registry http://localhost:4873",
-    "verdaccio:reset": "npm config delete registry"
+    "verdaccio:unpublish": "npm unpublish owcs --registry http://localhost:4873 --force"
   },
   "keywords": [
     "web-components",
     "angular",
     "specification",
     "ast",
-    "typescript"
+    "typescript",
+    "owcs",
+    "open-web-component-specification"
   ],
-  "author": "",
+  "author": "Rakesh Pawar <rakesh.u.pawar@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "commander": "^11.1.0",

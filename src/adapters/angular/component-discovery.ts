@@ -1,5 +1,6 @@
 import * as ts from 'typescript';
 import { findCallExpressions, getStringLiteralValue } from '../../core/ast-walker';
+import * as path from 'path';
 
 /**
  * Component registration info extracted from customElements.define()
@@ -292,7 +293,6 @@ function resolveImportManually(
   className: string,
   program: ts.Program
 ): ts.ClassDeclaration | undefined {
-  const path = require('path');
   const sourceDir = path.dirname(sourceFile.fileName);
   
   // Handle relative imports
