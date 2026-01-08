@@ -98,6 +98,27 @@ function extractModuleFederationPlugin(
         }
       }
     }
+
+    // Look for "withModuleFederationPlugin({ ... })"
+    if (ts.isCallExpression(node)) {
+      const expression = node.expression;
+      
+      if (ts.isIdentifier(expression) && expression.text === 'withModuleFederationPlugin') {
+        if (node.arguments.length > 0) {
+          const arg = node.arguments[0];
+          if (ts.isObjectLiteralExpression(arg)) {
+            federationConfig = extractPluginConfig(
+              ts.factory.createNewExpression(
+                ts.factory.createIdentifier('ModuleFederationPlugin'),
+                undefined,
+                [arg]
+              )
+            );
+            return;
+          }
+        }
+      }
+    }
     
     ts.forEachChild(node, visit);
   }

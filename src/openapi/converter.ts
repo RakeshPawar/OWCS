@@ -65,7 +65,7 @@ export class OpenAPIConverter {
       info: {
         title: owcsSpec.info.title,
         version: owcsSpec.info.version,
-        description: owcsSpec.info.description || 'Web Components API specification',
+        description: owcsSpec.info.description || 'Web Components specification',
       },
       paths: {},
       components: {

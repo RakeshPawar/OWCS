@@ -210,8 +210,23 @@ export function typeToJsonSchema(
   if (ts.isUnionTypeNode(typeNode)) {
     const types = typeNode.types.map((t) => typeToJsonSchema(t, context, typeChecker));
     
-    // Check if it's a simple type union
-    const simpleTypes = types.filter((t) => typeof t.type === 'string');
+    // Check if all types are literals of the same primitive type (e.g., 'light' | 'dark')
+    const allEnums = types.every((t) => t.enum && Array.isArray(t.enum));
+    if (allEnums && types.length > 0) {
+      const firstType = types[0].type;
+      const allSameType = types.every((t) => t.type === firstType);
+      if (allSameType) {
+        // Combine all enum values into a single enum array
+        const allEnumValues = types.flatMap((t) => t.enum as any[]);
+        return {
+          type: firstType,
+          enum: allEnumValues,
+        };
+      }
+    }
+    
+    // Check if it's a simple type union (e.g., string | number)
+    const simpleTypes = types.filter((t) => typeof t.type === 'string' && !t.enum);
     if (simpleTypes.length === types.length) {
       return {
         type: simpleTypes.map((t) => t.type as string),
