@@ -86,7 +86,7 @@ describe('API Index Exports', () => {
     it('should allow building and converting a spec', () => {
       const model: IntermediateModel = {
         runtime: {
-          bundler: 'webpack'
+          bundler: 'webpack',
         },
         components: [
           {
@@ -125,9 +125,9 @@ describe('API Index Exports', () => {
     });
 
     it('should work with SchemaBuilder and YAMLWriter classes', () => {
-      const model :IntermediateModel= {
+      const model: IntermediateModel = {
         runtime: {
-          bundler: 'webpack'
+          bundler: 'webpack',
         },
         components: [],
       };
@@ -146,7 +146,7 @@ describe('API Index Exports', () => {
     it('should work with OWCSValidator and OpenAPIConverter classes', () => {
       const model: IntermediateModel = {
         runtime: {
-          bundler: 'webpack'
+          bundler: 'webpack',
         },
         components: [],
       };

@@ -113,7 +113,7 @@ describe('SchemaBuilder', () => {
                   type: 'string',
                   description: 'User name',
                 },
-                source: 'input'
+                source: 'input',
               },
               {
                 name: 'age',
@@ -122,7 +122,7 @@ describe('SchemaBuilder', () => {
                   type: 'number',
                   description: 'User age',
                 },
-                source: 'input'
+                source: 'input',
               },
             ],
             events: [],
@@ -145,7 +145,7 @@ describe('SchemaBuilder', () => {
     it('should build component with events', () => {
       const model: IntermediateModel = {
         runtime: {
-          bundler: 'webpack'
+          bundler: 'webpack',
         },
         components: [
           {
@@ -163,7 +163,7 @@ describe('SchemaBuilder', () => {
                     userId: { type: 'string' },
                   },
                 },
-                source: 'dispatchEvent'
+                source: 'dispatchEvent',
               },
             ],
           },
@@ -212,7 +212,7 @@ describe('SchemaBuilder', () => {
     it('should handle empty props without required field', () => {
       const model: IntermediateModel = {
         runtime: {
-          bundler: 'webpack'
+          bundler: 'webpack',
         },
         components: [
           {
@@ -226,7 +226,7 @@ describe('SchemaBuilder', () => {
                 schema: {
                   type: 'string',
                 },
-                source: 'input'
+                source: 'input',
               },
             ],
             events: [],
@@ -261,7 +261,7 @@ describe('SchemaBuilder', () => {
     it('should infer title from component class name', () => {
       const model: IntermediateModel = {
         runtime: {
-          bundler: 'webpack'
+          bundler: 'webpack',
         },
         components: [
           {
@@ -282,7 +282,7 @@ describe('SchemaBuilder', () => {
     it('should use default title when no context available', () => {
       const model: IntermediateModel = {
         runtime: {
-          bundler: 'webpack'
+          bundler: 'webpack',
         },
         components: [],
       };
@@ -298,7 +298,7 @@ describe('SchemaBuilder', () => {
       const builder = new SchemaBuilder();
       const model: IntermediateModel = {
         runtime: {
-          bundler: 'webpack'
+          bundler: 'webpack',
         },
         components: [],
       };

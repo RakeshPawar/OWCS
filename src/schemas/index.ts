@@ -12,7 +12,7 @@ export type SchemaVersion = '1.0.0' | 'latest';
  */
 export const AVAILABLE_SCHEMAS = {
   '1.0.0': schemaV1,
-  'latest': schemaV1,
+  latest: schemaV1,
 } as const;
 
 /**
@@ -28,14 +28,12 @@ export const DEFAULT_SCHEMA_VERSION: SchemaVersion = 'latest';
  */
 export function getSchema(version: SchemaVersion = DEFAULT_SCHEMA_VERSION): any {
   const schema = AVAILABLE_SCHEMAS[version];
-  
+
   if (!schema) {
     const available = Object.keys(AVAILABLE_SCHEMAS).join(', ');
-    throw new Error(
-      `Schema version '${version}' not found. Available versions: ${available}`
-    );
+    throw new Error(`Schema version '${version}' not found. Available versions: ${available}`);
   }
-  
+
   return schema;
 }
 

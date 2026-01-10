@@ -20,12 +20,7 @@ describe('Angular Adapter Extractors', () => {
         }
       `;
 
-      const sourceFile = ts.createSourceFile(
-        'test.ts',
-        sourceCode,
-        ts.ScriptTarget.Latest,
-        true
-      );
+      const sourceFile = ts.createSourceFile('test.ts', sourceCode, ts.ScriptTarget.Latest, true);
 
       const program = ts.createProgram(['test.ts'], {
         noResolve: true,
@@ -59,12 +54,7 @@ describe('Angular Adapter Extractors', () => {
         }
       `;
 
-      const sourceFile = ts.createSourceFile(
-        'test.ts',
-        sourceCode,
-        ts.ScriptTarget.Latest,
-        true
-      );
+      const sourceFile = ts.createSourceFile('test.ts', sourceCode, ts.ScriptTarget.Latest, true);
 
       const program = ts.createProgram(['test.ts'], {
         noResolve: true,
@@ -104,12 +94,7 @@ describe('Angular Adapter Extractors', () => {
         }
       `;
 
-      const sourceFile = ts.createSourceFile(
-        'test.ts',
-        sourceCode,
-        ts.ScriptTarget.Latest,
-        true
-      );
+      const sourceFile = ts.createSourceFile('test.ts', sourceCode, ts.ScriptTarget.Latest, true);
 
       const program = ts.createProgram(['test.ts'], {
         noResolve: true,
@@ -144,12 +129,7 @@ describe('Angular Adapter Extractors', () => {
         }
       `;
 
-      const sourceFile = ts.createSourceFile(
-        'test.ts',
-        sourceCode,
-        ts.ScriptTarget.Latest,
-        true
-      );
+      const sourceFile = ts.createSourceFile('test.ts', sourceCode, ts.ScriptTarget.Latest, true);
 
       const program = ts.createProgram(['test.ts'], {
         noResolve: true,
@@ -207,12 +187,7 @@ describe('Angular Adapter Integration', () => {
       }
     `;
 
-    const sourceFile = ts.createSourceFile(
-      'test.ts',
-      sourceCode,
-      ts.ScriptTarget.Latest,
-      true
-    );
+    const sourceFile = ts.createSourceFile('test.ts', sourceCode, ts.ScriptTarget.Latest, true);
 
     const program = ts.createProgram(['test.ts'], {
       noResolve: true,

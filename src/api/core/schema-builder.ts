@@ -1,4 +1,4 @@
-import { IntermediateModel, OWCSSpec, OWCSComponent, JSONSchema } from '../model/intermediate.js';
+import { IntermediateModel, OWCSSpec, OWCSComponent, JSONSchema, WebComponentModel, PropModel } from '../model/intermediate.js';
 
 /**
  * Builds OWCS specification from IntermediateModel
@@ -19,7 +19,7 @@ export class SchemaBuilder {
         webComponents: {},
       },
     };
-    
+
     // Add runtime configuration if present
     if (model.runtime.bundler) {
       spec.runtime = {
@@ -27,7 +27,7 @@ export class SchemaBuilder {
           name: model.runtime.bundler,
         },
       };
-      
+
       if (model.runtime.federation) {
         spec.runtime.bundler.moduleFederation = {
           remoteName: model.runtime.federation.remoteName,
@@ -36,24 +36,24 @@ export class SchemaBuilder {
         };
       }
     }
-    
+
     // Add components
     for (const component of model.components) {
       const owcsComponent = this.buildComponent(component, model.runtime.federation?.exposes);
       spec.components.webComponents[component.tagName] = owcsComponent;
     }
-    
+
     return spec;
   }
-  
+
   /**
    * Builds OWCS component from WebComponentModel
    */
-  private buildComponent(component: any, exposes?: Record<string, string>): OWCSComponent {
+  private buildComponent(component: WebComponentModel, exposes?: Record<string, string>): OWCSComponent {
     const owcsComponent: OWCSComponent = {
       tagName: component.tagName,
     };
-    
+
     // Find exposed module path
     if (exposes) {
       for (const [exposeName, exposePath] of Object.entries(exposes)) {
@@ -63,18 +63,18 @@ export class SchemaBuilder {
         }
       }
     }
-    
+
     // Add props schema
     if (component.props && component.props.length > 0) {
       owcsComponent.props = {
         schema: this.buildPropsSchema(component.props),
       };
     }
-    
+
     // Add events
     if (component.events && component.events.length > 0) {
       owcsComponent.events = {};
-      
+
       for (const event of component.events) {
         owcsComponent.events[event.name] = {
           type: event.type,
@@ -82,35 +82,35 @@ export class SchemaBuilder {
         };
       }
     }
-    
+
     return owcsComponent;
   }
-  
+
   /**
    * Builds JSON Schema for props
    */
-  private buildPropsSchema(props: any[]): JSONSchema {
+  private buildPropsSchema(props: PropModel[]): JSONSchema {
     const properties: Record<string, JSONSchema> = {};
     const required: string[] = [];
-    
+
     for (const prop of props) {
       properties[prop.name] = {
         ...prop.schema,
         description: prop.schema.description,
       };
-      
+
       if (prop.required) {
         required.push(prop.name);
       }
     }
-    
+
     return {
       type: 'object',
       properties,
       required: required.length > 0 ? required : undefined,
     };
   }
-  
+
   /**
    * Infers title from model
    */
@@ -118,11 +118,11 @@ export class SchemaBuilder {
     if (model.runtime.federation?.remoteName) {
       return model.runtime.federation.remoteName;
     }
-    
+
     if (model.components.length > 0) {
       return `${model.components[0].className} Components`;
     }
-    
+
     return 'Web Components';
   }
 }
@@ -130,10 +130,7 @@ export class SchemaBuilder {
 /**
  * Convenience function to build OWCS spec
  */
-export function buildOWCSSpec(
-  model: IntermediateModel,
-  info?: { title?: string; version?: string; description?: string }
-): OWCSSpec {
+export function buildOWCSSpec(model: IntermediateModel, info?: { title?: string; version?: string; description?: string }): OWCSSpec {
   const builder = new SchemaBuilder();
   return builder.build(model, info);
 }

@@ -393,49 +393,47 @@ describe('OWCSValidator', () => {
   describe('Schema Version Support', () => {
     it('should create validator with default version', () => {
       const validator = new OWCSValidator();
-      
+
       expect(validator.getSchemaVersion()).toBe('latest');
     });
 
     it('should create validator with specific version 1.0.0', () => {
       const validator = new OWCSValidator('1.0.0');
-      
+
       expect(validator.getSchemaVersion()).toBe('1.0.0');
     });
 
     it('should create validator with latest version', () => {
       const validator = new OWCSValidator('latest');
-      
+
       expect(validator.getSchemaVersion()).toBe('latest');
     });
 
     it('should validate spec using v1.0.0 schema', () => {
       const validator = new OWCSValidator('1.0.0');
       const spec = createValidSpec();
-      
+
       const result = validator.validateSpec(spec);
-      
+
       expect(result.valid).toBe(true);
     });
 
     it('should validate spec using latest schema', () => {
       const validator = new OWCSValidator('latest');
       const spec = createValidSpec();
-      
+
       const result = validator.validateSpec(spec);
-      
+
       expect(result.valid).toBe(true);
     });
 
     it('should throw error for invalid schema version', () => {
-      expect(() => new OWCSValidator('99.0.0' as any)).toThrow(
-        /Schema version '99.0.0' not found/
-      );
+      expect(() => new OWCSValidator('99.0.0' as any)).toThrow(/Schema version '99.0.0' not found/);
     });
 
     it('should return list of available versions', () => {
       const versions = OWCSValidator.getAvailableVersions();
-      
+
       expect(Array.isArray(versions)).toBe(true);
       expect(versions).toContain('1.0.0');
       expect(versions).toContain('latest');
@@ -444,9 +442,9 @@ describe('OWCSValidator', () => {
     it('should maintain version after validation', () => {
       const validator = new OWCSValidator('1.0.0');
       const spec = createValidSpec();
-      
+
       validator.validateSpec(spec);
-      
+
       expect(validator.getSchemaVersion()).toBe('1.0.0');
     });
   });
@@ -454,17 +452,17 @@ describe('OWCSValidator', () => {
   describe('Convenience Functions with Version Support', () => {
     it('should validate spec with default version using validateOWCSSpec', () => {
       const spec = createValidSpec();
-      
+
       const result = validateOWCSSpec(spec);
-      
+
       expect(result.valid).toBe(true);
     });
 
     it('should validate spec with specific version using validateOWCSSpec', () => {
       const spec = createValidSpec();
-      
+
       const result = validateOWCSSpec(spec, '1.0.0');
-      
+
       expect(result.valid).toBe(true);
     });
 
@@ -472,9 +470,9 @@ describe('OWCSValidator', () => {
       const spec = createValidSpec();
       const filePath = path.join(tempDir, 'test-version.yaml');
       fs.writeFileSync(filePath, yaml.dump(spec), 'utf-8');
-      
+
       const result = validateOWCSFile(filePath);
-      
+
       expect(result.valid).toBe(true);
     });
 
@@ -482,9 +480,9 @@ describe('OWCSValidator', () => {
       const spec = createValidSpec();
       const filePath = path.join(tempDir, 'test-version-specific.yaml');
       fs.writeFileSync(filePath, yaml.dump(spec), 'utf-8');
-      
+
       const result = validateOWCSFile(filePath, '1.0.0');
-      
+
       expect(result.valid).toBe(true);
     });
 
@@ -502,9 +500,9 @@ describe('OWCSValidator', () => {
 
     it('should reject invalid spec with any version', () => {
       const invalidSpec: any = { owcs: '1.0.0' }; // Missing required fields
-      
+
       const result100 = validateOWCSSpec(invalidSpec, '1.0.0');
-      
+
       expect(result100.valid).toBe(false);
     });
   });
@@ -513,17 +511,17 @@ describe('OWCSValidator', () => {
     it('should allow multiple validators with different versions simultaneously', () => {
       const validator1 = new OWCSValidator('1.0.0');
       const validator2 = new OWCSValidator('latest');
-      
+
       expect(validator1.getSchemaVersion()).toBe('1.0.0');
       expect(validator2.getSchemaVersion()).toBe('latest');
     });
 
     it('should support validating same spec with multiple versions', () => {
       const spec = createValidSpec();
-      
+
       const versions = ['1.0.0', 'latest'];
-      const results = versions.map(v => validateOWCSSpec(spec, v as any));
-      
+      const results = versions.map((v) => validateOWCSSpec(spec, v as any));
+
       results.forEach((result, i) => {
         expect(result.valid).toBe(true);
       });
@@ -532,17 +530,16 @@ describe('OWCSValidator', () => {
     it('should prepare for future schema versions without breaking existing code', () => {
       // This test ensures that the architecture supports future versions
       // When v2.0.0 is added, this test should still pass
-      
+
       const availableVersions = OWCSValidator.getAvailableVersions();
-      
+
       expect(availableVersions.length).toBeGreaterThanOrEqual(2);
       expect(availableVersions).toContain('latest');
-      
+
       // Ensure all versions work
-      availableVersions.forEach(version => {
+      availableVersions.forEach((version) => {
         expect(() => new OWCSValidator(version)).not.toThrow();
       });
     });
   });
 });
-

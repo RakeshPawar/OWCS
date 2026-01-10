@@ -32,7 +32,13 @@
     "prepublishOnly": "npm run build",
     "verdaccio:start": "verdaccio --config ./verdaccio.yaml",
     "verdaccio:publish": "npm publish --registry http://localhost:4873",
-    "verdaccio:unpublish": "npm unpublish owcs --registry http://localhost:4873 --force"
+    "verdaccio:unpublish": "npm unpublish owcs --registry http://localhost:4873 --force",
+    "prepare": "husky",
+    "format": "prettier --write \"src/**/*.{ts,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,json,md}\"",
+    "lint": "eslint \"src/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix",
+    "sanity": "tsc && node dist/cli/index.js generate -p examples/angular --format yaml --output examples/owcs.yaml"
   },
   "keywords": [
     "web-components",
@@ -54,9 +60,26 @@
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.10.6",
+    "@typescript-eslint/eslint-plugin": "^8.52.0",
+    "@typescript-eslint/parser": "^8.52.0",
     "@vitest/coverage-v8": "^1.6.1",
     "@vitest/ui": "^1.6.1",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.7.4",
     "vite": "^5.4.21",
     "vitest": "^1.6.1"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   }
 }

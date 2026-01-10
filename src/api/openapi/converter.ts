@@ -1,4 +1,4 @@
-import { OWCSSpec, JSONSchema } from '../model/intermediate.js';
+import { OWCSSpec, JSONSchema, OWCSComponent, OWCSEvent } from '../model/intermediate.js';
 
 /**
  * OpenAPI 3.1 specification structure (partial)
@@ -72,17 +72,17 @@ export class OpenAPIConverter {
         schemas: {},
       },
     };
-    
+
     // Convert each web component to a path
     for (const [tagName, component] of Object.entries(owcsSpec.components.webComponents)) {
       const path = this.componentToPath(tagName, component);
       openApiSpec.paths[`/components/${tagName}`] = path;
-      
+
       // Add schemas to components
       if (component.props?.schema) {
         openApiSpec.components!.schemas![`${tagName}-props`] = component.props.schema;
       }
-      
+
       if (component.events) {
         for (const [eventName, event] of Object.entries(component.events)) {
           if (event.payload) {
@@ -91,14 +91,14 @@ export class OpenAPIConverter {
         }
       }
     }
-    
+
     return openApiSpec;
   }
-  
+
   /**
    * Converts a web component to an OpenAPI path
    */
-  private componentToPath(tagName: string, component: any): PathItem {
+  private componentToPath(tagName: string, component: OWCSComponent): PathItem {
     const operation: Operation = {
       summary: `Interact with ${tagName} component`,
       description: `Send props to the ${tagName} web component`,
@@ -109,7 +109,7 @@ export class OpenAPIConverter {
         },
       },
     };
-    
+
     // Add request body for props
     if (component.props?.schema) {
       operation.requestBody = {
@@ -122,13 +122,13 @@ export class OpenAPIConverter {
         },
       };
     }
-    
+
     // Add callbacks for events
     if (component.events && Object.keys(component.events).length > 0) {
       operation.callbacks = {};
-      
+
       for (const [eventName, eventData] of Object.entries(component.events)) {
-        const event = eventData as any;
+        const event = eventData as OWCSEvent;
         operation.callbacks[eventName] = {
           '{$request.body#/callbackUrl}': {
             post: {
@@ -154,10 +154,10 @@ export class OpenAPIConverter {
         };
       }
     }
-    
+
     return { post: operation };
   }
-  
+
   /**
    * Converts kebab-case to PascalCase
    */

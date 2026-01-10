@@ -1,6 +1,6 @@
 /**
  * OWCS - Open Web Component Specification
- * 
+ *
  * Main entry point for the library
  */
 

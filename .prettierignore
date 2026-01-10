@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+*.log
+*.min.js
+*.min.css
+.git
+.husky
+package-lock.json

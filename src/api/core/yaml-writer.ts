@@ -22,14 +22,14 @@ export class YAMLWriter {
       sortKeys: false,
     });
   }
-  
+
   /**
    * Converts OWCS spec to JSON string
    */
   public toJSON(spec: OWCSSpec): string {
     return JSON.stringify(spec, null, 2);
   }
-  
+
   /**
    * Converts OWCS spec to specified format
    */
@@ -40,7 +40,7 @@ export class YAMLWriter {
       return this.toJSON(spec);
     }
   }
-  
+
   /**
    * Writes OWCS spec to file
    */

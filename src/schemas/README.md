@@ -81,16 +81,19 @@ if (hasSchema('1.0.0')) {
 To add a new schema version (e.g., v2.0.0):
 
 1. **Create the version directory**:
+
    ```bash
    mkdir -p src/schemas/v2
    ```
 
 2. **Add the schema file**:
+
    ```bash
    # Create src/schemas/v2/owcs-schema-v2.0.0.json
    ```
 
 3. **Update the schema index** (`schemas/index.ts`):
+
    ```typescript
    import schemaV1 from './v1/owcs-schema-v1.0.0.json' with { type: 'json' };
    import schemaV2 from './v2/owcs-schema-v2.0.0.json' with { type: 'json' };
@@ -104,7 +107,7 @@ To add a new schema version (e.g., v2.0.0):
      '2.0.0': schemaV2,
      '2.0': schemaV2,
      '2': schemaV2,
-     'latest': schemaV2, // Update to point to latest version
+     latest: schemaV2, // Update to point to latest version
    } as const;
    ```
 
@@ -119,6 +122,7 @@ To add a new schema version (e.g., v2.0.0):
 Schema files follow the naming pattern: `owcs-schema-v{MAJOR}.{MINOR}.{PATCH}.json`
 
 Examples:
+
 - `owcs-schema-v1.0.0.json`
 - `owcs-schema-v2.0.0.json`
 - `owcs-schema-v2.1.0.json`
@@ -133,6 +137,7 @@ The schema versioning system includes comprehensive tests:
 - **Extensibility tests** - Verify future versions can be added without breaking changes
 
 Run schema tests:
+
 ```bash
 npm test -- schemas/index.test.ts
 npm test -- api/core/validator.test.ts
@@ -141,24 +146,31 @@ npm test -- api/core/validator.test.ts
 ## API Reference
 
 ### `getSchema(version?: SchemaVersion): object`
+
 Returns the schema object for the specified version. Defaults to 'latest'.
 
 ### `hasSchema(version: string): boolean`
+
 Checks if a schema version is available.
 
 ### `getAvailableVersions(): SchemaVersion[]`
+
 Returns an array of all available schema versions.
 
 ### `getLatestSchema(): object`
+
 Returns the latest schema version.
 
 ### `OWCSValidator.constructor(version?: SchemaVersion)`
+
 Creates a validator for the specified schema version.
 
 ### `OWCSValidator.getSchemaVersion(): SchemaVersion`
+
 Returns the schema version used by the validator.
 
 ### `OWCSValidator.getAvailableVersions(): SchemaVersion[]`
+
 Static method that returns all available schema versions.
 
 ## Best Practices
@@ -183,6 +195,7 @@ When upgrading specifications to a new schema version:
 ## Schema Version History
 
 ### v1.0.0 (Initial Release)
+
 - Basic OWCS specification structure
 - Web component definitions
 - Props and events schemas
