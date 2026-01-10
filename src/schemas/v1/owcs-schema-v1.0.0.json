@@ -1,0 +1,188 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://owcs.dev/schema/1.0.0",
+  "title": "Open Web Component Specification",
+  "description": "Schema for OWCS specification format",
+  "type": "object",
+  "required": ["owcs", "info", "components"],
+  "properties": {
+    "owcs": {
+      "const": "1.0.0",
+      "description": "OWCS specification version"
+    },
+    "info": {
+      "type": "object",
+      "required": ["title", "version"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The title of the component specification"
+        },
+        "version": {
+          "type": "string",
+          "description": "The version of the component specification"
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the component specification"
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "properties": {
+        "bundler": {
+          "type": "object",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "enum": ["webpack", "vite"],
+              "description": "The bundler used"
+            },
+            "moduleFederation": {
+              "type": "object",
+              "properties": {
+                "remoteName": {
+                  "type": "string",
+                  "description": "The name of the remote module"
+                },
+                "libraryType": {
+                  "type": "string",
+                  "description": "The library type (e.g., 'var', 'module')"
+                },
+                "exposes": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "Map of exposed modules"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "type": "object",
+      "required": ["webComponents"],
+      "properties": {
+        "webComponents": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/WebComponent"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "WebComponent": {
+      "type": "object",
+      "required": ["tagName"],
+      "properties": {
+        "tagName": {
+          "type": "string",
+          "description": "The custom element tag name",
+          "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)+$"
+        },
+        "module": {
+          "type": "string",
+          "description": "The module path or exposed name"
+        },
+        "props": {
+          "type": "object",
+          "properties": {
+            "schema": {
+              "$ref": "#/definitions/JSONSchema"
+            }
+          }
+        },
+        "events": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Event"
+          }
+        }
+      }
+    },
+    "Event": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The event type"
+        },
+        "payload": {
+          "$ref": "#/definitions/JSONSchema"
+        }
+      }
+    },
+    "JSONSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/JSONSchema"
+          }
+        },
+        "items": {
+          "$ref": "#/definitions/JSONSchema"
+        },
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enum": {
+          "type": "array"
+        },
+        "description": {
+          "type": "string"
+        },
+        "default": {},
+        "format": {
+          "type": "string"
+        },
+        "$ref": {
+          "type": "string"
+        },
+        "oneOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JSONSchema"
+          }
+        },
+        "anyOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JSONSchema"
+          }
+        },
+        "allOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JSONSchema"
+          }
+        }
+      }
+    }
+  }
+}

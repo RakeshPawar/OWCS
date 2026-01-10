@@ -281,7 +281,25 @@ npm run build
 
 # Watch mode
 npm run dev
+
+# Run tests
+npm test
+
+# Run tests with UI
+npm run test:ui
+
+# Run tests with coverage
+npm run test:coverage
 ```
+
+## Testing
+
+This project uses **Vitest** for unit testing. See [TESTING.md](TESTING.md) for details.
+
+- ✅ Comprehensive test coverage across all API modules
+- ✅ Fast execution with Vite
+- ✅ Interactive UI with `npm run test:ui`
+- ✅ Coverage reports with `npm run test:coverage`
 
 ## Requirements
 

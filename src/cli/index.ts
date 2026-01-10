@@ -3,10 +3,8 @@
 import { Command } from 'commander';
 import path from 'node:path';
 import fs from 'node:fs';
-import Ajv from 'ajv';
 import yaml from 'js-yaml';
-import { analyzeAngularProject, buildOWCSSpec , writeOWCSSpec, OutputFormat , convertToOpenAPI} from '../api/index.js';
-import owcsSchema from '../owcs.schema.json' with { type: 'json' };
+import { analyzeAngularProject, buildOWCSSpec , writeOWCSSpec, OutputFormat , convertToOpenAPI, validateOWCSFile} from '../api/index.js';
 
 const program = new Command();
 
@@ -111,30 +109,15 @@ program
       
       console.log(`🔍 Validating ${filePath}...`);
       
-      // Read and parse the file
-      const content = fs.readFileSync(filePath, 'utf-8');
-      let spec: unknown;
+      // Validate using the validator API
+      const result = validateOWCSFile(filePath);
       
-      if (filePath.endsWith('.yaml') || filePath.endsWith('.yml')) {
-        spec = yaml.load(content);
-      } else if (filePath.endsWith('.json')) {
-        spec = JSON.parse(content);
-      } else {
-        console.error('❌ Error: File must be .yaml, .yml, or .json');
-        process.exit(1);
-      }
-      
-      // Validate against schema
-      const ajv = new Ajv.default({ allErrors: true, strict: false });
-      const validate = ajv.compile(owcsSchema);
-      const valid = validate(spec);
-      
-      if (valid) {
+      if (result.valid) {
         console.log('✅ Specification is valid!');
       } else {
         console.error('❌ Validation errors:');
-        for (const error of validate.errors || []) {
-          console.error(`  - ${error.instancePath}: ${error.message}`);
+        for (const error of result.errors || []) {
+          console.error(`  - ${error}`);
         }
         process.exit(1);
       }

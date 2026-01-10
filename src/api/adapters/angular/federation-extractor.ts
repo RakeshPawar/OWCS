@@ -6,7 +6,7 @@ import { RuntimeModel } from '../../model/intermediate.js';
 /**
  * Extracts Module Federation configuration from webpack config
  */
-export function extractFederationConfig(projectRoot: string): RuntimeModel {
+export function extractFederationConfig(projectRoot: string): RuntimeModel{
   const webpackConfigPath = findWebpackConfig(projectRoot);
   
   if (!webpackConfigPath) {

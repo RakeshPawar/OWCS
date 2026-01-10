@@ -14,8 +14,7 @@ module.exports = {
       library: { type: 'module' },
       filename: 'remoteEntry.js',
       exposes: {
-        './UserCard': './examples/angular/user-card.component.ts',
-        './AnotherComponent': './examples/angular/another.component.ts'
+        './user-card': './examples/angular/user-card.wc.ts',
       },
       shared: {
         '@angular/core': { singleton: true, strictVersion: true },

@@ -2,7 +2,7 @@ import Ajv,{ValidateFunction} from 'ajv';
 import fs from 'node:fs';
 import yaml from 'js-yaml';
 import { OWCSSpec } from '../model/intermediate.js';
-import owcsSchema from '../../owcs.schema.json' with { type: 'json' };
+import { getSchema, SchemaVersion, DEFAULT_SCHEMA_VERSION, getAvailableVersions, AVAILABLE_SCHEMAS } from '../../schemas/index.js';
 
 /**
  * Validates OWCS specifications against the schema
@@ -10,21 +10,54 @@ import owcsSchema from '../../owcs.schema.json' with { type: 'json' };
 export class OWCSValidator {
   private ajv: any;
   private validate: ValidateFunction;
+  private schemaVersion: SchemaVersion;
   
-  constructor() {
+  /**
+   * @param version - Schema version to use for validation (defaults to 'latest')
+   */
+  constructor(version: SchemaVersion = DEFAULT_SCHEMA_VERSION) {
+    this.schemaVersion = version;
     this.ajv = new Ajv.default({
       allErrors: true,
       strict: false,
       validateFormats: true,
     });
     
-    this.validate = this.ajv.compile(owcsSchema);
+    const schema = getSchema(version);
+    this.validate = this.ajv.compile(schema);
+  }
+  
+  /**
+   * Get the schema version used by this validator
+   */
+  public getSchemaVersion(): SchemaVersion {
+    return this.schemaVersion;
+  }
+  
+  /**
+   * Get all available schema versions
+   */
+  public static getAvailableVersions(): SchemaVersion[] {
+    return getAvailableVersions();
   }
   
   /**
    * Validates an OWCS spec object
    */
   public validateSpec(spec: unknown): { valid: boolean; errors?: string[] } {
+  if (!spec || typeof spec !== "object" || !("owcs" in spec)) {
+    return { valid: false, errors: ["Missing owcs version"] };
+  }
+
+  const version = (spec as { owcs: SchemaVersion }).owcs;
+console.log("Validating spec with OWCS version:", version);
+  if (version  && AVAILABLE_SCHEMAS[ this.schemaVersion ]!== AVAILABLE_SCHEMAS[version]) {
+    return {
+      valid: false,
+      errors: [`Unsupported OWCS version: ${version}`],
+    };
+  }
+    
     const valid = this.validate(spec);
     
     if (!valid && this.validate.errors) {
@@ -77,16 +110,26 @@ export class OWCSValidator {
 
 /**
  * Convenience function to validate OWCS spec
+ * @param spec - The spec to validate
+ * @param version - Schema version to use (defaults to 'latest')
  */
-export function validateOWCSSpec(spec: unknown): { valid: boolean; errors?: string[] } {
-  const validator = new OWCSValidator();
+export function validateOWCSSpec(
+  spec: unknown,
+  version?: SchemaVersion
+): { valid: boolean; errors?: string[] } {
+  const validator = new OWCSValidator(version);
   return validator.validateSpec(spec);
 }
 
 /**
  * Convenience function to validate OWCS file
+ * @param filePath - Path to the file to validate
+ * @param version - Schema version to use (defaults to 'latest')
  */
-export function validateOWCSFile(filePath: string): { valid: boolean; errors?: string[] } {
-  const validator = new OWCSValidator();
+export function validateOWCSFile(
+  filePath: string,
+  version?: SchemaVersion
+): { valid: boolean; errors?: string[] } {
+  const validator = new OWCSValidator(version);
   return validator.validateFile(filePath);
 }

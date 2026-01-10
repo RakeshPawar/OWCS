@@ -4,6 +4,9 @@ dist/
 .DS_Store
 *.tsbuildinfo
 
+# Test coverage
+coverage/
+
 # Verdaccio local registry
 verdaccio-storage/
 htpasswd
