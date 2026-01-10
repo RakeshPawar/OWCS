@@ -5,10 +5,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import Ajv from 'ajv';
 import yaml from 'js-yaml';
-import { analyzeAngularProject } from '../adapters/angular/index.js';
-import { buildOWCSSpec } from '../core/schema-builder.js';
-import { writeOWCSSpec, OutputFormat } from '../core/yaml-writer.js';
-import { convertToOpenAPI } from '../openapi/converter.js';
+import { analyzeAngularProject, buildOWCSSpec , writeOWCSSpec, OutputFormat , convertToOpenAPI} from '../api/index.js';
 import owcsSchema from '../owcs.schema.json' with { type: 'json' };
 
 const program = new Command();

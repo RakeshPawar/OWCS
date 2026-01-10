@@ -2,7 +2,7 @@ import Ajv,{ValidateFunction} from 'ajv';
 import fs from 'node:fs';
 import yaml from 'js-yaml';
 import { OWCSSpec } from '../model/intermediate.js';
-import owcsSchema from '../owcs.schema.json' with { type: 'json' };
+import owcsSchema from '../../owcs.schema.json' with { type: 'json' };
 
 /**
  * Validates OWCS specifications against the schema

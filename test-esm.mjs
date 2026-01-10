@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Test ESM imports
 
-import { analyzeAngularProject, buildOWCSSpec, convertToOpenAPI } from './dist/index.js';
+import { analyzeAngularProject, buildOWCSSpec, convertToOpenAPI } from './dist/api/index.js';
 
 console.log('✅ ESM import successful!');
 console.log('Available exports:');
