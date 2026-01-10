@@ -1,12 +1,12 @@
 import * as ts from 'typescript';
-import { PropModel, JSONSchema } from '../../model/intermediate';
+import { PropModel, JSONSchema } from '../../model/intermediate.js';
 import {
   getClassProperties,
   findDecorator,
   getDecoratorArgument,
   getStringLiteralValue,
   isPropertyOptional,
-} from '../../core/ast-walker';
+} from '../../core/ast-walker.js';
 
 /**
  * Extracts props from an Angular component class using @Input() decorators and input signals

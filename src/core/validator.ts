@@ -1,18 +1,18 @@
-import Ajv from 'ajv';
-import * as fs from 'fs';
-import * as yaml from 'js-yaml';
-import { OWCSSpec } from '../model/intermediate';
-import owcsSchema from '../owcs.schema.json';
+import Ajv,{ValidateFunction} from 'ajv';
+import fs from 'node:fs';
+import yaml from 'js-yaml';
+import { OWCSSpec } from '../model/intermediate.js';
+import owcsSchema from '../owcs.schema.json' with { type: 'json' };
 
 /**
  * Validates OWCS specifications against the schema
  */
 export class OWCSValidator {
-  private ajv: Ajv;
-  private validate: any;
+  private ajv: any;
+  private validate: ValidateFunction;
   
   constructor() {
-    this.ajv = new Ajv({
+    this.ajv = new Ajv.default({
       allErrors: true,
       strict: false,
       validateFormats: true,

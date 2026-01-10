@@ -1,12 +1,12 @@
 import * as ts from 'typescript';
-import { EventModel, JSONSchema } from '../../model/intermediate';
+import { EventModel, JSONSchema } from '../../model/intermediate.js';
 import {
   getClassProperties,
   findDecorator,
   findCallExpressions,
   isMethodCall,
   getStringLiteralValue,
-} from '../../core/ast-walker';
+} from '../../core/ast-walker.js';
 
 /**
  * Extracts events from an Angular component class

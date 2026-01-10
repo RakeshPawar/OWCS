@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
-import * as fs from 'fs';
-import * as path from 'path';
-import { RuntimeModel } from '../../model/intermediate';
+import fs from 'node:fs';
+import path from 'node:path';
+import { RuntimeModel } from '../../model/intermediate.js';
 
 /**
  * Extracts Module Federation configuration from webpack config

@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
-import { findCallExpressions, getStringLiteralValue } from '../../core/ast-walker';
-import * as path from 'path';
+import { findCallExpressions, getStringLiteralValue } from '../../core/ast-walker.js';
+import path from 'node:path';
 
 /**
  * Component registration info extracted from customElements.define()

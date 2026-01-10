@@ -1,4 +1,4 @@
-import { OWCSSpec, JSONSchema } from '../model/intermediate';
+import { OWCSSpec, JSONSchema } from '../model/intermediate.js';
 
 /**
  * OpenAPI 3.1 specification structure (partial)

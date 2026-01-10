@@ -18,6 +18,11 @@ A TypeScript library for generating OWCS (Open Web Component Specification) from
 npm install owcs
 ```
 
+## Requirements
+
+- **Node.js >= 18.0.0** (ESM-only package)
+- TypeScript >= 5.0
+
 ## Quick Start
 
 ### CLI Usage
@@ -46,6 +51,8 @@ npx owcs info owcs.yaml
 
 ### Programmatic Usage
 
+**ESM (ES Modules):**
+
 ```typescript
 import { analyzeAngularProject, buildOWCSSpec, writeOWCSSpec } from 'owcs';
 
@@ -61,6 +68,17 @@ const owcsSpec = buildOWCSSpec(intermediateModel, {
 
 // Write to file
 writeOWCSSpec(owcsSpec, 'owcs.yaml', 'yaml');
+```
+
+**Using Angular Adapter:**
+
+```typescript
+import { generateAngular } from 'owcs/adapters/angular';
+
+const spec = generateAngular('./my-project', {
+  title: 'My Components',
+  version: '1.0.0'
+});
 ```
 
 ## Architecture
@@ -89,6 +107,8 @@ interface WebComponentModel {
 Adapters analyze framework-specific code and produce the ICM:
 
 ```typescript
+import { AngularAdapter } from 'owcs';
+
 // Angular Adapter
 const adapter = new AngularAdapter('./project-root');
 const model = adapter.analyze();
@@ -265,7 +285,7 @@ npm run dev
 
 ## Requirements
 
-- Node.js >= 16
+- **Node.js >= 18.0.0** (ESM-only package)
 - TypeScript >= 5.0
 
 ## License

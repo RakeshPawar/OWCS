@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import * as path from 'path';
-import * as fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
 import Ajv from 'ajv';
-import * as yaml from 'js-yaml';
-import { analyzeAngularProject } from '../adapters/angular';
-import { buildOWCSSpec } from '../core/schema-builder';
-import { writeOWCSSpec, OutputFormat } from '../core/yaml-writer';
-import { convertToOpenAPI } from '../openapi/converter';
-import owcsSchema from '../owcs.schema.json';
+import yaml from 'js-yaml';
+import { analyzeAngularProject } from '../adapters/angular/index.js';
+import { buildOWCSSpec } from '../core/schema-builder.js';
+import { writeOWCSSpec, OutputFormat } from '../core/yaml-writer.js';
+import { convertToOpenAPI } from '../openapi/converter.js';
+import owcsSchema from '../owcs.schema.json' with { type: 'json' };
 
 const program = new Command();
 
@@ -128,7 +128,7 @@ program
       }
       
       // Validate against schema
-      const ajv = new Ajv({ allErrors: true, strict: false });
+      const ajv = new Ajv.default({ allErrors: true, strict: false });
       const validate = ajv.compile(owcsSchema);
       const valid = validate(spec);
       

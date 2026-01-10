@@ -1,4 +1,4 @@
-import { IntermediateModel, OWCSSpec, OWCSComponent, JSONSchema } from '../model/intermediate';
+import { IntermediateModel, OWCSSpec, OWCSComponent, JSONSchema } from '../model/intermediate.js';
 
 /**
  * Builds OWCS specification from IntermediateModel

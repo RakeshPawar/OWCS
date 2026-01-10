@@ -1,6 +1,6 @@
-import * as yaml from 'js-yaml';
-import * as fs from 'fs';
-import { OWCSSpec } from '../model/intermediate';
+import yaml from 'js-yaml';
+import fs from 'node:fs';
+import { OWCSSpec } from '../model/intermediate.js';
 
 /**
  * Output format for OWCS specification

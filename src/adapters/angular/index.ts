@@ -1,14 +1,14 @@
 import * as ts from 'typescript';
-import * as path from 'path';
-import { IntermediateModel, WebComponentModel } from '../../model/intermediate';
+import path from 'node:path';
+import { IntermediateModel, WebComponentModel } from '../../model/intermediate.js';
 import {
   discoverComponents,
   findClassByName,
   getModulePath,
-} from './component-discovery';
-import { extractProps } from './props-extractor';
-import { extractEvents } from './events-extractor';
-import { extractFederationConfig } from './federation-extractor';
+} from './component-discovery.js';
+import { extractProps } from './props-extractor.js';
+import { extractEvents } from './events-extractor.js';
+import { extractFederationConfig } from './federation-extractor.js';
 
 /**
  * Angular adapter - analyzes Angular source code and produces IntermediateModel

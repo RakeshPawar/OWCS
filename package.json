@@ -2,20 +2,24 @@
   "name": "owcs",
   "version": "1.0.0",
   "description": "Open Web Component Specification - Generate OWCS specs from framework code",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "type": "module",
   "bin": {
-    "owcs": "dist/cli/index.js"
+    "owcs": "./dist/cli/index.js"
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./dist/types/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./adapters/angular": {
+      "types": "./dist/types/adapters/angular/index.d.ts",
+      "default": "./dist/adapters/angular/index.js"
     }
   },
   "files": ["dist"],
+  "sideEffects": false,
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "build": "tsc",
