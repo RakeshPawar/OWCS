@@ -1,16 +1,15 @@
 # OWCS - Open Web Component Specification
 
-A TypeScript library for generating OWCS (Open Web Component Specification) from framework source code using static AST analysis.
+Generate standardized specifications for your web components automatically. OWCS analyzes your Angular components and creates documentation and configuration files that help you share and use components across projects.
 
-## Features
+## What is OWCS?
 
-- 🔍 **AST-based Analysis** - Uses TypeScript Compiler API for accurate, regex-free parsing
-- 🎯 **Angular Support** - Full support for Angular components with decorators
-- 📦 **Module Federation** - Extracts webpack Module Federation configuration
-- 📝 **YAML & JSON Output** - Generate specifications in multiple formats
-- 🔄 **OpenAPI Conversion** - Convert OWCS specs to OpenAPI 3.1
-- ✅ **Validation** - Built-in schema validation
-- 🧩 **Extensible** - Adapter-based architecture for multiple frameworks
+OWCS creates detailed specifications from your existing Angular components, including:
+
+- **Component properties** (inputs) with types and validation
+- **Events** (outputs) that components emit
+- **Module federation** configuration for micro-frontends
+- **OpenAPI documentation** for integration
 
 ## Installation
 
@@ -20,174 +19,120 @@ npm install owcs
 
 ## Requirements
 
-- **Node.js >= 18.0.0** (ESM-only package)
-- TypeScript >= 5.0
+- Node.js 18+
+- TypeScript project with Angular components
 
 ## Quick Start
 
-### CLI Usage
-
-Generate OWCS specification from your Angular project:
+**Generate a specification from your Angular project:**
 
 ```bash
-# Generate YAML (default)
 npx owcs generate
+```
 
-# Generate JSON
+This creates an `owcs.yaml` file describing your components.
+
+**Common options:**
+
+```bash
+# Generate JSON instead of YAML
 npx owcs generate --format json
 
 # Specify output file
-npx owcs generate --output my-spec.yaml
+npx owcs generate --output my-components.yaml
 
-# Also generate OpenAPI spec
+# Also create OpenAPI documentation
 npx owcs generate --openapi
 
-# Validate a spec
+# Validate an existing specification
 npx owcs validate owcs.yaml
-
-# Show spec info
-npx owcs info owcs.yaml
 ```
 
-### Programmatic Usage
+## Using in Code
 
-**ESM (ES Modules):**
+If you need to generate specifications programmatically:
 
 ```typescript
 import { analyzeAngularProject, buildOWCSSpec, writeOWCSSpec } from 'owcs';
 
-// Analyze Angular project
-const intermediateModel = analyzeAngularProject('./my-project');
+// Analyze your Angular project
+const analysis = analyzeAngularProject('./src');
 
-// Build OWCS spec
-const owcsSpec = buildOWCSSpec(intermediateModel, {
+// Create specification
+const spec = buildOWCSSpec(analysis, {
   title: 'My Components',
   version: '1.0.0',
-  description: 'Web component library'
 });
 
-// Write to file
-writeOWCSSpec(owcsSpec, 'owcs.yaml', 'yaml');
+// Save to file
+writeOWCSSpec(spec, 'owcs.yaml', 'yaml');
 ```
 
-**Using Angular Adapter:**
+## What Gets Analyzed
+
+OWCS examines your Angular components and extracts:
+
+### Component Registration
 
 ```typescript
-import { generateAngular } from 'owcs/adapters/angular';
-
-const spec = generateAngular('./my-project', {
-  title: 'My Components',
-  version: '1.0.0'
-});
+// Finds web component definitions
+customElements.define('user-card', UserCardComponent);
 ```
 
-## Architecture
-
-### Intermediate Component Model (ICM)
-
-The library uses an intermediate representation that all adapters produce:
+### Input Properties
 
 ```typescript
-interface IntermediateModel {
-  runtime: RuntimeModel;
-  components: WebComponentModel[];
-}
-
-interface WebComponentModel {
-  tagName: string;
-  className: string;
-  modulePath: string;
-  props: PropModel[];
-  events: EventModel[];
-}
+@Input() name: string;        // Required string property
+@Input() age?: number;        // Optional number property
+@Input('userId') id: string;  // Property with custom attribute name
 ```
 
-### Adapter Pattern
-
-Adapters analyze framework-specific code and produce the ICM:
+### Output Events
 
 ```typescript
-import { AngularAdapter } from 'owcs';
+@Output() clicked = new EventEmitter<{userId: string}>();
 
-// Angular Adapter
-const adapter = new AngularAdapter('./project-root');
-const model = adapter.analyze();
-```
-
-## Angular Support
-
-### Component Discovery
-
-Detects web components via `customElements.define()`:
-
-```typescript
-@Component({...})
-export class MyComponent {
-  @Input() name: string;
-  @Output() clicked = new EventEmitter<string>();
-}
-
-customElements.define('my-component', MyComponent);
-```
-
-### Props Extraction
-
-Extracts `@Input()` decorators with full type information:
-
-```typescript
-@Input() title: string;              // Required string
-@Input() count?: number;             // Optional number
-@Input('data-id') id: string;        // With attribute alias
-```
-
-### Events Extraction
-
-Supports both `@Output()` and `dispatchEvent()`:
-
-```typescript
-// Angular Output
-@Output() changed = new EventEmitter<{value: string}>();
-
-// Native CustomEvent
-this.dispatchEvent(new CustomEvent('changed', {
-  detail: { value: 'test' }
+// Also detects custom events
+this.dispatchEvent(new CustomEvent('userChanged', {
+  detail: { name: 'John', age: 30 }
 }));
 ```
 
-### Module Federation
-
-Automatically extracts webpack Module Federation configuration:
+### Module Federation Configuration
 
 ```javascript
+// Extracts from webpack.config.js
 new ModuleFederationPlugin({
-  name: 'myRemote',
-  library: { type: 'module' },
+  name: 'userComponents',
   exposes: {
-    './Component': './src/app/my-component'
-  }
-})
+    './UserCard': './src/user-card.component.ts',
+  },
+});
 ```
 
-## OWCS Output Format
+## Generated Specification
+
+OWCS creates a YAML file that describes your components:
 
 ```yaml
 owcs: 1.0.0
 info:
   title: My Components
   version: 1.0.0
+
 runtime:
   bundler:
     name: webpack
     moduleFederation:
-      remoteName: myRemote
-      libraryType: module
+      remoteName: userComponents
       exposes:
-        ./Component: ./src/app/my-component
+        ./UserCard: ./src/user-card.component.ts
+
 components:
   webComponents:
-    my-component:
-      tagName: my-component
-      module: ./Component
+    user-card:
+      tagName: user-card
+      module: ./UserCard
       props:
         schema:
           type: object
@@ -196,134 +141,54 @@ components:
               type: string
             age:
               type: number
-          required:
-            - name
+          required: [name]
       events:
         clicked:
           type: CustomEvent
           payload:
             type: object
             properties:
-              value:
+              userId:
                 type: string
 ```
 
-## OpenAPI Conversion
+## OpenAPI Integration
 
-Convert OWCS to OpenAPI 3.1:
+Convert your component specification to OpenAPI format for API documentation:
 
-```typescript
-import { convertToOpenAPI } from 'owcs';
-
-const openApiSpec = convertToOpenAPI(owcsSpec);
+```bash
+npx owcs generate --openapi
 ```
 
-This generates Swagger-compatible API specifications with:
-- Props as request body schemas
-- Events as callbacks
-- Full JSON Schema support
+This creates both `owcs.yaml` and `openapi.yaml` files, making your components discoverable by API documentation tools like Swagger UI.
 
-## CLI Commands
+## Commands
 
-### `owcs generate`
+| Command                | Description                                      |
+| ---------------------- | ------------------------------------------------ |
+| `owcs generate`        | Generate specification from your Angular project |
+| `owcs validate <file>` | Check if a specification file is valid           |
+| `owcs info <file>`     | Show details about a specification file          |
 
-Generate OWCS specification from source code.
+### Generate Options
 
-Options:
-- `-f, --format <format>` - Output format (yaml or json)
-- `-o, --output <file>` - Output file path
-- `-p, --project <path>` - Project root path
-- `-t, --tsconfig <path>` - Path to tsconfig.json
+- `-f, --format <format>` - Output format: `yaml` (default) or `json`
+- `-o, --output <file>` - Output file path (default: `owcs.yaml`)
+- `-p, --project <path>` - Project directory (default: current directory)
 - `--title <title>` - Specification title
 - `--version <version>` - Specification version
-- `--openapi` - Also generate OpenAPI spec
-
-### `owcs validate`
-
-Validate an OWCS specification file against the schema.
-
-```bash
-npx owcs validate owcs.yaml
-```
-
-### `owcs info`
-
-Display information about an OWCS specification.
-
-```bash
-npx owcs info owcs.yaml
-```
-
-## API Reference
-
-### Core Functions
-
-- `analyzeAngularProject(projectRoot, tsConfigPath?)` - Analyze Angular project
-- `buildOWCSSpec(model, info?)` - Build OWCS spec from intermediate model
-- `writeOWCSSpec(spec, filePath, format)` - Write spec to file
-- `convertToOpenAPI(owcsSpec)` - Convert to OpenAPI 3.1
-
-### Classes
-
-- `AngularAdapter` - Angular framework adapter
-- `SchemaBuilder` - Builds OWCS spec from ICM
-- `YAMLWriter` - Handles YAML/JSON output
-- `OpenAPIConverter` - Converts OWCS to OpenAPI
-
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Build
-npm run build
-
-# Watch mode
-npm run dev
-
-# Run tests
-npm test
-
-# Run tests with UI
-npm run test:ui
-
-# Run tests with coverage
-npm run test:coverage
-```
-
-## Testing
-
-This project uses **Vitest** for unit testing. See [TESTING.md](TESTING.md) for details.
-
-- ✅ Comprehensive test coverage across all API modules
-- ✅ Fast execution with Vite
-- ✅ Interactive UI with `npm run test:ui`
-- ✅ Coverage reports with `npm run test:coverage`
-
-## Requirements
-
-- **Node.js >= 18.0.0** (ESM-only package)
-- TypeScript >= 5.0
-
-## License
-
-MIT
+- `--openapi` - Also generate OpenAPI documentation
 
 ## Contributing
 
-Contributions welcome! The architecture is designed to be extensible:
+Want to help improve OWCS? Contributions are welcome! The project is designed to support multiple frameworks:
 
-1. Create new adapters for other frameworks (React, Vue, etc.)
-2. Enhance existing adapters with more features
-3. Improve type inference and schema generation
+- **Add framework support** - Create adapters for React, Vue, or other frameworks
+- **Enhance Angular support** - Add features like template parsing or CSS custom properties
+- **Improve documentation** - Help make the docs even more user-friendly
 
-## Roadmap
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 
-- [ ] Template parsing support
-- [ ] React adapter
-- [ ] Vue adapter
-- [ ] Slots/content projection support
-- [ ] CSS custom properties extraction
-- [ ] Enhanced OpenAPI features
-- [ ] Visual documentation generator
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.

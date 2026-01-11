@@ -1,8 +1,8 @@
-# Verdaccio Local Publishing
+# Local Development with Verdaccio
 
-## Local NPM Registry for OWCS Development
+> **Note**: This guide is for OWCS contributors and maintainers who need to test the package locally before publishing. End users should install OWCS from npm: `npm install owcs`.
 
-This directory contains configuration for publishing OWCS to a local npm registry using Verdaccio.
+This directory contains configuration for publishing OWCS to a local npm registry using Verdaccio for development and testing purposes.
 
 ### Prerequisites
 
@@ -35,6 +35,7 @@ npm adduser --registry http://localhost:4873
 ```
 
 Enter your credentials:
+
 - Username: test
 - Password: test
 - Email: test@test.com
@@ -66,17 +67,18 @@ npm install owcs
 
 ### Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run verdaccio:start` | Start the Verdaccio server |
-| `npm run verdaccio:publish` | Publish package to local registry |
-| `npm run verdaccio:unpublish` | Remove package from local registry |
-| `npm run verdaccio:set` | Set npm registry to local Verdaccio |
-| `npm run verdaccio:reset` | Reset npm registry to default (npmjs) |
+| Script                        | Description                           |
+| ----------------------------- | ------------------------------------- |
+| `npm run verdaccio:start`     | Start the Verdaccio server            |
+| `npm run verdaccio:publish`   | Publish package to local registry     |
+| `npm run verdaccio:unpublish` | Remove package from local registry    |
+| `npm run verdaccio:set`       | Set npm registry to local Verdaccio   |
+| `npm run verdaccio:reset`     | Reset npm registry to default (npmjs) |
 
 ### Best Practices
 
 1. **Version Management**: Update the version in `package.json` before each publish
+
    ```bash
    npm version patch  # 1.0.0 -> 1.0.1
    npm version minor  # 1.0.0 -> 1.1.0
@@ -85,6 +87,7 @@ npm install owcs
    ```
 
 2. **Clean Build**: Always ensure a clean build before publishing
+
    ```bash
    rm -rf dist
    npm run build
@@ -92,6 +95,7 @@ npm install owcs
    ```
 
 3. **Testing Before Publish**: Test the build in a separate project
+
    ```bash
    # In a test project
    npm install /path/to/OWCS
@@ -104,6 +108,7 @@ npm install owcs
    - Backup periodically if needed
 
 5. **Multiple Projects**: Use `.npmrc` files in consumer projects
+
    ```
    # In consumer project's .npmrc
    registry=http://localhost:4873
@@ -117,7 +122,9 @@ npm install owcs
 ### Troubleshooting
 
 #### Port Already in Use
+
 If port 4873 is already in use:
+
 ```bash
 # Find the process
 lsof -i :4873
@@ -126,19 +133,23 @@ kill -9 <PID>
 ```
 
 Or change the port in `verdaccio.yaml`:
+
 ```yaml
 listen:
   - 0.0.0.0:4874
 ```
 
 #### Authentication Issues
+
 Clear npm credentials and re-authenticate:
+
 ```bash
 npm logout --registry http://localhost:4873
 npm adduser --registry http://localhost:4873
 ```
 
 #### Cannot Publish - Version Exists
+
 ```bash
 # Unpublish the existing version
 npm run verdaccio:unpublish
@@ -148,7 +159,9 @@ npm run verdaccio:publish
 ```
 
 #### Package Not Found in Consumer Project
+
 Ensure the registry is set:
+
 ```bash
 npm config get registry
 # Should show: http://localhost:4873
@@ -157,13 +170,17 @@ npm config get registry
 ### Advanced Configuration
 
 #### Custom Storage Location
+
 Edit `verdaccio.yaml`:
+
 ```yaml
 storage: /path/to/custom/storage
 ```
 
 #### Proxy Configuration
+
 The configuration proxies unknown packages to npmjs:
+
 ```yaml
 uplinks:
   npmjs:
@@ -171,11 +188,13 @@ uplinks:
 ```
 
 #### Access Control
+
 Modify package access in `verdaccio.yaml`:
+
 ```yaml
 packages:
   'owcs':
-    access: $authenticated  # Require auth to install
+    access: $authenticated # Require auth to install
     publish: $authenticated
 ```
 
@@ -209,6 +228,7 @@ kill $VERDACCIO_PID
 ### Web Interface
 
 Access the Verdaccio web UI at `http://localhost:4873` to:
+
 - Browse published packages
 - View package details
 - Search packages

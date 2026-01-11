@@ -1,53 +1,26 @@
-# OWCS Schema Versioning
+# Schema Validation
 
-This directory contains versioned schemas for the Open Web Component Specification (OWCS).
+> **Note**: This is technical documentation for developers working with OWCS schemas. Most users don't need to read this.
 
-## Directory Structure
+OWCS uses JSON Schema to validate generated specifications. The current version supports:
 
+- **OWCS 1.0.0** - Current stable version
+
+## For End Users
+
+You typically don't need to work with schemas directly. OWCS handles validation automatically:
+
+```bash
+# Validation happens automatically during generation
+npx owcs generate
+
+# Manually validate a specification
+npx owcs validate owcs.yaml
 ```
-schemas/
-├── index.ts                          # Schema version management
-├── index.test.ts                     # Tests for schema versioning
-├── README.md                         # This file
-└── v1/
-    └── owcs-schema-v1.0.0.json      # Version 1.0.0 schema
-```
 
-## Version Management
+## For Developers
 
-The schema versioning system provides a centralized way to manage multiple versions of the OWCS schema. This allows for:
-
-- **Backward compatibility**: Older specifications can be validated against their original schema version
-- **Forward compatibility**: New schema versions can be added without breaking existing code
-- **Flexible version aliases**: Support for multiple version formats (e.g., `1`, `1.0`, `1.0.0`)
-
-## Supported Versions
-
-### Version 1.x
-
-All v1.x schemas are located in the `v1/` directory:
-
-- **1.0.0** - Full semantic version
-- **1.0** - Minor version alias (points to 1.0.0)
-- **1** - Major version alias (points to 1.0.0)
-- **latest** - Always points to the most recent stable version
-
-## Usage
-
-### Basic Usage
-
-```typescript
-import { getSchema, OWCSValidator } from './schemas';
-
-// Get latest schema
-const schema = getSchema();
-
-// Get specific version
-const schemaV1 = getSchema('1.0.0');
-
-// Create validator with specific version
-const validator = new OWCSValidator('1.0.0');
-```
+The schema system supports versioning for backward compatibility:
 
 ### Validation with Versions
 

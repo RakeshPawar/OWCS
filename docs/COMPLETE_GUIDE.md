@@ -1,88 +1,32 @@
-# OWCS Library - Complete Implementation
+# Developer Guide
 
-## 🎉 Project Status: COMPLETE ✅
+This guide covers advanced usage, API details, and development setup for OWCS contributors and power users.
 
-A fully functional TypeScript library for generating Open Web Component Specifications from Angular source code using pure AST-based analysis.
-
-## 📋 Table of Contents
-
-1. [Installation](#installation)
-2. [Quick Start](#quick-start)
-3. [Architecture](#architecture)
-4. [API Documentation](#api-documentation)
-5. [Examples](#examples)
-6. [Testing](#testing)
-
-## Installation
+## Development Setup
 
 ```bash
-# Clone or navigate to the project
-cd /Users/rakesh/Personal/work/OWCS
-
-# Install dependencies
+# Clone and setup the project
+git clone <repository-url>
+cd OWCS
 npm install
-
-# Build the project
 npm run build
-
-## Quick Start
-
-### CLI Usage
-
-```bash
-# Generate OWCS spec from Angular project
-npx owcs generate
-
-# With options
-npx owcs generate \
-  --format yaml \
-  --output my-spec.yaml \
-  --project ./my-angular-project \
-  --title "My Components" \
-  --openapi
-
-# Validate a specification
-npx owcs validate owcs.yaml
-
-# Show specification details
-npx owcs info owcs.yaml
 ```
 
-### Programmatic Usage
+## Architecture Deep Dive
 
-```typescript
-import { 
-  analyzeAngularProject, 
-  buildOWCSSpec, 
-  writeOWCSSpec,
-  convertToOpenAPI 
-} from 'owcs';
+### Core Components
 
-// 1. Analyze Angular project
-const model = analyzeAngularProject('./my-project');
+The library is built with a modular architecture:
 
-// 2. Build OWCS specification
-const owcsSpec = buildOWCSSpec(model, {
-  title: 'My Web Components',
-  version: '1.0.0',
-  description: 'Component library'
-});
-
-// 3. Write to file
-writeOWCSSpec(owcsSpec, 'owcs.yaml', 'yaml');
-
-// 4. Convert to OpenAPI
-const openApiSpec = convertToOpenAPI(owcsSpec);
 ```
-
-## Architecture
-
-### Design Principles
-
-1. **AST-Based Analysis** - Zero regex, pure TypeScript Compiler API
-2. **Adapter Pattern** - Framework-agnostic core with pluggable adapters
-3. **Type Safety** - Full TypeScript with strict mode, no `any` types
-4. **Separation of Concerns** - Clear boundaries between modules
+src/
+├── cli/                    # Command-line interface
+├── api/                    # Program interface
+  ├── core/                   # Core functionality (AST, schema building)
+  ├── adapters/               # Framework-specific adapters
+  ├── model/                  # TypeScript type definitions
+  └── openapi/                # OpenAPI conversion
+```
 
 ### Data Flow
 
@@ -117,34 +61,180 @@ const openApiSpec = convertToOpenAPI(owcsSpec);
       └────────┘  └────────┘  └──────────┘
 ```
 
+### Intermediate Component Model
+
+The ICM provides a framework-agnostic representation:
+
+```typescript
+interface IntermediateModel {
+  runtime: RuntimeModel; // Build/federation config
+  components: WebComponentModel[]; // Component definitions
+}
+
+interface WebComponentModel {
+  tagName: string; // HTML tag name
+  className: string; // TypeScript class name
+  modulePath: string; // File path
+  props: PropModel[]; // Input properties
+  events: EventModel[]; // Output events
+}
+```
+
+## API Reference
+
+### Core Functions
+
+```typescript
+// Main analysis function
+analyzeAngularProject(
+  projectRoot: string,
+  tsConfigPath?: string
+): IntermediateModel
+
+// Build OWCS specification
+buildOWCSSpec(
+  model: IntermediateModel,
+  info?: SpecInfo
+): OWCSSpec
+
+// Write to file
+writeOWCSSpec(
+  spec: OWCSSpec,
+  filePath: string,
+  format: 'yaml' | 'json'
+): void
+
+// Convert to OpenAPI
+convertToOpenAPI(spec: OWCSSpec): OpenAPISpec
+
+// Validation
+validateOWCSSpec(spec: OWCSSpec): ValidationResult
+validateOWCSFile(filePath: string): ValidationResult
+```
+
+### Angular Adapter
+
+```typescript
+import { AngularAdapter } from 'owcs';
+
+const adapter = new AngularAdapter('./project-root');
+const model = adapter.analyze();
+
+// Advanced usage with TypeScript config
+const modelWithConfig = adapter.analyze('./tsconfig.app.json');
+```
+
+## Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run with UI
+npm run test:ui
+
+# Coverage report
+npm run test:coverage
+
+# Run specific test file
+npm test -- component-discovery.test.ts
+```
+
+## Adding Framework Support
+
+To add support for a new framework (e.g., React, Vue):
+
+1. **Create adapter directory**: `src/adapters/react/`
+2. **Implement base adapter**: Extend or implement adapter interface
+3. **Add framework-specific extractors**: Props, events, registration
+4. **Add tests**: Test against real framework code
+5. **Update exports**: Add to main index.ts
+
+Example structure:
+
+```
+src/adapters/react/
+├── index.ts              # Main adapter
+├── component-discovery.ts # Find React components
+├── props-extractor.ts     # Extract props/PropTypes
+├── events-extractor.ts    # Extract event handlers
+└── *.test.ts             # Tests
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**"Cannot find customElements.define"**
+
+- Ensure your components register as web components
+- Check that customElements.define() calls are in the analyzed files
+
+**"TypeScript parsing errors"**
+
+- Verify tsconfig.json is valid
+- Check that all imported modules are available
+- Use `--tsconfig` flag to specify correct config
+
+**"Module federation not detected"**
+
+- Ensure webpack.config.js exists in project root
+- Verify ModuleFederationPlugin configuration is valid
+- Check that exposes paths match component locations
+
+## Performance
+
+- **AST parsing**: Uses TypeScript Compiler API for accuracy
+- **Memory usage**: Processes files incrementally
+- **Large projects**: Consider using `include/exclude` patterns in tsconfig.json
+
+## Schema Validation
+
+OWCS uses JSON Schema for validation:
+
+```typescript
+import { getSchema, OWCSValidator } from 'owcs/schemas';
+
+// Get schema for specific version
+const schema = getSchema('1.0.0');
+
+// Create validator
+const validator = new OWCSValidator('1.0.0');
+const result = validator.validate(spec);
+```
+
 ### Module Structure
 
 ```
+
 src/
-├── cli/                         # Command-line interface
-│   └── index.ts                # Commands: generate, validate, info
+├── cli/ # Command-line interface
+│ └── index.ts # Commands: generate, validate, info
 │
-├── core/                        # Core functionality
-│   ├── ast-walker.ts           # Generic AST utilities
-│   ├── schema-builder.ts       # IntermediateModel → OWCSSpec
-│   ├── yaml-writer.ts          # Output formatting
-│   └── validator.ts            # JSON Schema validation
+├── api/ # Program interface
+│ ├── core/ # Core functionality
+│ │ ├── ast-walker.ts # Generic AST utilities
+│ │ ├── schema-builder.ts # IntermediateModel → OWCSSpec
+│ │ ├── yaml-writer.ts # Output formatting
+│ │ └── validator.ts # JSON Schema validation
+│ │
+│ ├── adapters/ # Framework adapters
+│ │ └── angular/
+│ │ ├── index.ts # Main adapter class
+│ │ ├── component-discovery.ts # Find components
+│ │ ├── props-extractor.ts # Extract @Input()
+│ │ ├── events-extractor.ts # Extract @Output()
+│ │ └── federation-extractor.ts # Parse webpack config
+│ │
+│ ├── model/ # Type definitions
+│ │ └── intermediate.ts # All interfaces & types
+│ │
+│ ├── openapi/ # OpenAPI conversion
+│   └── converter.ts # OWCS → OpenAPI 3.1
 │
-├── adapters/                    # Framework adapters
-│   └── angular/
-│       ├── index.ts            # Main adapter class
-│       ├── component-discovery.ts  # Find components
-│       ├── props-extractor.ts      # Extract @Input()
-│       ├── events-extractor.ts     # Extract @Output()
-│       └── federation-extractor.ts # Parse webpack config
-│
-├── model/                       # Type definitions
-│   └── intermediate.ts         # All interfaces & types
-│
-├── openapi/                     # OpenAPI conversion
-│   └── converter.ts            # OWCS → OpenAPI 3.1
-│
-└── owcs.schema.json            # JSON Schema for validation
+└── schemas /# Json Schema
+  └── owcs.schema.json # JSON Schema for validation
+
 ```
 
 ## API Documentation
@@ -152,6 +242,7 @@ src/
 ### Core Functions
 
 #### `analyzeAngularProject(projectRoot, tsConfigPath?)`
+
 Analyzes an Angular project and returns IntermediateModel.
 
 ```typescript
@@ -160,17 +251,19 @@ const model = analyzeAngularProject('./my-project');
 ```
 
 #### `buildOWCSSpec(model, info?)`
+
 Converts IntermediateModel to OWCSSpec.
 
 ```typescript
 const spec = buildOWCSSpec(model, {
   title: 'My Components',
   version: '1.0.0',
-  description: 'Optional description'
+  description: 'Optional description',
 });
 ```
 
 #### `writeOWCSSpec(spec, filePath, format)`
+
 Writes OWCS specification to a file.
 
 ```typescript
@@ -179,6 +272,7 @@ writeOWCSSpec(spec, 'owcs.json', 'json');
 ```
 
 #### `convertToOpenAPI(owcsSpec)`
+
 Converts OWCS spec to OpenAPI 3.1 format.
 
 ```typescript
@@ -187,6 +281,7 @@ const openApiSpec = convertToOpenAPI(owcsSpec);
 ```
 
 #### `validateOWCSSpec(spec)` / `validateOWCSFile(filePath)`
+
 Validates OWCS specifications.
 
 ```typescript
@@ -199,6 +294,7 @@ if (!result.valid) {
 ### Classes
 
 #### `AngularAdapter`
+
 Main adapter for Angular projects.
 
 ```typescript
@@ -207,6 +303,7 @@ const model = adapter.analyze();
 ```
 
 #### `SchemaBuilder`
+
 Builds OWCS specifications from intermediate models.
 
 ```typescript
@@ -215,6 +312,7 @@ const spec = builder.build(model, { title: 'My Spec' });
 ```
 
 #### `YAMLWriter`
+
 Handles output formatting.
 
 ```typescript
@@ -223,6 +321,7 @@ writer.writeToFile(spec, 'owcs.yaml', 'yaml');
 ```
 
 #### `OpenAPIConverter`
+
 Converts OWCS to OpenAPI.
 
 ```typescript
@@ -235,6 +334,7 @@ const openApi = converter.convert(owcsSpec);
 ### Example 1: Basic Component
 
 **Input** (`user-card.component.ts`):
+
 ```typescript
 @Component({ selector: 'app-user-card', ... })
 export class UserCardComponent {
@@ -247,6 +347,7 @@ customElements.define('user-card', UserCardComponent);
 ```
 
 **Output** (OWCS YAML):
+
 ```yaml
 owcs: 1.0.0
 components:
@@ -272,16 +373,18 @@ components:
 ### Example 2: With Module Federation
 
 **webpack.config.js**:
+
 ```javascript
 new ModuleFederationPlugin({
   name: 'userComponents',
   exposes: {
-    './UserCard': './src/user-card.component.ts'
-  }
-})
+    './UserCard': './src/user-card.component.ts',
+  },
+});
 ```
 
 **Output**:
+
 ```yaml
 runtime:
   bundler:
@@ -294,7 +397,7 @@ components:
   webComponents:
     user-card:
       tagName: user-card
-      module: ./UserCard  # ← Mapped from exposes
+      module: ./UserCard # ← Mapped from exposes
 ```
 
 ### Example 3: Complex Types
@@ -307,6 +410,7 @@ components:
 ```
 
 **Converts to**:
+
 ```yaml
 config:
   type: object
@@ -382,11 +486,13 @@ exposes: {
 ## Troubleshooting
 
 ### Component Not Found
+
 - Ensure `customElements.define()` is called
 - Check that class is exported
 - Verify file is included in tsconfig
 
 ### Props Missing
+
 - Use `@Input()` decorator (not just properties)
 - Enable decorators in tsconfig:
   ```json
@@ -397,11 +503,13 @@ exposes: {
   ```
 
 ### Federation Not Detected
+
 - Ensure webpack.config.js exists
 - Check ModuleFederationPlugin syntax
 - Verify file is in project root or config/
 
 ### Build Errors
+
 ```bash
 # Clean and rebuild
 rm -rf dist/ node_modules/
@@ -412,12 +520,14 @@ npm run build
 ## Performance
 
 The library is optimized for:
+
 - Large codebases (100+ components)
 - Complex type hierarchies
 - Multiple files and imports
 - Fast incremental analysis
 
 Typical performance:
+
 - Small project (1-10 components): < 1 second
 - Medium project (10-50 components): 1-3 seconds
 - Large project (50+ components): 3-10 seconds
@@ -425,6 +535,7 @@ Typical performance:
 ## Future Enhancements
 
 Potential additions:
+
 - [ ] React adapter
 - [ ] Vue adapter
 - [ ] Svelte adapter
@@ -450,14 +561,5 @@ The architecture is designed for extensibility:
 MIT
 
 ---
-
-## Summary
-
-✅ **Complete Implementation** - All requirements met  
-✅ **Production Ready** - Validated, tested, documented  
-✅ **Zero Regex** - Pure AST-based analysis  
-✅ **Extensible** - Adapter pattern for any framework  
-✅ **Type Safe** - Full TypeScript, no `any`  
-✅ **Well Documented** - Examples, guides, API docs  
 
 **Ready to analyze Angular components and generate OWCS specifications!** 🚀

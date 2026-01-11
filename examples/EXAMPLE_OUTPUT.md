@@ -1,31 +1,64 @@
-# Expected output for user-card.component.ts
+# Example Usage and Output
 
-When running:
-```bash
-npx owcs generate -p examples/angular --format yaml
+This document shows what to expect when using OWCS with a real Angular component.
+
+## Example Component
+
+Here's a sample Angular component ([user-card.component.ts](angular/src/user-card.component.ts)):
+
+```typescript
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+
+@Component({
+  selector: 'app-user-card',
+  template: `
+    <div class="user-card">
+      <h3>{{ name }}</h3>
+      <p>Age: {{ age }}</p>
+      <button (click)="onClick()">Click me</button>
+    </div>
+  `,
+})
+export class UserCardComponent {
+  @Input() name!: string;
+  @Input() age?: number;
+  @Input() email?: string;
+  @Input() config?: {
+    theme: 'light' | 'dark';
+    showAvatar: boolean;
+  };
+
+  @Output() clicked = new EventEmitter<{ timestamp: number }>();
+  @Output() userUpdated = new EventEmitter<{ name: string; age: number }>();
+
+  onClick() {
+    this.clicked.emit({ timestamp: Date.now() });
+  }
+}
+
+// Register as web component
+customElements.define('user-card', UserCardComponent);
 ```
 
-Expected output (owcs.yaml):
+## Generated Specification
+
+Running OWCS on this component:
+
+```bash
+npx owcs generate --project examples/angular --format yaml --title "User Components"
+```
+
+Produces this `owcs.yaml`:
 
 ```yaml
 owcs: 1.0.0
 info:
-  title: userComponents
+  title: User Components
   version: 1.0.0
-runtime:
-  bundler:
-    name: webpack
-    moduleFederation:
-      remoteName: userComponents
-      libraryType: module
-      exposes:
-        ./UserCard: ./examples/angular/user-card.component.ts
-        ./AnotherComponent: ./examples/angular/another.component.ts
 components:
   webComponents:
     user-card:
       tagName: user-card
-      module: ./UserCard
       props:
         schema:
           type: object
@@ -41,13 +74,10 @@ components:
               properties:
                 theme:
                   type: string
-                  enum:
-                    - light
-                    - dark
+                  enum: [light, dark]
                 showAvatar:
                   type: boolean
-          required:
-            - name
+          required: [name]
       events:
         clicked:
           type: EventEmitter
@@ -67,30 +97,96 @@ components:
                 type: number
 ```
 
-## Testing the library
+## Usage Examples
 
-1. Build the project:
+### Basic Generation
+
 ```bash
-npm install
-npm run build
+# Generate specification
+npx owcs generate
+
+# Generate with custom title
+npx owcs generate --title "My Components" --version "2.0.0"
+
+# Generate JSON format
+npx owcs generate --format json --output components.json
 ```
 
-2. Generate spec from example:
+### With OpenAPI
+
 ```bash
-node dist/cli/index.js generate -p examples/angular --format yaml --output examples/owcs.yaml
+# Generate both OWCS and OpenAPI specs
+npx owcs generate --openapi
 ```
 
-3. Validate the spec:
+This creates two files:
+
+- `owcs.yaml` - The OWCS specification
+- `openapi.yaml` - OpenAPI 3.1 specification for integration
+
+### Validation
+
 ```bash
-node dist/cli/index.js validate examples/owcs.yaml
+# Validate the generated spec
+npx owcs validate owcs.yaml
+
+# View specification details
+npx owcs info owcs.yaml
 ```
 
-4. View spec info:
-```bash
-node dist/cli/index.js info examples/owcs.yaml
+## Expected OpenAPI Output
+
+When using `--openapi`, you'll also get an OpenAPI specification:
+
+```yaml
+openapi: 3.1.0
+info:
+  title: User Components
+  version: 1.0.0
+paths:
+  /components/user-card:
+    post:
+      summary: User Card Component
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                age:
+                  type: number
+                email:
+                  type: string
+                config:
+                  type: object
+                  properties:
+                    theme:
+                      type: string
+                      enum: [light, dark]
+                    showAvatar:
+                      type: boolean
+              required: [name]
+      callbacks:
+        clicked:
+          '{$request.body#/callbackUrl}':
+            post:
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: number
 ```
 
-5. Generate with OpenAPI:
-```bash
-node dist/cli/index.js generate -p examples/angular --openapi
-```
+## Try It Yourself
+
+1. **Install OWCS**: `npm install owcs`
+2. **Create a component**: Use the example above or your own
+3. **Generate spec**: `npx owcs generate`
+4. **Validate**: `npx owcs validate owcs.yaml`
+5. **Explore**: `npx owcs info owcs.yaml`
