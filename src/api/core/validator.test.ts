@@ -321,35 +321,6 @@ describe('OWCSValidator', () => {
     });
   });
 
-  describe('isValidOWCSSpec', () => {
-    it('should return true for valid spec', () => {
-      const spec = createValidSpec();
-      const result = validator.isValidOWCSSpec(spec);
-
-      expect(result).toBe(true);
-    });
-
-    it('should return false for invalid spec', () => {
-      const spec: any = {
-        owcs: '1.0.0',
-        // Missing required fields
-      };
-      const result = validator.isValidOWCSSpec(spec);
-
-      expect(result).toBe(false);
-    });
-
-    it('should work as type guard', () => {
-      const spec: unknown = createValidSpec();
-
-      if (validator.isValidOWCSSpec(spec)) {
-        // TypeScript should recognize spec as OWCSSpec here
-        expect(spec.owcs).toBe('1.0.0');
-        expect(spec.info.title).toBe('Test Components');
-      }
-    });
-  });
-
   describe('Convenience functions', () => {
     describe('validateOWCSSpec', () => {
       it('should validate spec using convenience function', () => {

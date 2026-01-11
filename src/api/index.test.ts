@@ -154,7 +154,7 @@ describe('API Index Exports', () => {
       const spec = buildOWCSSpec(model);
 
       const validator = new OWCSValidator();
-      const isValid = validator.isValidOWCSSpec(spec);
+      const isValid = validator.validateSpec(spec).valid;
       expect(isValid).toBe(true);
 
       const converter = new OpenAPIConverter();

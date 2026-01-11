@@ -1,7 +1,6 @@
 import Ajv, { ValidateFunction } from 'ajv';
 import fs from 'node:fs';
 import yaml from 'js-yaml';
-import { OWCSSpec } from '../model/intermediate.js';
 import { getSchema, SchemaVersion, DEFAULT_SCHEMA_VERSION, getAvailableVersions, AVAILABLE_SCHEMAS } from '../../schemas/index.js';
 
 /**
@@ -98,13 +97,6 @@ export class OWCSValidator {
         errors: [error instanceof Error ? error.message : String(error)],
       };
     }
-  }
-
-  /**
-   * Checks if a spec conforms to OWCS format (type guard)
-   */
-  public isValidOWCSSpec(spec: unknown): spec is OWCSSpec {
-    return this.validateSpec(spec).valid;
   }
 }
 
