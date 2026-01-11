@@ -538,13 +538,11 @@ Potential additions:
 
 - [ ] React adapter
 - [ ] Vue adapter
-- [ ] Svelte adapter
 - [ ] Template parsing
 - [ ] Slot/content projection
 - [ ] CSS custom properties
 - [ ] Visual documentation
 - [ ] Watch mode
-- [ ] Unit tests
 - [ ] VS Code extension
 
 ## Contributing
