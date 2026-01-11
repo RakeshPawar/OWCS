@@ -52,26 +52,26 @@
   "author": "Rakesh Pawar <rakesh.u.pawar@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "ajv": "^8.12.0",
-    "commander": "^11.1.0",
-    "js-yaml": "^4.1.0",
-    "typescript": "^5.3.3"
+    "ajv": "^8.17.1",
+    "commander": "^14.0.2",
+    "js-yaml": "^4.1.1",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.10.6",
+    "@types/node": "^25.0.6",
     "@typescript-eslint/eslint-plugin": "^8.52.0",
     "@typescript-eslint/parser": "^8.52.0",
-    "@vitest/coverage-v8": "^1.6.1",
-    "@vitest/ui": "^1.6.1",
+    "@vitest/coverage-v8": "^4.0.16",
+    "@vitest/ui": "^4.0.16",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "prettier": "^3.7.4",
-    "vite": "^5.4.21",
-    "vitest": "^1.6.1"
+    "vite": "^7.3.1",
+    "vitest": "^4.0.16"
   },
   "lint-staged": {
     "*.ts": [
