@@ -1,0 +1,35 @@
+owcs: 1.0.0
+info:
+  title: reactUserCardVite
+  version: 1.0.0
+components:
+  webComponents:
+    product-search-vite-element:
+      tagName: product-search-vite-element
+      module: ./ProductSearchWidget
+      events:
+        PRODUCT_SELECT:
+          type: CustomEvent
+          payload:
+            type: object
+            properties:
+              searchTerm:
+                type: string
+              productDetail:
+                type: any
+            required:
+              - searchTerm
+              - productDetail
+        NO_INSTRUMENT_FOUND:
+          type: CustomEvent
+          payload:
+            type: boolean
+        NO_INSTRUMENT_MESSAGE_ACTION:
+          type: CustomEvent
+runtime:
+  bundler:
+    name: vite
+    moduleFederation:
+      remoteName: reactUserCardVite
+      exposes:
+        ./ProductSearchWidget: ./src/ProductSearch.wc.tsx

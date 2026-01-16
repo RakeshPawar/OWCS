@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { extractProps } from './props-extractor.js';
 import { extractEvents } from './events-extractor.js';
-import { extractFederationConfig } from './federation-extractor.js';
+import { extractWebpackFederationConfig } from '../shared/webpack-federation-extractor.js';
 import * as ts from 'typescript';
 
 describe('Angular Adapter Extractors', () => {
@@ -157,14 +157,14 @@ describe('Angular Adapter Extractors', () => {
 
   describe('extractFederationConfig', () => {
     it('should return empty config when no webpack config exists', () => {
-      const result = extractFederationConfig('/non/existent/path');
+      const result = extractWebpackFederationConfig('/non/existent/path');
 
       expect(result.bundler).toBe('webpack');
       expect(result.federation).toBeUndefined();
     });
 
     it('should handle directory without federation config', () => {
-      const result = extractFederationConfig('/tmp');
+      const result = extractWebpackFederationConfig('/tmp');
 
       expect(result.bundler).toBe('webpack');
       expect(result.federation).toBeUndefined();

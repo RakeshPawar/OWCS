@@ -42,7 +42,9 @@
     "format:check": "prettier --check \"src/**/*.{ts,json,md}\"",
     "lint": "eslint \"src/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" --fix",
-    "sanity": "tsc && node dist/cli/index.js generate -p examples/angular --format yaml --output examples/owcs.yaml"
+    "sanity:angular": "tsc && node dist/cli/index.js generate -p examples/angular --format yaml --output examples/owcs-angular-webpack.yaml",
+    "sanity:react-vite": "tsc && node dist/cli/index.js generate -p examples/react-vite --adapter react --format yaml  --output examples/owcs-react-vite.yaml",
+    "sanity:react-webpack": "tsc && node dist/cli/index.js generate -p examples/react-webpack --adapter react --format yaml  --output examples/owcs-react-webpack.yaml"
   },
   "keywords": [
     "web-components",

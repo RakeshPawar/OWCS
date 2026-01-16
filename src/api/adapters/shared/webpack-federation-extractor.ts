@@ -1,12 +1,12 @@
-import * as ts from 'typescript';
 import fs from 'node:fs';
 import path from 'node:path';
 import { RuntimeModel } from '../../model/intermediate.js';
+import * as ts from 'typescript';
 
 /**
  * Extracts Module Federation configuration from webpack config
  */
-export function extractFederationConfig(projectRoot: string): RuntimeModel {
+export function extractWebpackFederationConfig(projectRoot: string): RuntimeModel {
   const webpackConfigPath = findWebpackConfig(projectRoot);
 
   if (!webpackConfigPath) {
@@ -105,124 +105,90 @@ function extractModuleFederationPlugin(sourceFile: ts.SourceFile): RuntimeModel[
   visit(sourceFile);
   return federationConfig;
 }
-
 /**
- * Extracts configuration from ModuleFederationPlugin arguments
+ * Extracts plugin config from new ModuleFederationPlugin() call
  */
-function extractPluginConfig(newExpression: ts.NewExpression): RuntimeModel['federation'] | undefined {
-  if (!newExpression.arguments || newExpression.arguments.length === 0) {
+export function extractPluginConfig(newExpr: ts.NewExpression): RuntimeModel['federation'] | undefined {
+  if (!newExpr.arguments || newExpr.arguments.length === 0) {
     return undefined;
   }
 
-  const configArg = newExpression.arguments[0];
+  const configArg = newExpr.arguments[0];
 
   if (!ts.isObjectLiteralExpression(configArg)) {
     return undefined;
   }
 
-  const config: RuntimeModel['federation'] = {
-    remoteName: '',
-  };
+  return extractFederationConfigFromObject(configArg);
+}
 
-  for (const prop of configArg.properties) {
-    if (!ts.isPropertyAssignment(prop)) {
-      continue;
-    }
+/**
+ * Extracts federation config from an object literal
+ */
+export function extractFederationConfigFromObject(objLiteral: ts.ObjectLiteralExpression): RuntimeModel['federation'] | undefined {
+  let remoteName: string | undefined;
+  let libraryType: string | undefined;
+  const exposes: Record<string, string> = {};
 
-    const name = prop.name;
-    if (!ts.isIdentifier(name) && !ts.isStringLiteral(name)) {
-      continue;
-    }
+  for (const prop of objLiteral.properties) {
+    if (ts.isPropertyAssignment(prop)) {
+      const propName = prop.name;
 
-    const key = ts.isIdentifier(name) ? name.text : name.text;
+      if (ts.isIdentifier(propName)) {
+        const name = propName.text;
 
-    if (key === 'name') {
-      const value = extractStringValue(prop.initializer);
-      if (value) {
-        config.remoteName = value;
-      }
-    } else if (key === 'library') {
-      // library can be an object { type: '...' } or just a type string
-      if (ts.isObjectLiteralExpression(prop.initializer)) {
-        const typeValue = extractPropertyValue(prop.initializer, 'type');
-        if (typeValue) {
-          config.libraryType = typeValue;
+        // Extract 'name' property
+        if (name === 'name') {
+          if (ts.isStringLiteral(prop.initializer)) {
+            remoteName = prop.initializer.text;
+          }
         }
-      } else {
-        const value = extractStringValue(prop.initializer);
-        if (value) {
-          config.libraryType = value;
+
+        // Extract 'library.type' or 'libraryType'
+        if (name === 'library') {
+          if (ts.isObjectLiteralExpression(prop.initializer)) {
+            const typeProp = prop.initializer.properties.find((p) => ts.isPropertyAssignment(p) && ts.isIdentifier(p.name) && p.name.text === 'type');
+
+            if (typeProp && ts.isPropertyAssignment(typeProp) && ts.isStringLiteral(typeProp.initializer)) {
+              libraryType = typeProp.initializer.text;
+            }
+          }
+        }
+
+        if (name === 'libraryType') {
+          if (ts.isStringLiteral(prop.initializer)) {
+            libraryType = prop.initializer.text;
+          }
+        }
+
+        // Extract 'exposes' property
+        if (name === 'exposes') {
+          if (ts.isObjectLiteralExpression(prop.initializer)) {
+            for (const exposeProp of prop.initializer.properties) {
+              if (ts.isPropertyAssignment(exposeProp)) {
+                const exposeName = exposeProp.name;
+                const exposeValue = exposeProp.initializer;
+
+                if (ts.isStringLiteral(exposeName) && ts.isStringLiteral(exposeValue)) {
+                  exposes[exposeName.text] = exposeValue.text;
+                } else if (ts.isIdentifier(exposeName) && ts.isStringLiteral(exposeValue)) {
+                  exposes[exposeName.text] = exposeValue.text;
+                }
+              }
+            }
+          }
         }
       }
-    } else if (key === 'exposes') {
-      const exposes = extractExposesObject(prop.initializer);
-      if (exposes) {
-        config.exposes = exposes;
-      }
     }
   }
 
-  return config.remoteName ? config : undefined;
-}
-
-/**
- * Extracts string value from an expression
- */
-function extractStringValue(expression: ts.Expression): string | undefined {
-  if (ts.isStringLiteral(expression)) {
-    return expression.text;
-  }
-  return undefined;
-}
-
-/**
- * Extracts a property value from an object literal
- */
-function extractPropertyValue(objectLiteral: ts.ObjectLiteralExpression, propertyName: string): string | undefined {
-  for (const prop of objectLiteral.properties) {
-    if (!ts.isPropertyAssignment(prop)) {
-      continue;
-    }
-
-    const name = prop.name;
-    if (ts.isIdentifier(name) && name.text === propertyName) {
-      return extractStringValue(prop.initializer);
-    }
-  }
-  return undefined;
-}
-
-/**
- * Extracts the exposes object as a Record<string, string>
- */
-function extractExposesObject(expression: ts.Expression): Record<string, string> | undefined {
-  if (!ts.isObjectLiteralExpression(expression)) {
+  if (!remoteName) {
     return undefined;
   }
 
-  const exposes: Record<string, string> = {};
-
-  for (const prop of expression.properties) {
-    if (!ts.isPropertyAssignment(prop)) {
-      continue;
-    }
-
-    const name = prop.name;
-    let key: string | undefined;
-
-    if (ts.isIdentifier(name)) {
-      key = name.text;
-    } else if (ts.isStringLiteral(name)) {
-      key = name.text;
-    }
-
-    if (key) {
-      const value = extractStringValue(prop.initializer);
-      if (value) {
-        exposes[key] = value;
-      }
-    }
-  }
-
-  return Object.keys(exposes).length > 0 ? exposes : undefined;
+  return {
+    remoteName,
+    libraryType,
+    exposes: Object.keys(exposes).length > 0 ? exposes : undefined,
+  };
 }

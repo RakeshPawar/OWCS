@@ -1,0 +1,53 @@
+owcs: 1.0.0
+info:
+  title: userComponents
+  version: 1.0.0
+components:
+  webComponents:
+    user-card:
+      tagName: user-card
+      props:
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+            age:
+              type: number
+            email:
+              type: string
+            config:
+              type: object
+              properties:
+                theme:
+                  type: string
+                  enum:
+                    - light
+                    - dark
+                showAvatar:
+                  type: boolean
+              required:
+                - theme
+                - showAvatar
+          required:
+            - name
+      events:
+        clicked:
+          type: OutputSignal
+          payload:
+            type: object
+            properties:
+              timestamp:
+                type: number
+            required:
+              - timestamp
+        userUpdated:
+          type: EventEmitter
+runtime:
+  bundler:
+    name: webpack
+    moduleFederation:
+      remoteName: userComponents
+      libraryType: module
+      exposes:
+        ./user-card: ./examples/angular/user-card.wc.ts

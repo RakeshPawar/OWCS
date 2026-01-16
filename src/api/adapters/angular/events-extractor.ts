@@ -1,6 +1,7 @@
 import * as ts from 'typescript';
 import { EventModel, JSONSchema } from '../../model/intermediate.js';
 import { getClassProperties, findDecorator, findCallExpressions, isMethodCall, getStringLiteralValue } from '../../core/ast-walker.js';
+import { typeNodeToJsonSchema } from '../shared/type.utils.js';
 
 /**
  * Extracts events from an Angular component class
@@ -279,48 +280,6 @@ function extractDispatchEvent(call: ts.CallExpression, typeChecker: ts.TypeCheck
     payloadSchema,
     source: 'dispatchEvent',
   };
-}
-
-/**
- * Converts a TypeNode to JSON Schema (simplified version)
- */
-function typeNodeToJsonSchema(typeNode: ts.TypeNode, typeChecker: ts.TypeChecker): JSONSchema {
-  // Handle primitive types
-  if (typeNode.kind === ts.SyntaxKind.StringKeyword) {
-    return { type: 'string' };
-  }
-
-  if (typeNode.kind === ts.SyntaxKind.NumberKeyword) {
-    return { type: 'number' };
-  }
-
-  if (typeNode.kind === ts.SyntaxKind.BooleanKeyword) {
-    return { type: 'boolean' };
-  }
-
-  if (ts.isArrayTypeNode(typeNode)) {
-    return {
-      type: 'array',
-      items: typeNodeToJsonSchema(typeNode.elementType, typeChecker),
-    };
-  }
-
-  if (ts.isTypeLiteralNode(typeNode)) {
-    const properties: Record<string, JSONSchema> = {};
-
-    for (const member of typeNode.members) {
-      if (ts.isPropertySignature(member) && member.name && ts.isIdentifier(member.name)) {
-        const propName = member.name.text;
-        if (member.type) {
-          properties[propName] = typeNodeToJsonSchema(member.type, typeChecker);
-        }
-      }
-    }
-
-    return { type: 'object', properties };
-  }
-
-  return { type: 'any' };
 }
 
 /**

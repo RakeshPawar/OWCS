@@ -6,6 +6,7 @@
 
 // Adapters
 export { AngularAdapter, analyzeAngularProject } from './adapters/angular/index.js';
+export { ReactAdapter, analyzeReactProject } from './adapters/react/index.js';
 
 // Core
 export { SchemaBuilder, buildOWCSSpec } from './core/schema-builder.js';
