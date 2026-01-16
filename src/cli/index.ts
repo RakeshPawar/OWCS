@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import path from 'node:path';
 import fs from 'node:fs';
 import yaml from 'js-yaml';
-import { analyzeAngularProject, buildOWCSSpec, writeOWCSSpec, OutputFormat, convertToOpenAPI, validateOWCSFile } from '../api/index.js';
+import { analyzeAngularProject, analyzeReactProject, buildOWCSSpec, writeOWCSSpec, OutputFormat, convertToOpenAPI, validateOWCSFile } from '../api/index.js';
 
 const program = new Command();
 
@@ -16,6 +16,7 @@ program.name('owcs').description('Open Web Component Specification - Generate an
 program
   .command('generate')
   .description('Generate OWCS specification from source code')
+  .option('-a, --adapter <adapter>', 'Framework adapter (angular or react)', 'angular')
   .option('-f, --format <format>', 'Output format (yaml or json)', 'yaml')
   .option('-o, --output <file>', 'Output file path', 'owcs.yaml')
   .option('-p, --project <path>', 'Project root path', process.cwd())
@@ -30,14 +31,28 @@ program
 
       const projectRoot = path.resolve(options.project);
       const format = options.format as OutputFormat;
+      const adapter = options.adapter.toLowerCase();
 
       if (format !== 'yaml' && format !== 'json') {
         console.error('❌ Error: Format must be either "yaml" or "json"');
         process.exit(1);
       }
 
-      // Analyze the project
-      const intermediateModel = analyzeAngularProject(projectRoot, options.tsconfig ? path.resolve(options.tsconfig) : undefined);
+      if (adapter !== 'angular' && adapter !== 'react') {
+        console.error('❌ Error: Adapter must be either "angular" or "react"');
+        process.exit(1);
+      }
+
+      // Analyze the project based on adapter
+      let intermediateModel;
+
+      if (adapter === 'angular') {
+        console.log('📦 Using Angular adapter...');
+        intermediateModel = analyzeAngularProject(projectRoot, options.tsconfig ? path.resolve(options.tsconfig) : undefined);
+      } else {
+        console.log('⚛️  Using React adapter...');
+        intermediateModel = analyzeReactProject(projectRoot, options.tsconfig ? path.resolve(options.tsconfig) : undefined);
+      }
 
       console.log(`✅ Found ${intermediateModel.components.length} component(s)`);
 

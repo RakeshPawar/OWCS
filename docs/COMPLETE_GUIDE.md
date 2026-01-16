@@ -124,6 +124,49 @@ const model = adapter.analyze();
 const modelWithConfig = adapter.analyze('./tsconfig.app.json');
 ```
 
+### React Adapter
+
+The React adapter supports both class and function components, with full TypeScript support.
+
+```typescript
+import { ReactAdapter } from 'owcs';
+
+const adapter = new ReactAdapter('./project-root');
+const model = adapter.analyze();
+
+// Advanced usage with TypeScript config
+const modelWithConfig = new ReactAdapter('./project-root', './tsconfig.json').analyze();
+```
+
+#### Supported Features
+
+**Props Extraction:**
+
+- Function components with inline types or type references
+- Class components with type parameters
+- Union types (for enums)
+- Object types (nested structures)
+- Array types
+- Optional props (`?`)
+
+**Events Extraction:**
+
+- Callback props (onClick, onHover, etc.)
+- CustomEvent dispatch calls
+- Event payload type inference
+
+**Bundler Support:**
+
+- Webpack with Module Federation
+- Vite with Module Federation
+- Automatic detection from config files
+
+The OWCS analyzer will extract:
+
+- Props: name (string, required), age (number, optional), theme (enum)
+- Events: click, userClick
+- Module path and registration details
+
 ## Testing
 
 ```bash

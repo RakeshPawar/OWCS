@@ -1,15 +1,17 @@
 import * as ts from 'typescript';
 import path from 'node:path';
 import { IntermediateModel, WebComponentModel } from '../../model/intermediate.js';
-import { discoverComponents, findClassByName, getModulePath } from './component-discovery.js';
+import { discoverComponents, findComponentByName, getModulePath } from './component-discovery.js';
 import { extractProps } from './props-extractor.js';
 import { extractEvents } from './events-extractor.js';
-import { extractWebpackFederationConfig } from '../shared/webpack-federation-extractor.js';
+import { extractFederationConfig } from './federation-extractor.js';
 
 /**
- * Angular adapter - analyzes Angular source code and produces IntermediateModel
+ * React adapter - analyzes React source code and produces IntermediateModel
+ * Supports both class and function components
+ * Supports both webpack and vite bundlers
  */
-export class AngularAdapter {
+export class ReactAdapter {
   private program: ts.Program;
   private typeChecker: ts.TypeChecker;
   private projectRoot: string;
@@ -36,18 +38,18 @@ export class AngularAdapter {
       });
     }
 
-    // Fallback: create program with all TS files in src/
+    // Fallback: create program with all TS/TSX files in src/
     const srcDir = path.join(projectRoot, 'src');
     const files = this.findTsFiles(srcDir);
 
     return ts.createProgram(files, {
       target: ts.ScriptTarget.ES2020,
       module: ts.ModuleKind.ES2015,
-      experimentalDecorators: true,
-      emitDecoratorMetadata: true,
+      jsx: ts.JsxEmit.React,
       moduleResolution: ts.ModuleResolutionKind.NodeJs,
       esModuleInterop: true,
       allowSyntheticDefaultImports: true,
+      skipLibCheck: true,
     });
   }
 
@@ -71,14 +73,13 @@ export class AngularAdapter {
   }
 
   /**
-   * Recursively finds all .ts files in a directory
+   * Recursively finds all .ts and .tsx files in a directory
    */
   private findTsFiles(dir: string): string[] {
     const files: string[] = [];
 
     try {
-      const entries = ts.sys.readDirectory(dir, ['.ts'], ['node_modules', 'dist'], undefined, 5);
-
+      const entries = ts.sys.readDirectory(dir, ['.ts', '.tsx'], ['node_modules', 'dist'], undefined, 5);
       files.push(...entries);
     } catch {
       // Directory might not exist
@@ -92,7 +93,7 @@ export class AngularAdapter {
    */
   public analyze(): IntermediateModel {
     // Extract runtime configuration
-    const runtime = extractWebpackFederationConfig(this.projectRoot);
+    const runtime = extractFederationConfig(this.projectRoot);
 
     // Discover all web components
     const registrations = discoverComponents(this.program);
@@ -101,7 +102,7 @@ export class AngularAdapter {
     const components: WebComponentModel[] = [];
 
     for (const registration of registrations) {
-      const component = this.analyzeComponent(registration);
+      const component = this.extractComponentDetails(registration);
       if (component) {
         components.push(component);
       }
@@ -114,29 +115,31 @@ export class AngularAdapter {
   }
 
   /**
-   * Analyzes a single component
+   * Extracts details for a single component
    */
-  private analyzeComponent(registration: { tagName: string; className: string; sourceFile: ts.SourceFile }): WebComponentModel | undefined {
-    // Find the class declaration
-    const classDecl = findClassByName(this.program, registration.className, registration.sourceFile);
+  private extractComponentDetails(registration: { tagName: string; className: string; sourceFile: ts.SourceFile }): WebComponentModel | undefined {
+    const { tagName, className, sourceFile } = registration;
 
-    if (!classDecl) {
-      console.warn(`Could not find class ${registration.className}`);
+    // Find the component declaration
+    const componentDecl = findComponentByName(sourceFile, className);
+
+    if (!componentDecl) {
+      console.warn(`Could not find component declaration for: ${className}`);
       return undefined;
     }
 
     // Extract props
-    const props = extractProps(classDecl, this.typeChecker);
+    const props = extractProps(componentDecl, this.typeChecker);
 
     // Extract events
-    const events = extractEvents(classDecl, this.typeChecker);
+    const events = extractEvents(componentDecl, this.typeChecker);
 
     // Get module path
-    const modulePath = getModulePath(registration.sourceFile, this.projectRoot);
+    const modulePath = getModulePath(sourceFile, this.projectRoot);
 
     return {
-      tagName: registration.tagName,
-      className: registration.className,
+      tagName,
+      className,
       modulePath,
       props,
       events,
@@ -145,9 +148,9 @@ export class AngularAdapter {
 }
 
 /**
- * Convenience function to analyze an Angular project
+ * Convenience function to analyze a React project
  */
-export function analyzeAngularProject(projectRoot: string, tsConfigPath?: string): IntermediateModel {
-  const adapter = new AngularAdapter(projectRoot, tsConfigPath);
+export function analyzeReactProject(projectRoot: string, tsConfigPath?: string): IntermediateModel {
+  const adapter = new ReactAdapter(projectRoot, tsConfigPath);
   return adapter.analyze();
 }

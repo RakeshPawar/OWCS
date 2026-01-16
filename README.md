@@ -1,15 +1,16 @@
 # OWCS - Open Web Component Specification
 
-Generate standardized specifications for your web components automatically. OWCS analyzes your Angular components and creates documentation and configuration files that help you share and use components across projects.
+Generate standardized specifications for your web components automatically. OWCS analyzes your Angular and React components and creates documentation and configuration files that help you share and use components across projects.
 
 ## What is OWCS?
 
-OWCS creates detailed specifications from your existing Angular components, including:
+OWCS creates detailed specifications from your existing web components, including:
 
-- **Component properties** (inputs) with types and validation
-- **Events** (outputs) that components emit
+- **Component properties** (inputs/props) with types and validation
+- **Events** (outputs/callbacks) that components emit
 - **Module federation** configuration for micro-frontends
 - **OpenAPI documentation** for integration
+- **Support for multiple frameworks**: Angular, React (with more coming)
 
 ## Installation
 
@@ -20,14 +21,24 @@ npm install owcs
 ## Requirements
 
 - Node.js 18+
-- TypeScript project with Angular components
+- TypeScript project with Angular or React components
 
 ## Quick Start
+
+### Angular Projects
 
 **Generate a specification from your Angular project:**
 
 ```bash
-npx owcs generate
+npx owcs generate --adapter angular
+```
+
+### React Projects
+
+**Generate a specification from your React project:**
+
+```bash
+npx owcs generate --adapter react
 ```
 
 This creates an `owcs.yaml` file describing your components.
@@ -36,13 +47,13 @@ This creates an `owcs.yaml` file describing your components.
 
 ```bash
 # Generate JSON instead of YAML
-npx owcs generate --format json
+npx owcs generate --adapter react --format json
 
 # Specify output file
-npx owcs generate --output my-components.yaml
+npx owcs generate --adapter angular --output my-components.yaml
 
 # Also create OpenAPI documentation
-npx owcs generate --openapi
+npx owcs generate --adapter react --openapi
 
 # Validate an existing specification
 npx owcs validate owcs.yaml
@@ -52,6 +63,8 @@ npx owcs validate owcs.yaml
 
 If you need to generate specifications programmatically:
 
+### Angular
+
 ```typescript
 import { analyzeAngularProject, buildOWCSSpec, writeOWCSSpec } from 'owcs';
 
@@ -60,7 +73,25 @@ const analysis = analyzeAngularProject('./src');
 
 // Create specification
 const spec = buildOWCSSpec(analysis, {
-  title: 'My Components',
+  title: 'My Angular Components',
+  version: '1.0.0',
+});
+
+// Save to file
+writeOWCSSpec(spec, 'owcs.yaml', 'yaml');
+```
+
+### React
+
+```typescript
+import { analyzeReactProject, buildOWCSSpec, writeOWCSSpec } from 'owcs';
+
+// Analyze your React project
+const analysis = analyzeReactProject('./src');
+
+// Create specification
+const spec = buildOWCSSpec(analysis, {
+  title: 'My React Components',
   version: '1.0.0',
 });
 
@@ -70,16 +101,18 @@ writeOWCSSpec(spec, 'owcs.yaml', 'yaml');
 
 ## What Gets Analyzed
 
+### Angular Components
+
 OWCS examines your Angular components and extracts:
 
-### Component Registration
+#### Component Registration
 
 ```typescript
 // Finds web component definitions
 customElements.define('user-card', UserCardComponent);
 ```
 
-### Input Properties
+#### Input Properties
 
 ```typescript
 @Input() name: string;        // Required string property
@@ -87,7 +120,7 @@ customElements.define('user-card', UserCardComponent);
 @Input('userId') id: string;  // Property with custom attribute name
 ```
 
-### Output Events
+#### Output Events
 
 ```typescript
 @Output() clicked = new EventEmitter<{userId: string}>();
@@ -96,6 +129,50 @@ customElements.define('user-card', UserCardComponent);
 this.dispatchEvent(new CustomEvent('userChanged', {
   detail: { name: 'John', age: 30 }
 }));
+```
+
+### React Components
+
+OWCS examines your React components wrapped as Web Components:
+
+#### Component Registration
+
+```typescript
+customElements.define('user-card', UserCardWC);
+```
+
+#### Props
+
+```typescript
+interface UserCardProps {
+  name: string;           // Required string property
+  age?: number;           // Optional number property
+  theme: 'light' | 'dark'; // Union type (enum)
+  config?: {              // Object type
+    showAvatar: boolean;
+  };
+}
+
+const UserCard: React.FC<UserCardProps> = (props) => {
+  return <div>{props.name}</div>;
+};
+```
+
+#### Events
+
+```typescript
+interface UserCardProps {
+  onClick?: (event: { userId: string }) => void; // Callback prop
+  onHover?: () => void;
+}
+
+// Or custom event dispatch
+const handleClick = () => {
+  const event = new CustomEvent('userClick', {
+    detail: { userId: '123' },
+  });
+  dispatchEvent(event);
+};
 ```
 
 ### Module Federation Configuration

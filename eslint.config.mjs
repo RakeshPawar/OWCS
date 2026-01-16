@@ -34,6 +34,7 @@ export default defineConfig([
     '**/verdaccio.yaml',
     'eslint.config.mjs',
     '**/*.test.ts',
+    '**/examples/**',
   ]),
   {
     extends: compat.extends('eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'),
