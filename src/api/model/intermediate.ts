@@ -26,6 +26,14 @@ export interface PropModel {
   schema: JSONSchema;
   required: boolean;
   source: 'input' | 'attribute';
+  /** JSDoc description */
+  description?: string;
+  /** Default value */
+  default?: unknown;
+  /** Whether the property is deprecated */
+  deprecated?: boolean;
+  /** JSDoc tags */
+  tags?: Record<string, string>;
 }
 
 /**
@@ -36,6 +44,14 @@ export interface EventModel {
   type: 'CustomEvent' | 'EventEmitter' | 'OutputSignal';
   payloadSchema?: JSONSchema;
   source: 'dispatchEvent' | 'output';
+  /** JSDoc description */
+  description?: string;
+  /** Whether the event is deprecated */
+  deprecated?: boolean;
+  /** Event bubbles setting (for CustomEvent) */
+  bubbles?: boolean;
+  /** Event composed setting (for CustomEvent) */
+  composed?: boolean;
 }
 
 /**

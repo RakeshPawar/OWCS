@@ -4,6 +4,239 @@ info:
   version: 1.0.0
 components:
   webComponents:
+    comprehensive-example-element:
+      tagName: comprehensive-example-element
+      props:
+        schema:
+          type: object
+          properties:
+            userName:
+              type: string
+            age:
+              type: number
+            isActive:
+              type: boolean
+            theme:
+              enum:
+                - light
+                - dark
+                - auto
+            status:
+              enum:
+                - idle
+                - loading
+                - success
+                - error
+            config:
+              type: object
+              properties:
+                endpoint:
+                  type: string
+                timeout:
+                  type: number
+                retry:
+                  type: boolean
+                headers:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required:
+                - endpoint
+                - timeout
+            user:
+              type: object
+              properties:
+                id:
+                  type: number
+                name:
+                  type: string
+                email:
+                  type: string
+                roles:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - id
+                - name
+                - email
+                - roles
+            tags:
+              type: array
+              items:
+                type: string
+            users:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  roles:
+                    type: array
+                    items:
+                      type: string
+                required:
+                  - id
+                  - name
+                  - email
+                  - roles
+            onClick:
+              type: function
+            onChange:
+              type: function
+            onHover:
+              type: function
+            onSubmit:
+              type: function
+            nullableValue:
+              type: string
+            mixedUnion:
+              oneOf:
+                - type: string
+                - type: number
+                - type: boolean
+            flexible:
+              oneOf:
+                - type: string
+                - type: array
+                  items:
+                    type: string
+            metadata:
+              type: object
+            settings:
+              type: object
+              properties:
+                display:
+                  type: object
+                  properties:
+                    showHeader:
+                      type: boolean
+                    showFooter:
+                      type: boolean
+                behavior:
+                  type: object
+                  properties:
+                    autoSave:
+                      type: boolean
+                    interval:
+                      type: number
+      events:
+        userAction:
+          type: CustomEvent
+          payload:
+            type: object
+            properties:
+              action:
+                type: string
+              payload:
+                type: any
+              timestamp:
+                type: number
+            required:
+              - action
+              - payload
+              - timestamp
+        dataLoad:
+          type: CustomEvent
+          payload:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  type: any
+              count:
+                type: number
+            required:
+              - data
+              - count
+        statusChange:
+          type: CustomEvent
+          payload:
+            type: object
+            properties:
+              oldStatus:
+                type: string
+                enum:
+                  - idle
+                  - loading
+                  - success
+                  - error
+              newStatus:
+                type: string
+                enum:
+                  - idle
+                  - loading
+                  - success
+                  - error
+            required:
+              - oldStatus
+              - newStatus
+        error:
+          type: CustomEvent
+          payload:
+            type: object
+            properties:
+              message:
+                type: string
+              stack:
+                type: string
+            required:
+              - message
+              - stack
+        click:
+          type: CustomEvent
+          payload:
+            type: object
+            properties:
+              x:
+                type: number
+              'y':
+                type: number
+            required:
+              - x
+              - 'y'
+        change:
+          type: CustomEvent
+          payload:
+            type: object
+            properties:
+              value:
+                type: string
+            required:
+              - value
+        hover:
+          type: CustomEvent
+        submit:
+          type: CustomEvent
+          payload:
+            type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  roles:
+                    type: array
+                    items:
+                      type: string
+                required:
+                  - id
+                  - name
+                  - email
+                  - roles
+            required:
+              - data
     product-search-vite-element:
       tagName: product-search-vite-element
       module: ./ProductSearchWidget

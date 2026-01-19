@@ -2,6 +2,7 @@ import * as ts from 'typescript';
 import { PropModel, JSONSchema } from '../../model/intermediate.js';
 import { getClassProperties, findDecorator, getDecoratorArgument, getStringLiteralValue, isPropertyOptional } from '../../core/ast-walker.js';
 import { typeNodeToJsonSchema } from '../shared/type.utils.js';
+import { extractJSDocMetadata, extractDefaultValue } from '../shared/jsdoc.utils.js';
 
 /**
  * Extracts props from an Angular component class using @Input() decorators and input signals
@@ -44,7 +45,13 @@ function extractInputProp(property: ts.PropertyDeclaration, decorator: ts.Decora
 
   // Check for @Input('alias') pattern
   const decoratorArg = getDecoratorArgument(decorator, 0);
-  const attribute = getStringLiteralValue(decoratorArg) || name;
+  const decoratorAlias = getStringLiteralValue(decoratorArg);
+
+  // Extract JSDoc metadata
+  const jsDocMetadata = extractJSDocMetadata(property);
+
+  // Determine attribute name (decorator alias > JSDoc @attribute > property name)
+  const attribute = decoratorAlias || jsDocMetadata.attribute || name;
 
   // Determine if required
   const required = !isPropertyOptional(property);
@@ -52,12 +59,22 @@ function extractInputProp(property: ts.PropertyDeclaration, decorator: ts.Decora
   // Convert TypeScript type to JSON Schema
   const schema = typeNodeToJsonSchema(property.type, typeChecker);
 
+  // Extract default value
+  let defaultValue = jsDocMetadata.default;
+  if (defaultValue === undefined) {
+    defaultValue = extractDefaultValue(property);
+  }
+
   return {
     name,
     attribute,
     schema,
     required,
     source: 'input',
+    description: jsDocMetadata.description,
+    default: defaultValue,
+    deprecated: jsDocMetadata.deprecated,
+    tags: jsDocMetadata.tags,
   };
 }
 
@@ -110,23 +127,39 @@ function extractInputSignalProp(property: ts.PropertyDeclaration, typeChecker: t
     schema = typeNodeToJsonSchema(callExpression.typeArguments[0], typeChecker);
   }
 
+  // Extract JSDoc metadata
+  const jsDocMetadata = extractJSDocMetadata(property);
+
   // Check for alias in options: input({ alias: 'customName' })
   let attribute = name;
+  let defaultValue = jsDocMetadata.default;
 
   if (callExpression.arguments.length > 0) {
     const firstArg = callExpression.arguments[0];
 
+    if (!ts.isObjectLiteralExpression(firstArg) && !isRequired) {
+      defaultValue = extractLiteralValue(firstArg);
+    }
+    const secondArg = callExpression.arguments[1];
+
     // Check if it's an options object with alias property
-    if (ts.isObjectLiteralExpression(firstArg)) {
-      for (const prop of firstArg.properties) {
-        if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name) && prop.name.text === 'alias') {
-          const aliasValue = getStringLiteralValue(prop.initializer);
-          if (aliasValue) {
-            attribute = aliasValue;
+    if (secondArg && ts.isObjectLiteralExpression(secondArg)) {
+      for (const prop of secondArg.properties) {
+        if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name)) {
+          if (prop.name.text === 'alias') {
+            const aliasValue = getStringLiteralValue(prop.initializer);
+            if (aliasValue) {
+              attribute = aliasValue;
+            }
           }
         }
       }
     }
+  }
+
+  // JSDoc @attribute takes precedence if specified
+  if (jsDocMetadata.attribute) {
+    attribute = jsDocMetadata.attribute;
   }
 
   return {
@@ -135,5 +168,37 @@ function extractInputSignalProp(property: ts.PropertyDeclaration, typeChecker: t
     schema,
     required: isRequired,
     source: 'input',
+    description: jsDocMetadata.description,
+    default: defaultValue,
+    deprecated: jsDocMetadata.deprecated,
+    tags: jsDocMetadata.tags,
   };
+}
+
+/**
+ * Extract literal value from expression
+ */
+function extractLiteralValue(expr: ts.Expression): unknown {
+  if (ts.isStringLiteral(expr)) {
+    return expr.text;
+  }
+  if (ts.isNumericLiteral(expr)) {
+    return Number(expr.text);
+  }
+  if (expr.kind === ts.SyntaxKind.TrueKeyword) {
+    return true;
+  }
+  if (expr.kind === ts.SyntaxKind.FalseKeyword) {
+    return false;
+  }
+  if (expr.kind === ts.SyntaxKind.NullKeyword) {
+    return null;
+  }
+  if (ts.isArrayLiteralExpression(expr) && expr.elements.length === 0) {
+    return [];
+  }
+  if (ts.isObjectLiteralExpression(expr) && expr.properties.length === 0) {
+    return {};
+  }
+  return undefined;
 }

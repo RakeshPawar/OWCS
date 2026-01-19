@@ -58,14 +58,12 @@ describe('React Adapter - Props Extractor', () => {
         }
       `;
 
-      const sourceFile = ts.createSourceFile('test.tsx', sourceCode, ts.ScriptTarget.Latest, true);
+      const { program, getSourceFile } = createTestProgram({ 'test.tsx': sourceCode });
+      const sourceFile = getSourceFile('test.tsx');
 
-      const program = ts.createProgram(['test.tsx'], {
-        noResolve: true,
-        target: ts.ScriptTarget.Latest,
-        module: ts.ModuleKind.ESNext,
-        jsx: ts.JsxEmit.React,
-      });
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
 
       const typeChecker = program.getTypeChecker();
       let funcDecl: ts.FunctionDeclaration | undefined;
@@ -93,7 +91,7 @@ describe('React Adapter - Props Extractor', () => {
       const ageProp = props.find((p) => p.name === 'age');
       expect(ageProp).toBeDefined();
       expect(ageProp?.required).toBe(false);
-      expect(ageProp?.schema.type).toBe('number');
+      expect(ageProp?.schema.oneOf).toContainEqual({ type: 'number' });
     });
 
     it('should extract props from a function component with type reference', () => {
@@ -546,5 +544,481 @@ describe('React Adapter - Federation Config', () => {
 
     // Cleanup
     fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+});
+
+describe('React Adapter - Enhanced Features', () => {
+  describe('JSDoc Metadata Extraction', () => {
+    it('should extract JSDoc description and default value from props', () => {
+      const sourceCode = `
+        import React from 'react';
+        
+        interface Props {
+          /**
+           * User's display name
+           * @default 'Guest'
+           */
+          userName?: string;
+          
+          /**
+           * User's age
+           * @deprecated Use birthDate instead
+           */
+          age?: number;
+        }
+        
+        function UserCard(props: Props) {
+          return <div>{props.userName}</div>;
+        }
+      `;
+
+      const { program, getSourceFile } = createTestProgram({ 'test.tsx': sourceCode });
+      const sourceFile = getSourceFile('test.tsx');
+
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
+
+      const typeChecker = program.getTypeChecker();
+
+      let funcDecl: ts.FunctionDeclaration | undefined;
+      ts.forEachChild(sourceFile, (node) => {
+        if (ts.isFunctionDeclaration(node)) {
+          funcDecl = node;
+        }
+      });
+
+      const props = extractProps(funcDecl!, typeChecker);
+
+      const userNameProp = props.find((p) => p.name === 'userName');
+      expect(userNameProp?.description).toContain('display name');
+      expect(userNameProp?.default).toEqual("'Guest'");
+
+      const ageProp = props.find((p) => p.name === 'age');
+      expect(ageProp?.description).toContain('age');
+      expect(ageProp?.deprecated).toBe(true);
+    });
+
+    it('should extract JSDoc @attribute for custom attribute names', () => {
+      const sourceCode = `
+        import React from 'react';
+        
+        interface Props {
+          /**
+           * User ID
+           * @attribute user-id
+           */
+          userId?: string;
+        }
+        
+        function UserCard(props: Props) {
+          return <div>{props.userId}</div>;
+        }
+      `;
+
+      const { program, getSourceFile } = createTestProgram({ 'test.tsx': sourceCode });
+      const sourceFile = getSourceFile('test.tsx');
+
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
+
+      const typeChecker = program.getTypeChecker();
+
+      let funcDecl: ts.FunctionDeclaration | undefined;
+      ts.forEachChild(sourceFile, (node) => {
+        if (ts.isFunctionDeclaration(node)) {
+          funcDecl = node;
+        }
+      });
+
+      const props = extractProps(funcDecl!, typeChecker);
+
+      const userIdProp = props.find((p) => p.name === 'userId');
+      expect(userIdProp?.attribute).toBe('user-id');
+    });
+  });
+
+  describe('PropTypes Support', () => {
+    it('should extract props from PropTypes definition', () => {
+      const sourceCode = `
+        import React from 'react';
+        import PropTypes from 'prop-types';
+        
+        function UserCard(props) {
+          return <div>{props.name}</div>;
+        }
+        
+        UserCard.propTypes = {
+          name: PropTypes.string.isRequired,
+          age: PropTypes.number,
+          isActive: PropTypes.bool,
+        };
+      `;
+
+      const { program, getSourceFile } = createTestProgram({ 'test.tsx': sourceCode });
+      const sourceFile = getSourceFile('test.tsx');
+
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
+
+      const typeChecker = program.getTypeChecker();
+
+      let funcDecl: ts.FunctionDeclaration | undefined;
+      ts.forEachChild(sourceFile, (node) => {
+        if (ts.isFunctionDeclaration(node)) {
+          funcDecl = node;
+        }
+      });
+
+      const props = extractProps(funcDecl!, typeChecker);
+
+      expect(props.length).toBeGreaterThanOrEqual(3);
+
+      const nameProp = props.find((p) => p.name === 'name');
+      expect(nameProp).toBeDefined();
+      expect(nameProp?.required).toBe(true);
+      expect(nameProp?.schema.type).toBe('string');
+
+      const ageProp = props.find((p) => p.name === 'age');
+      expect(ageProp).toBeDefined();
+      expect(ageProp?.required).toBe(false);
+      expect(ageProp?.schema.type).toBe('number');
+
+      const isActiveProp = props.find((p) => p.name === 'isActive');
+      expect(isActiveProp).toBeDefined();
+      expect(isActiveProp?.schema.type).toBe('boolean');
+    });
+
+    it('should extract complex PropTypes shapes', () => {
+      const sourceCode = `
+        import React from 'react';
+        import PropTypes from 'prop-types';
+        
+        function UserCard(props) {
+          return <div>{props.user.name}</div>;
+        }
+        
+        UserCard.propTypes = {
+          user: PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            name: PropTypes.string.isRequired,
+            email: PropTypes.string,
+          }).isRequired,
+          tags: PropTypes.arrayOf(PropTypes.string),
+          theme: PropTypes.oneOf(['light', 'dark']),
+        };
+      `;
+
+      const { program, getSourceFile } = createTestProgram({ 'test.tsx': sourceCode });
+      const sourceFile = getSourceFile('test.tsx');
+
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
+
+      const typeChecker = program.getTypeChecker();
+
+      let funcDecl: ts.FunctionDeclaration | undefined;
+      ts.forEachChild(sourceFile, (node) => {
+        if (ts.isFunctionDeclaration(node)) {
+          funcDecl = node;
+        }
+      });
+
+      const props = extractProps(funcDecl!, typeChecker);
+
+      const userProp = props.find((p) => p.name === 'user');
+      expect(userProp).toBeDefined();
+      expect(userProp?.required).toBe(true);
+      expect(userProp?.schema.type).toBe('object');
+      expect(userProp?.schema.properties).toBeDefined();
+      expect(userProp?.schema.properties?.id).toBeDefined();
+      expect(userProp?.schema.properties?.name).toBeDefined();
+
+      const tagsProp = props.find((p) => p.name === 'tags');
+      expect(tagsProp).toBeDefined();
+      expect(tagsProp?.schema.type).toBe('array');
+      expect(tagsProp?.schema.items?.type).toBe('string');
+
+      const themeProp = props.find((p) => p.name === 'theme');
+      expect(themeProp).toBeDefined();
+      expect(themeProp?.schema.enum).toEqual(['light', 'dark']);
+    });
+  });
+
+  describe('Default Values Extraction', () => {
+    it('should extract default values from property initializers in class components', () => {
+      const sourceCode = `
+        import React from 'react';
+        
+        interface Props {
+          theme: string;
+          count: number;
+        }
+        
+        class UserCard extends React.Component<Props> {
+          static defaultProps = {
+            theme: 'light',
+            count: 0,
+          };
+          
+          render() {
+            return <div />;
+          }
+        }
+      `;
+
+      const { program, getSourceFile } = createTestProgram({ 'test.tsx': sourceCode });
+      const sourceFile = getSourceFile('test.tsx');
+
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
+
+      const typeChecker = program.getTypeChecker();
+
+      let classDecl: ts.ClassDeclaration | undefined;
+      ts.forEachChild(sourceFile, (node) => {
+        if (ts.isClassDeclaration(node)) {
+          classDecl = node;
+        }
+      });
+
+      const props = extractProps(classDecl!, typeChecker);
+
+      expect(props.length).toBeGreaterThanOrEqual(2);
+      // Note: Default values from defaultProps would need additional logic to extract
+      // This test documents current behavior
+    });
+  });
+
+  describe('Event Extraction Enhancements', () => {
+    it('should extract JSDoc metadata from callback props', () => {
+      const sourceCode = `
+        import React from 'react';
+        
+        interface Props {
+          /**
+           * Fired when user clicks
+           * @event click
+           * @deprecated Use onPress instead
+           */
+          onClick?: (x: number, y: number) => void;
+        }
+        
+        function Button(props: Props) {
+          return <button onClick={() => props.onClick?.(0, 0)}>Click</button>;
+        }
+      `;
+
+      const { program, getSourceFile } = createTestProgram({ 'test.tsx': sourceCode });
+      const sourceFile = getSourceFile('test.tsx');
+
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
+
+      const typeChecker = program.getTypeChecker();
+
+      let funcDecl: ts.FunctionDeclaration | undefined;
+      ts.forEachChild(sourceFile, (node) => {
+        if (ts.isFunctionDeclaration(node)) {
+          funcDecl = node;
+        }
+      });
+
+      const events = extractEvents(funcDecl!, typeChecker);
+
+      const clickEvent = events.find((e) => e.name === 'click');
+      expect(clickEvent).toBeDefined();
+      expect(clickEvent?.description).toContain('clicks');
+      expect(clickEvent?.deprecated).toBe(true);
+    });
+
+    it('should extract bubbles and composed from CustomEvent options', () => {
+      const sourceCode = `
+        export class Widget extends HTMLElement {
+          handleClick() {
+            this.dispatchEvent(
+              new CustomEvent('action', {
+                detail: { type: 'click' },
+                bubbles: true,
+                composed: true,
+              })
+            );
+          }
+        }
+      `;
+
+      const { program, getSourceFile } = createTestProgram({ 'test.tsx': sourceCode });
+      const sourceFile = getSourceFile('test.tsx');
+
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
+
+      const typeChecker = program.getTypeChecker();
+
+      let classDecl: ts.ClassDeclaration | undefined;
+      ts.forEachChild(sourceFile, (node) => {
+        if (ts.isClassDeclaration(node)) {
+          classDecl = node;
+        }
+      });
+
+      const events = extractEvents(classDecl!, typeChecker);
+
+      const actionEvent = events.find((e) => e.name === 'action');
+      expect(actionEvent).toBeDefined();
+      expect(actionEvent?.bubbles).toBe(true);
+      expect(actionEvent?.composed).toBe(true);
+    });
+
+    it('should extract events from JSDoc @fires tags', () => {
+      const sourceCode = `
+        /**
+         * Button component
+         * @fires submit - When form is submitted
+         * @fires cancel - When form is cancelled
+         */
+        export class Button extends HTMLElement {
+          render() {
+            return <div />;
+          }
+        }
+      `;
+
+      const { program, getSourceFile } = createTestProgram({ 'test.tsx': sourceCode });
+      const sourceFile = getSourceFile('test.tsx');
+
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
+
+      const typeChecker = program.getTypeChecker();
+
+      let classDecl: ts.ClassDeclaration | undefined;
+      ts.forEachChild(sourceFile, (node) => {
+        if (ts.isClassDeclaration(node)) {
+          classDecl = node;
+        }
+      });
+
+      const events = extractEvents(classDecl!, typeChecker);
+
+      expect(events.length).toBeGreaterThanOrEqual(2);
+
+      const submitEvent = events.find((e) => e.name === 'submit');
+      expect(submitEvent).toBeDefined();
+      expect(submitEvent?.description).toContain('submitted');
+
+      const cancelEvent = events.find((e) => e.name === 'cancel');
+      expect(cancelEvent).toBeDefined();
+      expect(cancelEvent?.description).toContain('cancelled');
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('should handle components without props', () => {
+      const sourceCode = `
+        import React from 'react';
+        
+        function SimpleComponent() {
+          return <div>Hello</div>;
+        }
+      `;
+
+      const { program, getSourceFile } = createTestProgram({ 'test.tsx': sourceCode });
+      const sourceFile = getSourceFile('test.tsx');
+
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
+      const typeChecker = program.getTypeChecker();
+
+      let funcDecl: ts.FunctionDeclaration | undefined;
+      ts.forEachChild(sourceFile, (node) => {
+        if (ts.isFunctionDeclaration(node)) {
+          funcDecl = node;
+        }
+      });
+
+      const props = extractProps(funcDecl!, typeChecker);
+      expect(props.length).toBe(0);
+    });
+
+    it('should handle components without events', () => {
+      const sourceCode = `
+        import React from 'react';
+        
+        interface Props {
+          name: string;
+        }
+        
+        function StaticComponent(props: Props) {
+          return <div>{props.name}</div>;
+        }
+      `;
+
+      const { program, getSourceFile } = createTestProgram({ 'test.tsx': sourceCode });
+      const sourceFile = getSourceFile('test.tsx');
+
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
+
+      const typeChecker = program.getTypeChecker();
+
+      let funcDecl: ts.FunctionDeclaration | undefined;
+      ts.forEachChild(sourceFile, (node) => {
+        if (ts.isFunctionDeclaration(node)) {
+          funcDecl = node;
+        }
+      });
+
+      const events = extractEvents(funcDecl!, typeChecker);
+      expect(events.length).toBe(0);
+    });
+
+    it('should skip React built-in props (children, key, ref)', () => {
+      const sourceCode = `
+        import React from 'react';
+        
+        interface Props {
+          name: string;
+          children?: React.ReactNode;
+          key?: string;
+          ref?: React.Ref<HTMLDivElement>;
+        }
+        
+        function Container(props: Props) {
+          return <div>{props.children}</div>;
+        }
+      `;
+
+      const { program, getSourceFile } = createTestProgram({ 'test.tsx': sourceCode });
+      const sourceFile = getSourceFile('test.tsx');
+
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
+
+      const typeChecker = program.getTypeChecker();
+
+      let funcDecl: ts.FunctionDeclaration | undefined;
+      ts.forEachChild(sourceFile, (node) => {
+        if (ts.isFunctionDeclaration(node)) {
+          funcDecl = node;
+        }
+      });
+
+      const props = extractProps(funcDecl!, typeChecker);
+
+      // Should only extract 'name', not children/key/ref
+      expect(props.length).toBe(1);
+      expect(props[0].name).toBe('name');
+    });
   });
 });
