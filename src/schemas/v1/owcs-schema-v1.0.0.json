@@ -7,8 +7,9 @@
   "required": ["owcs", "info", "components"],
   "properties": {
     "owcs": {
-      "const": "1.0.0",
-      "description": "OWCS specification version"
+      "type": "string",
+      "description": "OWCS specification version",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
     },
     "info": {
       "type": "object",
@@ -117,6 +118,22 @@
         },
         "payload": {
           "$ref": "#/definitions/JSONSchema"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the event"
+        },
+        "deprecated": {
+          "type": "boolean",
+          "description": "Whether the event is deprecated"
+        },
+        "bubbles": {
+          "type": "boolean",
+          "description": "Whether the event bubbles up through the DOM"
+        },
+        "composed": {
+          "type": "boolean",
+          "description": "Whether the event can bubble across the shadow DOM boundary"
         }
       }
     },
@@ -155,9 +172,16 @@
           "type": "array"
         },
         "description": {
-          "type": "string"
+          "type": "string",
+          "description": "Description of the property or type"
         },
-        "default": {},
+        "default": {
+          "description": "Default value for the property"
+        },
+        "deprecated": {
+          "type": "boolean",
+          "description": "Whether the property is deprecated"
+        },
         "format": {
           "type": "string"
         },
@@ -181,6 +205,16 @@
           "items": {
             "$ref": "#/definitions/JSONSchema"
           }
+        },
+        "additionalProperties": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/definitions/JSONSchema"
+            }
+          ]
         }
       }
     }

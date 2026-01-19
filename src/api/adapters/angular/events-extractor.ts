@@ -1,7 +1,8 @@
 import * as ts from 'typescript';
 import { EventModel, JSONSchema } from '../../model/intermediate.js';
-import { getClassProperties, findDecorator, findCallExpressions, isMethodCall, getStringLiteralValue } from '../../core/ast-walker.js';
+import { getClassProperties, findDecorator, findCallExpressions, isMethodCall, getStringLiteralValue, getDecoratorArgument } from '../../core/ast-walker.js';
 import { typeNodeToJsonSchema } from '../shared/type.utils.js';
+import { extractJSDocMetadata } from '../shared/jsdoc.utils.js';
 
 /**
  * Extracts events from an Angular component class
@@ -68,14 +69,27 @@ function extractOutputEvent(property: ts.PropertyDeclaration, typeChecker: ts.Ty
 
   const name = propertyName.text;
 
+  // Check for @Output('alias') pattern
+  const outputDecorator = findDecorator(property, 'Output');
+  const decoratorArg = outputDecorator ? getDecoratorArgument(outputDecorator, 0) : undefined;
+  const decoratorAlias = decoratorArg ? getStringLiteralValue(decoratorArg) : undefined;
+
+  // Extract JSDoc metadata
+  const jsDocMetadata = extractJSDocMetadata(property);
+
+  // Determine event name (decorator alias > JSDoc @attribute > property name)
+  const eventName = decoratorAlias || jsDocMetadata.attribute || name;
+
   // Extract payload type from EventEmitter<T>
   const payloadSchema = extractEventEmitterPayload(property, typeChecker);
 
   return {
-    name,
+    name: eventName,
     type: 'EventEmitter',
     payloadSchema,
     source: 'output',
+    description: jsDocMetadata.description,
+    deprecated: jsDocMetadata.deprecated,
   };
 }
 
@@ -119,6 +133,9 @@ function extractOutputSignalEvent(property: ts.PropertyDeclaration, typeChecker:
     payloadSchema = typeNodeToJsonSchema(callExpression.typeArguments[0], typeChecker);
   }
 
+  // Extract JSDoc metadata
+  const jsDocMetadata = extractJSDocMetadata(property);
+
   // Check for alias in options: output({ alias: 'customName' })
   let eventName = name;
 
@@ -138,11 +155,18 @@ function extractOutputSignalEvent(property: ts.PropertyDeclaration, typeChecker:
     }
   }
 
+  // JSDoc @attribute takes precedence if specified
+  if (jsDocMetadata.attribute) {
+    eventName = jsDocMetadata.attribute;
+  }
+
   return {
     name: eventName,
     type: 'OutputSignal',
     payloadSchema,
     source: 'output',
+    description: jsDocMetadata.description,
+    deprecated: jsDocMetadata.deprecated,
   };
 }
 
@@ -252,18 +276,33 @@ function extractDispatchEvent(call: ts.CallExpression, typeChecker: ts.TypeCheck
     return undefined;
   }
 
-  // Extract payload schema from detail property
+  // Extract payload schema and event options from detail property
   let payloadSchema: JSONSchema | undefined;
+  let bubbles: boolean | undefined;
+  let composed: boolean | undefined;
 
   if (eventArg.arguments.length > 1) {
     const optionsArg = eventArg.arguments[1];
 
     if (ts.isObjectLiteralExpression(optionsArg)) {
       for (const prop of optionsArg.properties) {
-        if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name) && prop.name.text === 'detail') {
-          // Try to infer schema from the detail value
-          payloadSchema = inferSchemaFromExpression(prop.initializer, typeChecker);
-          break;
+        if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name)) {
+          if (prop.name.text === 'detail') {
+            // Try to infer schema from the detail value
+            payloadSchema = inferSchemaFromExpression(prop.initializer, typeChecker);
+          } else if (prop.name.text === 'bubbles') {
+            if (prop.initializer.kind === ts.SyntaxKind.TrueKeyword) {
+              bubbles = true;
+            } else if (prop.initializer.kind === ts.SyntaxKind.FalseKeyword) {
+              bubbles = false;
+            }
+          } else if (prop.name.text === 'composed') {
+            if (prop.initializer.kind === ts.SyntaxKind.TrueKeyword) {
+              composed = true;
+            } else if (prop.initializer.kind === ts.SyntaxKind.FalseKeyword) {
+              composed = false;
+            }
+          }
         }
       }
     }
@@ -274,12 +313,36 @@ function extractDispatchEvent(call: ts.CallExpression, typeChecker: ts.TypeCheck
     payloadSchema = typeNodeToJsonSchema(eventArg.typeArguments[0], typeChecker);
   }
 
+  // Try to extract JSDoc metadata from the containing method
+  const method = findContainingMethod(call);
+  const jsDocMetadata = method ? extractJSDocMetadata(method) : {};
+
   return {
     name: eventName,
     type: 'CustomEvent',
     payloadSchema,
     source: 'dispatchEvent',
+    description: jsDocMetadata.description,
+    deprecated: jsDocMetadata.deprecated,
+    bubbles,
+    composed,
   };
+}
+
+/**
+ * Find the containing method for a node
+ */
+function findContainingMethod(node: ts.Node): ts.MethodDeclaration | undefined {
+  let current = node.parent;
+
+  while (current) {
+    if (ts.isMethodDeclaration(current)) {
+      return current;
+    }
+    current = current.parent;
+  }
+
+  return undefined;
 }
 
 /**

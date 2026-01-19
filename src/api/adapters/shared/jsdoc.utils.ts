@@ -1,0 +1,191 @@
+import * as ts from 'typescript';
+
+/**
+ * JSDoc metadata extracted from a symbol
+ */
+export interface JSDocMetadata {
+  description?: string;
+  default?: unknown;
+  deprecated?: boolean;
+  property?: string;
+  attribute?: string;
+  event?: string;
+  fires?: string[];
+  tags?: Record<string, string>;
+}
+
+/**
+ * Extracts JSDoc metadata from a node
+ */
+export function extractJSDocMetadata(node: ts.Node): JSDocMetadata {
+  const metadata: JSDocMetadata = {};
+  const jsDocTags = ts.getJSDocTags(node);
+  const jsDocComments = (node as any).jsDoc as ts.JSDoc[] | undefined;
+
+  // Extract main description
+  if (jsDocComments && jsDocComments.length > 0) {
+    const comment = jsDocComments[0].comment;
+    if (typeof comment === 'string') {
+      metadata.description = comment.trim();
+    } else if (comment) {
+      // Handle NodeArray<JSDocComment>
+      metadata.description = comment
+        .map((c: any) => c.text)
+        .join('')
+        .trim();
+    }
+  }
+
+  // Extract tags
+  const tags: Record<string, string> = {};
+
+  for (const tag of jsDocTags) {
+    const tagName = tag.tagName.text;
+    let tagValue = '';
+
+    if (tag.comment) {
+      if (typeof tag.comment === 'string') {
+        tagValue = tag.comment;
+      } else {
+        tagValue = tag.comment.map((c: any) => c.text).join('');
+      }
+    }
+
+    tags[tagName] = tagValue;
+
+    // Handle specific tags
+    switch (tagName) {
+      case 'default':
+        metadata.default = parseDefaultValue(tagValue);
+        break;
+
+      case 'deprecated':
+        metadata.deprecated = true;
+        break;
+
+      case 'property':
+        metadata.property = extractPropertyName(tagValue);
+        break;
+
+      case 'attribute':
+        metadata.attribute = tagValue.trim();
+        break;
+
+      case 'event':
+        metadata.event = tagValue.trim();
+        break;
+
+      case 'fires':
+        if (!metadata.fires) {
+          metadata.fires = [];
+        }
+        metadata.fires.push(tagValue.trim());
+        break;
+    }
+  }
+
+  if (Object.keys(tags).length > 0) {
+    metadata.tags = tags;
+  }
+
+  return metadata;
+}
+
+/**
+ * Parse default value from JSDoc @default tag
+ */
+function parseDefaultValue(value: string): unknown {
+  const trimmed = value.trim();
+
+  // Try to parse as JSON
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    // Return as string if not valid JSON
+    if (trimmed === 'true') return true;
+    if (trimmed === 'false') return false;
+    if (trimmed === 'null') return null;
+    if (trimmed === 'undefined') return undefined;
+    if (!isNaN(Number(trimmed))) return Number(trimmed);
+    return trimmed;
+  }
+}
+
+/**
+ * Extract property name from JSDoc @property tag
+ * Format: @property {type} name - description
+ */
+function extractPropertyName(value: string): string {
+  // Remove type annotation: {type}
+  const withoutType = value.replace(/^\{[^}]+\}\s*/, '');
+
+  // Extract name (first word)
+  const match = withoutType.match(/^(\S+)/);
+  return match ? match[1] : '';
+}
+
+/**
+ * Extract attribute name from JSDoc or decorator
+ */
+export function extractAttributeName(node: ts.Node, _propertyName: string): string | undefined {
+  const metadata = extractJSDocMetadata(node);
+
+  if (metadata.attribute) {
+    return metadata.attribute;
+  }
+
+  // Check for decorator attribute alias
+  if (ts.isPropertyDeclaration(node) || ts.isPropertySignature(node)) {
+    // This will be implemented per-framework
+  }
+
+  return undefined;
+}
+
+/**
+ * Extract event names from JSDoc @fires tags
+ */
+export function extractEventNamesFromJSDoc(node: ts.Node): string[] {
+  const metadata = extractJSDocMetadata(node);
+  return metadata.fires || [];
+}
+
+/**
+ * Check if a node has JSDoc deprecation marker
+ */
+export function isDeprecated(node: ts.Node): boolean {
+  const metadata = extractJSDocMetadata(node);
+  return metadata.deprecated || false;
+}
+
+/**
+ * Extract default value from property initializer
+ */
+export function extractDefaultValue(property: ts.PropertyDeclaration): unknown {
+  if (property.initializer) {
+    // Try to extract literal values
+    if (ts.isStringLiteral(property.initializer)) {
+      return property.initializer.text;
+    }
+    if (ts.isNumericLiteral(property.initializer)) {
+      return Number(property.initializer.text);
+    }
+    if (property.initializer.kind === ts.SyntaxKind.TrueKeyword) {
+      return true;
+    }
+    if (property.initializer.kind === ts.SyntaxKind.FalseKeyword) {
+      return false;
+    }
+    if (property.initializer.kind === ts.SyntaxKind.NullKeyword) {
+      return null;
+    }
+    if (ts.isArrayLiteralExpression(property.initializer) && property.initializer.elements.length === 0) {
+      return [];
+    }
+    if (ts.isObjectLiteralExpression(property.initializer) && property.initializer.properties.length === 0) {
+      return {};
+    }
+  }
+
+  return undefined;
+}

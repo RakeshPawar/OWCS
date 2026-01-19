@@ -2,6 +2,7 @@ import * as ts from 'typescript';
 import { EventModel, JSONSchema } from '../../model/intermediate.js';
 import { getStringLiteralValue } from '../../core/ast-walker.js';
 import { typeToJsonSchema } from '../shared/type.utils.js';
+import { extractJSDocMetadata } from '../shared/jsdoc.utils.js';
 
 /**
  * Extracts events from a React component
@@ -9,6 +10,10 @@ import { typeToJsonSchema } from '../shared/type.utils.js';
  */
 export function extractEvents(component: ts.ClassDeclaration | ts.FunctionDeclaration, typeChecker: ts.TypeChecker): EventModel[] {
   const events: EventModel[] = [];
+
+  // Extract events from JSDoc @fires tags on the component
+  const jsDocEvents = extractEventsFromJSDoc(component);
+  events.push(...jsDocEvents);
 
   // Extract dispatchEvent calls from component body
   const dispatchEvents = extractDispatchEvents(component, typeChecker);
@@ -18,15 +23,54 @@ export function extractEvents(component: ts.ClassDeclaration | ts.FunctionDeclar
   const callbackEvents = extractCallbackProps(component, typeChecker);
   events.push(...callbackEvents);
 
-  // Deduplicate by event name
+  // Deduplicate by event name (prefer dispatchEvent source, then JSDoc, then callbacks)
   const uniqueEvents = new Map<string, EventModel>();
-  for (const event of events) {
+
+  // First add JSDoc events (lowest priority)
+  for (const event of jsDocEvents) {
+    uniqueEvents.set(event.name, event);
+  }
+
+  // Then callback events
+  for (const event of callbackEvents) {
     if (!uniqueEvents.has(event.name)) {
       uniqueEvents.set(event.name, event);
     }
   }
 
+  // Finally dispatch events (highest priority)
+  for (const event of dispatchEvents) {
+    uniqueEvents.set(event.name, event);
+  }
+
   return Array.from(uniqueEvents.values());
+}
+
+/**
+ * Extract events from JSDoc @fires tags on the component
+ */
+function extractEventsFromJSDoc(component: ts.ClassDeclaration | ts.FunctionDeclaration): EventModel[] {
+  const events: EventModel[] = [];
+  const jsDocMetadata = extractJSDocMetadata(component);
+
+  if (jsDocMetadata.fires) {
+    for (const eventName of jsDocMetadata.fires) {
+      // Parse event name and type from JSDoc
+      // Format: "eventName - description" or just "eventName"
+      const parts = eventName.split('-').map((s) => s.trim());
+      const name = parts[0];
+      const description = parts.length > 1 ? parts.slice(1).join('-').trim() : undefined;
+
+      events.push({
+        name,
+        type: 'CustomEvent',
+        source: 'dispatchEvent',
+        description,
+      });
+    }
+  }
+
+  return events;
 }
 
 /**
@@ -112,6 +156,8 @@ function extractEventFromDispatchCall(call: ts.CallExpression, typeChecker: ts.T
 
           // For CustomEvent, try to extract detail type from second argument
           let payloadSchema: JSONSchema | undefined;
+          let bubbles: boolean | undefined;
+          let composed: boolean | undefined;
 
           if (eventType === 'CustomEvent' && eventArg.arguments.length > 1) {
             const detailArg = eventArg.arguments[1];
@@ -126,18 +172,66 @@ function extractEventFromDispatchCall(call: ts.CallExpression, typeChecker: ts.T
                 const detailType = typeChecker.getTypeAtLocation(detailProp.initializer);
                 payloadSchema = typeToJsonSchema(detailType, typeChecker);
               }
+
+              // Extract bubbles property
+              const bubblesProp = detailArg.properties.find(
+                (prop) => ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name) && prop.name.text === 'bubbles'
+              );
+              if (bubblesProp && ts.isPropertyAssignment(bubblesProp)) {
+                if (bubblesProp.initializer.kind === ts.SyntaxKind.TrueKeyword) {
+                  bubbles = true;
+                } else if (bubblesProp.initializer.kind === ts.SyntaxKind.FalseKeyword) {
+                  bubbles = false;
+                }
+              }
+
+              // Extract composed property
+              const composedProp = detailArg.properties.find(
+                (prop) => ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name) && prop.name.text === 'composed'
+              );
+              if (composedProp && ts.isPropertyAssignment(composedProp)) {
+                if (composedProp.initializer.kind === ts.SyntaxKind.TrueKeyword) {
+                  composed = true;
+                } else if (composedProp.initializer.kind === ts.SyntaxKind.FalseKeyword) {
+                  composed = false;
+                }
+              }
             }
           }
+
+          // Try to extract JSDoc metadata from the containing method
+          const method = findContainingMethod(call);
+          const jsDocMetadata = method ? extractJSDocMetadata(method) : {};
 
           return {
             name: eventName,
             type: 'CustomEvent',
             payloadSchema,
             source: 'dispatchEvent',
+            description: jsDocMetadata.description,
+            deprecated: jsDocMetadata.deprecated,
+            bubbles,
+            composed,
           };
         }
       }
     }
+  }
+
+  return undefined;
+}
+
+/**
+ * Find the containing method/function for a node
+ */
+function findContainingMethod(node: ts.Node): ts.MethodDeclaration | ts.FunctionDeclaration | undefined {
+  let current = node.parent;
+
+  while (current) {
+    if (ts.isMethodDeclaration(current) || ts.isFunctionDeclaration(current)) {
+      return current;
+    }
+    current = current.parent;
   }
 
   return undefined;
@@ -188,7 +282,16 @@ function extractCallbackProps(component: ts.ClassDeclaration | ts.FunctionDeclar
 
     // Check if it's a callback prop (starts with 'on')
     if (propName.startsWith('on')) {
-      const propType = typeChecker.getTypeOfSymbolAtLocation(prop, prop.valueDeclaration!);
+      // Get type - use valueDeclaration if available, otherwise use getTypeOfSymbol
+      let propType = prop.valueDeclaration ? typeChecker.getTypeOfSymbolAtLocation(prop, prop.valueDeclaration) : typeChecker.getTypeOfSymbol(prop);
+
+      // If it's an optional prop, it might be a union with undefined - unwrap it
+      if (propType.isUnion()) {
+        const nonUndefinedTypes = propType.types.filter((t) => !(t.flags & ts.TypeFlags.Undefined));
+        if (nonUndefinedTypes.length === 1) {
+          propType = nonUndefinedTypes[0];
+        }
+      }
 
       // Check if it's a function type
       const signatures = propType.getCallSignatures();
@@ -208,11 +311,24 @@ function extractCallbackProps(component: ts.ClassDeclaration | ts.FunctionDeclar
           payloadSchema = typeToJsonSchema(paramType, typeChecker);
         }
 
+        // Extract JSDoc metadata from property
+        const jsDocMetadata = prop.valueDeclaration ? extractJSDocMetadata(prop.valueDeclaration) : {};
+
+        // Check for @fires tag or @event tag
+        let finalEventName = eventName;
+        if (jsDocMetadata.event) {
+          finalEventName = jsDocMetadata.event;
+        } else if (jsDocMetadata.fires && jsDocMetadata.fires.length > 0) {
+          finalEventName = jsDocMetadata.fires[0];
+        }
+
         events.push({
-          name: eventName,
+          name: finalEventName,
           type: 'CustomEvent',
           payloadSchema,
           source: 'output',
+          description: jsDocMetadata.description,
+          deprecated: jsDocMetadata.deprecated,
         });
       }
     }
