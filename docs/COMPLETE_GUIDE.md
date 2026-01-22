@@ -199,7 +199,7 @@ Example structure:
 src/adapters/react/
 ├── index.ts              # Main adapter
 ├── component-discovery.ts # Find React components
-├── props-extractor.ts     # Extract props/PropTypes
+├── props-extractor.ts     # Extract props from TypeScript
 ├── events-extractor.ts    # Extract event handlers
 └── *.test.ts             # Tests
 ```

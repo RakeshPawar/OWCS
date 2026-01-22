@@ -1,5 +1,4 @@
 import { createRoot, Root } from 'react-dom/client';
-import PropTypes from 'prop-types';
 
 /**
  * Comprehensive example demonstrating all supported patterns for props and events
@@ -613,57 +612,6 @@ export class ComprehensiveExampleElement extends HTMLElement implements Comprehe
     );
   }
 }
-
-// ============================================================================
-// PROPTYPES DEFINITION (Legacy React Pattern)
-// ============================================================================
-
-ComprehensiveExampleElement.propTypes = {
-  userName: PropTypes.string,
-  age: PropTypes.number,
-  isActive: PropTypes.bool,
-  theme: PropTypes.oneOf(['light', 'dark', 'auto']),
-  status: PropTypes.oneOf(['idle', 'loading', 'success', 'error']),
-  config: PropTypes.shape({
-    endpoint: PropTypes.string.isRequired,
-    timeout: PropTypes.number.isRequired,
-    retry: PropTypes.bool,
-    headers: PropTypes.objectOf(PropTypes.string),
-  }),
-  user: PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-    email: PropTypes.string.isRequired,
-    roles: PropTypes.arrayOf(PropTypes.string).isRequired,
-  }),
-  tags: PropTypes.arrayOf(PropTypes.string),
-  users: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      name: PropTypes.string.isRequired,
-      email: PropTypes.string.isRequired,
-      roles: PropTypes.arrayOf(PropTypes.string).isRequired,
-    })
-  ),
-  onClick: PropTypes.func,
-  onChange: PropTypes.func,
-  onHover: PropTypes.func,
-  onSubmit: PropTypes.func,
-  nullableValue: PropTypes.string,
-  mixedUnion: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
-  flexible: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
-  metadata: PropTypes.object,
-  settings: PropTypes.shape({
-    display: PropTypes.shape({
-      showHeader: PropTypes.bool,
-      showFooter: PropTypes.bool,
-    }),
-    behavior: PropTypes.shape({
-      autoSave: PropTypes.bool,
-      interval: PropTypes.number,
-    }),
-  }),
-} as any;
 
 // ============================================================================
 // CUSTOM ELEMENT REGISTRATION
