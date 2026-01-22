@@ -1,12 +1,10 @@
 # Local Development with Verdaccio
 
-> **Note**: This guide is for OWCS contributors and maintainers who need to test the package locally before publishing. End users should install OWCS from npm: `npm install owcs`.
+> **Note**: For OWCS contributors testing locally before publishing. End users: `npm install owcs`
 
-This directory contains configuration for publishing OWCS to a local npm registry using Verdaccio for development and testing purposes.
+Local npm registry setup using Verdaccio for development and testing.
 
 ### Prerequisites
-
-Install Verdaccio globally:
 
 ```bash
 npm install -g verdaccio
@@ -14,7 +12,7 @@ npm install -g verdaccio
 
 ### Quick Start
 
-#### 1. Start Verdaccio Server
+**1. Start Server**
 
 ```bash
 npm run verdaccio:start
@@ -32,15 +30,10 @@ The server will start at `http://localhost:4873`
 
 ```bash
 npm adduser --registry http://localhost:4873
+# Username: test, Password: test, Email: test@test.com
 ```
 
-Enter your credentials:
-
-- Username: test
-- Password: test
-- Email: test@test.com
-
-#### 3. Publish the Package
+**3. Publish Package**
 
 ```bash
 npm run verdaccio:publish
@@ -77,7 +70,7 @@ npm install owcs
 
 ### Best Practices
 
-1. **Version Management**: Update the version in `package.json` before each publish
+1. **Version Management**: Update the version in `package.json` before publishing
 
    ```bash
    npm version patch  # 1.0.0 -> 1.0.1
@@ -110,7 +103,7 @@ npm install owcs
 5. **Multiple Projects**: Use `.npmrc` files in consumer projects
 
    ```
-   # In consumer project's .npmrc
+   # In the consumer project's .npmrc
    registry=http://localhost:4873
    ```
 
@@ -237,8 +230,8 @@ Access the Verdaccio web UI at `http://localhost:4873` to:
 ### Security Notes
 
 - This is for **local development only**
-- Default configuration allows anonymous access for reading
-- Requires authentication for publishing
+- Default configuration allows anonymous access for reading packages
+- Requires authentication for publishing packages
 - Do not expose to public networks
 - Use firewall rules if needed
 

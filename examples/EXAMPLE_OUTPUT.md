@@ -45,7 +45,7 @@ customElements.define('user-card', UserCardComponent);
 Running OWCS on this component:
 
 ```bash
-npx owcs generate --project examples/angular --format yaml --title "User Components"
+npx owcs generate --adapter angular --project examples/angular --format yaml --title "User Components"
 ```
 
 Produces this `owcs.yaml`:
@@ -102,11 +102,14 @@ components:
 ### Basic Generation
 
 ```bash
-# Generate specification
-npx owcs generate
+# Generate specification for Angular
+npx owcs generate --adapter angular
+
+# Generate specification for React
+npx owcs generate --adapter react
 
 # Generate with custom title
-npx owcs generate --title "My Components" --version "2.0.0"
+npx owcs generate --adapter angular --title "My Components" --version "2.0.0"
 
 # Generate JSON format
 npx owcs generate --format json --output components.json

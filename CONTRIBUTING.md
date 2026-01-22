@@ -1,6 +1,6 @@
 # Contributing to OWCS
 
-Thank you for your interest in contributing to OWCS (Open Web Component Specification)! We welcome contributions from the community to help make web component development more standardized and accessible.
+Thank you for contributing to OWCS! We welcome help making web component development more standardized.
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ Thank you for your interest in contributing to OWCS (Open Web Component Specific
 
 OWCS is designed to be extensible and framework-agnostic. We're particularly interested in:
 
-- **Framework adapters**: Adding support for React, Vue, Svelte, or other frameworks
+- **Framework adapters**: Adding support for Vue, Svelte, or other frameworks (React adapter is already implemented)
 - **Enhanced Angular support**: Template parsing, CSS custom properties, lifecycle hooks
 - **Tooling integrations**: Webpack plugins, Vite plugins, build tool integrations
 - **Documentation improvements**: Examples, guides, and API documentation
@@ -25,26 +25,16 @@ OWCS is designed to be extensible and framework-agnostic. We're particularly int
 
 ## Development Setup
 
-For detailed development setup instructions, including architecture overview and API documentation, please see [docs/COMPLETE_GUIDE.md](docs/COMPLETE_GUIDE.md).
+See [docs/COMPLETE_GUIDE.md](docs/COMPLETE_GUIDE.md) for detailed setup, architecture, and API docs.
 
 **Quick setup:**
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/OWCS.git
+git clone https://github.com/RakeshPawar/OWCS.git
 cd OWCS
-
-# Install dependencies
-npm install
-
-# Build the project
-npm run build
-
-# Run tests
-npm test
-
-# Start development mode (watch for changes)
-npm run dev
+npm install && npm run build
+npm test  # Run tests
+npm run dev  # Watch mode
 ```
 
 ## How to Contribute
@@ -53,27 +43,17 @@ npm run dev
 
 #### Adding Framework Support
 
-If you want to add support for a new framework:
+To add support for a new framework:
 
-1. Create a new adapter directory: `src/api/adapters/[framework]/`
-2. Implement the adapter interface (see Angular adapter as reference)
-3. Add framework-specific extractors for:
+1. Create adapter directory: `src/api/adapters/[framework]/`
+2. Implement adapter interface (see Angular adapter)
+3. Add extractors for:
    - Component registration/discovery
    - Properties/props extraction
    - Event handling extraction
    - Module federation (if applicable)
 4. Write comprehensive tests
 5. Update documentation
-
-#### Enhancing Angular Support
-
-Current Angular adapter supports basic component analysis. Areas for enhancement:
-
-- Template parsing and analysis
-- CSS custom properties detection
-- Lifecycle hook documentation
-- Angular-specific decorators (@HostBinding, @HostListener, etc.)
-- Standalone components support
 
 #### Bug Fixes and Features
 
@@ -148,7 +128,7 @@ src/
 
 ### Adapter Implementation
 
-When creating a new framework adapter, implement these key methods:
+When creating a new framework adapter, implement these key functions:
 
 ```typescript
 interface FrameworkAdapter {
@@ -190,7 +170,7 @@ npm run test:coverage
 - Write tests for all new functionality
 - Include edge cases and error scenarios
 - Use descriptive test names that explain the expected behavior
-- Mock external dependencies appropriately
+- Mock external dependencies properly
 - Test both positive and negative cases
 
 ## Documentation
@@ -258,14 +238,6 @@ npm run test:coverage
 - **Discussions**: Use GitHub discussions for general questions
 - **Documentation**: Check docs/COMPLETE_GUIDE.md for detailed information
 
-### Recognition
-
-Contributors are recognized in:
-
-- Release notes for significant contributions
-- README.md contributors section (coming soon)
-- Special thanks in documentation
-
 ## Development Tips
 
 ### Common Patterns
@@ -275,30 +247,7 @@ Contributors are recognized in:
 3. **Configuration**: Use the established configuration patterns for framework-specific options
 4. **Schema Validation**: Leverage JSON Schema for specification validation
 
-### Debugging
-
-- Use the CLI with the `--debug` flag for verbose output
-- Run specific test cases while developing
-- Use TypeScript's compiler API documentation for AST manipulation
-- Check existing adapter implementations as reference
-
-### Performance Considerations
-
-- Consider memory usage when processing large codebases
-- Use efficient AST traversal patterns
-- Cache expensive operations when appropriate
-- Profile performance for large projects
-
 ---
 
 Thank you for contributing to OWCS! Your efforts help make web component development more accessible and standardized across the ecosystem.
-
-## Questions?
-
-If you have questions not covered in this guide, please:
-
-1. Check the [docs/COMPLETE_GUIDE.md](docs/COMPLETE_GUIDE.md) for technical details
-2. Search existing issues and discussions
-3. Create a new discussion or issue with your question
-
 We're here to help and appreciate your contributions! 🚀

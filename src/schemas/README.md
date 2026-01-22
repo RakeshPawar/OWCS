@@ -8,11 +8,11 @@ OWCS uses JSON Schema to validate generated specifications. The current version 
 
 ## For End Users
 
-You typically don't need to work with schemas directly. OWCS handles validation automatically:
+Most users don't need to work with schemas directly. OWCS handles validation automatically:
 
 ```bash
 # Validation happens automatically during generation
-npx owcs generate
+npx owcs generate --adapter angular
 
 # Manually validate a specification
 npx owcs validate owcs.yaml
@@ -30,7 +30,7 @@ import { validateOWCSSpec } from './api/core/validator';
 // Validate with default (latest) version
 const result = validateOWCSSpec(spec);
 
-// Validate with specific version
+// Validate with a specific version
 const resultV1 = validateOWCSSpec(spec, '1.0.0');
 ```
 
@@ -144,7 +144,7 @@ Returns the schema version used by the validator.
 
 ### `OWCSValidator.getAvailableVersions(): SchemaVersion[]`
 
-Static method that returns all available schema versions.
+Static function that returns all available schema versions.
 
 ## Best Practices
 

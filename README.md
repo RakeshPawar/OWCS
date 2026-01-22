@@ -71,7 +71,7 @@ import { analyzeAngularProject, buildOWCSSpec, writeOWCSSpec } from 'owcs';
 // Analyze your Angular project
 const analysis = analyzeAngularProject('./src');
 
-// Create specification
+// Build specification
 const spec = buildOWCSSpec(analysis, {
   title: 'My Angular Components',
   version: '1.0.0',
@@ -89,7 +89,7 @@ import { analyzeReactProject, buildOWCSSpec, writeOWCSSpec } from 'owcs';
 // Analyze your React project
 const analysis = analyzeReactProject('./src');
 
-// Create specification
+// Build specification
 const spec = buildOWCSSpec(analysis, {
   title: 'My React Components',
   version: '1.0.0',
@@ -178,7 +178,7 @@ const handleClick = () => {
 ### Module Federation Configuration
 
 ```javascript
-// Extracts from webpack.config.js
+// Extracted from webpack.config.js
 new ModuleFederationPlugin({
   name: 'userComponents',
   exposes: {
@@ -241,14 +241,15 @@ This creates both `owcs.yaml` and `openapi.yaml` files, making your components d
 
 ## Commands
 
-| Command                | Description                                      |
-| ---------------------- | ------------------------------------------------ |
-| `owcs generate`        | Generate specification from your Angular project |
-| `owcs validate <file>` | Check if a specification file is valid           |
-| `owcs info <file>`     | Show details about a specification file          |
+| Command                | Description                                                 |
+| ---------------------- | ----------------------------------------------------------- |
+| `owcs generate`        | Generate specification from your project (Angular or React) |
+| `owcs validate <file>` | Check if a specification file is valid                      |
+| `owcs info <file>`     | Show details about a specification file                     |
 
 ### Generate Options
 
+- `-a, --adapter <adapter>` - Framework adapter: `angular` or `react` (required)
 - `-f, --format <format>` - Output format: `yaml` (default) or `json`
 - `-o, --output <file>` - Output file path (default: `owcs.yaml`)
 - `-p, --project <path>` - Project directory (default: current directory)

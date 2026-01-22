@@ -5,14 +5,12 @@ This guide covers advanced usage, API details, and development setup for OWCS co
 ## Development Setup
 
 ```bash
-# Clone and setup the project
 git clone <repository-url>
 cd OWCS
-npm install
-npm run build
+npm install && npm run build
 ```
 
-## Architecture Deep Dive
+## Architecture
 
 ### Core Components
 
@@ -21,7 +19,7 @@ The library is built with a modular architecture:
 ```
 src/
 ├── cli/                    # Command-line interface
-├── api/                    # Program interface
+├── api/                    # Programmatic interface
   ├── core/                   # Core functionality (AST, schema building)
   ├── adapters/               # Framework-specific adapters
   ├── model/                  # TypeScript type definitions
@@ -32,8 +30,8 @@ src/
 
 ```
 ┌─────────────────────┐
-│  Angular Source     │
-│  (.ts files)        │
+│  Angular/React      │
+│  Source (.ts files) │
 └──────────┬──────────┘
            │
            ▼
@@ -249,35 +247,34 @@ const result = validator.validate(spec);
 ### Module Structure
 
 ```
-
 src/
-├── cli/ # Command-line interface
-│ └── index.ts # Commands: generate, validate, info
+├── cli/                     # Command-line interface
+│   └── index.ts            # Commands: generate, validate, info
 │
-├── api/ # Program interface
-│ ├── core/ # Core functionality
-│ │ ├── ast-walker.ts # Generic AST utilities
-│ │ ├── schema-builder.ts # IntermediateModel → OWCSSpec
-│ │ ├── yaml-writer.ts # Output formatting
-│ │ └── validator.ts # JSON Schema validation
-│ │
-│ ├── adapters/ # Framework adapters
-│ │ └── angular/
-│ │ ├── index.ts # Main adapter class
-│ │ ├── component-discovery.ts # Find components
-│ │ ├── props-extractor.ts # Extract @Input()
-│ │ ├── events-extractor.ts # Extract @Output()
-│ │ └── federation-extractor.ts # Parse webpack config
-│ │
-│ ├── model/ # Type definitions
-│ │ └── intermediate.ts # All interfaces & types
-│ │
-│ ├── openapi/ # OpenAPI conversion
-│   └── converter.ts # OWCS → OpenAPI 3.1
+├── api/                     # Programmatic API
+│   ├── core/               # Framework-agnostic core functionality
+│   │   ├── ast-walker.ts   # Generic AST utilities
+│   │   ├── schema-builder.ts # IntermediateModel → OWCSSpec
+│   │   ├── yaml-writer.ts  # Output formatting
+│   │   └── validator.ts    # JSON Schema validation
+│   │
+│   ├── adapters/           # Framework adapters
+│   │   └── angular/
+│   │       ├── index.ts    # Main adapter class
+│   │       ├── component-discovery.ts # Find components
+│   │       ├── props-extractor.ts # Extract @Input()
+│   │       ├── events-extractor.ts # Extract @Output()
+│   │       └── federation-extractor.ts # Parse webpack config
+│   │
+│   ├── model/              # Type definitions
+│   │   └── intermediate.ts # All interfaces & types
+│   │
+│   └── openapi/            # OpenAPI conversion
+│       └── converter.ts    # OWCS → OpenAPI 3.1
 │
-└── schemas /# Json Schema
-  └── owcs.schema.json # JSON Schema for validation
-
+└── schemas/                 # JSON Schema
+    └── v1/
+        └── owcs-schema-v1.0.0.json # JSON Schema for validation
 ```
 
 ## API Documentation
@@ -579,12 +576,12 @@ Typical performance:
 
 Potential additions:
 
-- [ ] React adapter
+- [ ] Additional React features (React adapter is already implemented)
 - [ ] Vue adapter
 - [ ] Template parsing
 - [ ] Slot/content projection
 - [ ] CSS custom properties
-- [ ] Visual documentation
+- [ ] Visual documentation generation
 - [ ] Watch mode
 - [ ] VS Code extension
 
