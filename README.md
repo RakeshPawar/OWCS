@@ -266,6 +266,8 @@ Want to help improve OWCS? Contributions are welcome! The project is designed to
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 
+**Note**: This project uses [Conventional Commits](https://www.conventionalcommits.org/) with commitlint to ensure consistent commit messages. Please read [docs/COMMIT_GUIDELINES.md](docs/COMMIT_GUIDELINES.md) before making commits.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.

@@ -105,12 +105,15 @@ Current Angular adapter supports basic component analysis. Areas for enhancement
    npm run test:coverage
    ```
 
-6. **Commit your changes** with clear, descriptive messages:
+6. **Commit your changes** following the [Conventional Commits](https://www.conventionalcommits.org/) standard:
+
    ```bash
    git commit -m "feat(angular): add template parsing support"
    # or
    git commit -m "fix(validator): handle edge case in schema validation"
    ```
+
+   📖 **Important**: This project uses commitlint to enforce commit message standards. Please read [docs/COMMIT_GUIDELINES.md](docs/COMMIT_GUIDELINES.md) for detailed guidelines on writing proper commit messages. Commits that don't follow the standard will be automatically rejected by the pre-commit hook.
 
 ## Code Guidelines
 
