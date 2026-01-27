@@ -1,54 +1,21 @@
 import { Component, Input, Output, EventEmitter, input, output } from '@angular/core';
+import { UserCardDto } from './user-card.types';
 
 /**
  * Example Angular component that will be analyzed by OWCS
  */
 @Component({
   selector: 'app-user-card',
-  template: `
-    <div class="user-card">
-      <h2>{{ name }}</h2>
-      <p>Age: {{ age }}</p>
-      <button (click)="handleClick()">Click Me</button>
-    </div>
-  `,
-  styles: [`
-    .user-card {
-      border: 1px solid #ccc;
-      padding: 16px;
-      border-radius: 8px;
-    }
-  `]
+  template: ` <div class="user-card">test</div> `,
 })
 export class UserCardComponent {
-  /**
-   * User's name (required)
-   */
-   name= input.required<string>();
-  
-  /**
-   * User's age (optional)
-   */
-  @Input() age?: number;
-  
-  /**
-   * User's email with attribute alias
-   */
-  @Input('data-email') email?: string;
-  
-  /**
-   * Configuration object
-   */
-  @Input() config?: {
-    theme: 'light' | 'dark';
-    showAvatar: boolean;
-  };
-  
+  data = input.required<UserCardDto>();
+
   /**
    * Click event emitter
    */
   clicked = output<{ timestamp: number }>();
-  
+
   /**
    * User updated event with custom event
    */
@@ -56,11 +23,11 @@ export class UserCardComponent {
     name: string;
     age: number;
   }>();
-  
+
   handleClick(): void {
     // Emit using Angular EventEmitter
     this.clicked.emit({ timestamp: Date.now() });
-    
+
     // Also emit using native CustomEvent
     this.dispatchEvent(
       new CustomEvent<{ timestamp: number }>('clicked', {
@@ -70,11 +37,11 @@ export class UserCardComponent {
       })
     );
   }
-  
+
   updateUser(name: string, age: number): void {
     this.userUpdated.emit({ name, age });
   }
-  
+
   private dispatchEvent(event: Event): void {
     // Helper method to dispatch events
     if (typeof window !== 'undefined') {
@@ -82,4 +49,3 @@ export class UserCardComponent {
     }
   }
 }
-

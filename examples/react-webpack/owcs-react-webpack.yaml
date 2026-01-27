@@ -1,0 +1,77 @@
+owcs: 1.0.0
+info:
+  title: reactUserCard
+  version: 1.0.0
+components:
+  webComponents:
+    product-search-webpack-element:
+      tagName: product-search-webpack-element
+      module: ./ProductSearchWidget
+      props:
+        schema:
+          type: object
+          properties:
+            data:
+              type: object
+              properties:
+                pattern:
+                  type: string
+                showEmptyMessage:
+                  type: boolean
+                onlyShowOfferedUniverse:
+                  type: boolean
+                bookingCenter:
+                  type: string
+                hideGridWhenEmpty:
+                  type: boolean
+                emptyMessageActionTitle:
+                  type: string
+                showTradeButton:
+                  type: boolean
+                allowSetupBmo:
+                  type: boolean
+            onProductSelect:
+              type: object
+            onNoInstrumentFound:
+              type: object
+            noInstrumentFoundMessageAction:
+              type: object
+            productTypeChanged:
+              type: object
+          required:
+            - data
+      events:
+        PRODUCT_SELECT:
+          type: CustomEvent
+          payload:
+            type: object
+            properties:
+              searchTerm:
+                type: string
+              productDetail:
+                type: object
+                properties:
+                  assetClass:
+                    type: string
+                  isAvailableInPsp:
+                    type: boolean
+                required:
+                  - assetClass
+                  - isAvailableInPsp
+            required:
+              - searchTerm
+              - productDetail
+        NO_INSTRUMENT_FOUND:
+          type: CustomEvent
+          payload:
+            type: boolean
+        NO_INSTRUMENT_MESSAGE_ACTION:
+          type: CustomEvent
+runtime:
+  bundler:
+    name: webpack
+    moduleFederation:
+      remoteName: reactUserCard
+      libraryType: var
+      exposes:
+        ./ProductSearchWidget: ./src/ProductSearch.wc.tsx

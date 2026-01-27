@@ -1,7 +1,6 @@
 import { createRoot, Root } from 'react-dom/client';
 
-import { ProductDetail } from './types';
-import { ProductSearchProps } from './components/types';
+import { ProductDetail, ProductSearchProps } from './types';
 
 export class ProductSearchWidgetElement extends HTMLElement implements ProductSearchProps {
   private _data?: ProductSearchProps['data'];
