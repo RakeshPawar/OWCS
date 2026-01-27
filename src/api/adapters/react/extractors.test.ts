@@ -326,6 +326,291 @@ describe('React Adapter - Props Extractor', () => {
       expect(props.some((p) => p.name === 'age' && !p.required)).toBe(true);
     });
   });
+
+  describe('HTMLElement Class with Implements', () => {
+    it('should extract props from a class extending HTMLElement that implements a props interface', () => {
+      const sourceCode = `
+        interface ProductSearchProps {
+          data: {
+            pattern?: string;
+            showEmptyMessage?: boolean;
+          };
+          onProductSelect?: (searchTerm: string, productDetail: any) => void;
+        }
+        
+        class ProductSearchWidgetElement extends HTMLElement implements ProductSearchProps {
+          private _data?: ProductSearchProps['data'];
+          
+          get data() {
+            return this._data!;
+          }
+          
+          set data(data: ProductSearchProps['data']) {
+            this._data = data;
+          }
+        }
+      `;
+
+      const { program, getSourceFile } = createTestProgram({ 'test.ts': sourceCode });
+      const sourceFile = getSourceFile('test.ts');
+
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
+
+      const typeChecker = program.getTypeChecker();
+      let classDecl: ts.ClassDeclaration | undefined;
+
+      ts.forEachChild(sourceFile, (node) => {
+        if (ts.isClassDeclaration(node) && node.name?.text === 'ProductSearchWidgetElement') {
+          classDecl = node;
+        }
+      });
+
+      if (!classDecl) {
+        throw new Error('Class declaration not found');
+      }
+
+      const props = extractProps(classDecl, typeChecker);
+
+      expect(props.length).toBeGreaterThanOrEqual(2);
+
+      const dataProp = props.find((p) => p.name === 'data');
+      expect(dataProp).toBeDefined();
+      expect(dataProp?.schema.type).toBe('object');
+      expect(dataProp?.schema.properties).toBeDefined();
+      expect(dataProp?.required).toBe(true);
+
+      const onProductSelectProp = props.find((p) => p.name === 'onProductSelect');
+      expect(onProductSelectProp).toBeDefined();
+      expect(onProductSelectProp?.required).toBe(false);
+    });
+
+    it('should extract complex nested props from HTMLElement class', () => {
+      const sourceCode = `
+        interface ProductDetail {
+          assetClass: string;
+          isAvailableInPsp: boolean;
+        }
+        
+        interface ProductSearchProps {
+          data: {
+            pattern?: string;
+            showEmptyMessage?: boolean;
+            onlyShowOfferedUniverse?: boolean;
+            bookingCenter?: string;
+          };
+          onProductSelect?: (searchTerm: string, productDetail: ProductDetail) => void;
+          onNoInstrumentFound?: (notFound: boolean) => void;
+        }
+        
+        class ProductSearchWidgetElement extends HTMLElement implements ProductSearchProps {
+          private _data?: ProductSearchProps['data'];
+          
+          get data() {
+            return this._data!;
+          }
+          
+          set data(data: ProductSearchProps['data']) {
+            this._data = data;
+          }
+        }
+      `;
+
+      const { program, getSourceFile } = createTestProgram({ 'test.ts': sourceCode });
+      const sourceFile = getSourceFile('test.ts');
+
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
+
+      const typeChecker = program.getTypeChecker();
+      let classDecl: ts.ClassDeclaration | undefined;
+
+      ts.forEachChild(sourceFile, (node) => {
+        if (ts.isClassDeclaration(node) && node.name?.text === 'ProductSearchWidgetElement') {
+          classDecl = node;
+        }
+      });
+
+      if (!classDecl) {
+        throw new Error('Class declaration not found');
+      }
+
+      const props = extractProps(classDecl, typeChecker);
+
+      expect(props.length).toBeGreaterThanOrEqual(3);
+
+      const dataProp = props.find((p) => p.name === 'data');
+      expect(dataProp).toBeDefined();
+      expect(dataProp?.schema.type).toBe('object');
+      expect(dataProp?.schema.properties).toBeDefined();
+      expect(dataProp?.schema.properties?.pattern).toBeDefined();
+      expect(dataProp?.schema.properties?.showEmptyMessage).toBeDefined();
+      expect(dataProp?.schema.properties?.onlyShowOfferedUniverse).toBeDefined();
+      expect(dataProp?.schema.properties?.bookingCenter).toBeDefined();
+
+      const onProductSelectProp = props.find((p) => p.name === 'onProductSelect');
+      expect(onProductSelectProp).toBeDefined();
+      expect(onProductSelectProp?.required).toBe(false);
+
+      const onNoInstrumentFoundProp = props.find((p) => p.name === 'onNoInstrumentFound');
+      expect(onNoInstrumentFoundProp).toBeDefined();
+      expect(onNoInstrumentFoundProp?.required).toBe(false);
+    });
+
+    it('should extract props with JSDoc from HTMLElement class', () => {
+      const sourceCode = `
+        interface WidgetProps {
+          /**
+           * Widget theme
+           * @default 'light'
+           */
+          theme?: string;
+          
+          /**
+           * Widget title
+           * @attribute widget-title
+           */
+          title: string;
+        }
+        
+        class WidgetElement extends HTMLElement implements WidgetProps {
+          private _theme?: string;
+          private _title!: string;
+          
+          get theme() {
+            return this._theme;
+          }
+          
+          set theme(value: string | undefined) {
+            this._theme = value;
+          }
+          
+          get title() {
+            return this._title;
+          }
+          
+          set title(value: string) {
+            this._title = value;
+          }
+        }
+      `;
+
+      const { program, getSourceFile } = createTestProgram({ 'test.ts': sourceCode });
+      const sourceFile = getSourceFile('test.ts');
+
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
+
+      const typeChecker = program.getTypeChecker();
+      let classDecl: ts.ClassDeclaration | undefined;
+
+      ts.forEachChild(sourceFile, (node) => {
+        if (ts.isClassDeclaration(node) && node.name?.text === 'WidgetElement') {
+          classDecl = node;
+        }
+      });
+
+      if (!classDecl) {
+        throw new Error('Class declaration not found');
+      }
+
+      const props = extractProps(classDecl, typeChecker);
+
+      expect(props.length).toBe(2);
+
+      const themeProp = props.find((p) => p.name === 'theme');
+      expect(themeProp).toBeDefined();
+      expect(themeProp?.description).toContain('Widget theme');
+      expect(themeProp?.default).toEqual("'light'");
+      expect(themeProp?.required).toBe(false);
+
+      const titleProp = props.find((p) => p.name === 'title');
+      expect(titleProp).toBeDefined();
+      expect(titleProp?.description).toContain('Widget title');
+      expect(titleProp?.attribute).toBe('widget-title');
+      expect(titleProp?.required).toBe(true);
+    });
+
+    it('should handle HTMLElement class with no implements clause', () => {
+      const sourceCode = `
+        class BasicElement extends HTMLElement {
+          connectedCallback() {
+            this.innerHTML = '<div>Hello</div>';
+          }
+        }
+      `;
+
+      const { program, getSourceFile } = createTestProgram({ 'test.ts': sourceCode });
+      const sourceFile = getSourceFile('test.ts');
+
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
+
+      const typeChecker = program.getTypeChecker();
+      let classDecl: ts.ClassDeclaration | undefined;
+
+      ts.forEachChild(sourceFile, (node) => {
+        if (ts.isClassDeclaration(node) && node.name?.text === 'BasicElement') {
+          classDecl = node;
+        }
+      });
+
+      if (!classDecl) {
+        throw new Error('Class declaration not found');
+      }
+
+      const props = extractProps(classDecl, typeChecker);
+
+      expect(props.length).toBe(0);
+    });
+
+    it('should skip React built-in props in HTMLElement class', () => {
+      const sourceCode = `
+        interface WidgetProps {
+          name: string;
+          children?: any;
+          key?: string;
+          ref?: any;
+        }
+        
+        class WidgetElement extends HTMLElement implements WidgetProps {
+          name!: string;
+        }
+      `;
+
+      const { program, getSourceFile } = createTestProgram({ 'test.ts': sourceCode });
+      const sourceFile = getSourceFile('test.ts');
+
+      if (!sourceFile) {
+        throw new Error('Source file not found');
+      }
+
+      const typeChecker = program.getTypeChecker();
+      let classDecl: ts.ClassDeclaration | undefined;
+
+      ts.forEachChild(sourceFile, (node) => {
+        if (ts.isClassDeclaration(node) && node.name?.text === 'WidgetElement') {
+          classDecl = node;
+        }
+      });
+
+      if (!classDecl) {
+        throw new Error('Class declaration not found');
+      }
+
+      const props = extractProps(classDecl, typeChecker);
+
+      expect(props.length).toBe(1);
+      expect(props[0].name).toBe('name');
+      expect(props.some((p) => p.name === 'children')).toBe(false);
+      expect(props.some((p) => p.name === 'key')).toBe(false);
+      expect(props.some((p) => p.name === 'ref')).toBe(false);
+    });
+  });
 });
 
 describe('React Adapter - Events Extractor', () => {

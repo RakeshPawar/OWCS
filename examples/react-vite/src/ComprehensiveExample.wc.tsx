@@ -56,12 +56,6 @@ export interface ComprehensiveExampleProps {
   userName?: string;
 
   /**
-   * User's age (must be between 1-120)
-   * @property {number} age
-   */
-  age?: number;
-
-  /**
    * Whether the component is in active state
    * @property {boolean} isActive
    * @default false
@@ -95,35 +89,7 @@ export interface ComprehensiveExampleProps {
    */
   user?: User;
 
-  // ========== ARRAYS ==========
-
-  /**
-   * List of tag names
-   * @property {string[]} tags
-   * @default []
-   */
-  tags?: string[];
-
-  /**
-   * Array of user objects
-   */
-  users?: User[];
-
   // ========== FUNCTIONS (CALLBACK PROPS) ==========
-
-  /**
-   * Fired when user clicks the component
-   * @event click
-   * @type {CustomEvent<{x: number, y: number}>}
-   */
-  onClick?: (x: number, y: number) => void;
-
-  /**
-   * Fired when data changes
-   * @event change
-   * @type {CustomEvent<{value: string}>}
-   */
-  onChange?: (value: string) => void;
 
   /**
    * Fired when user hovers over the component
@@ -131,37 +97,10 @@ export interface ComprehensiveExampleProps {
    */
   onHover?: () => void;
 
-  /**
-   * Fired when user submits the form
-   * @fires submit
-   * @type {CustomEvent<{data: User}>}
-   */
-  onSubmit?: (data: User) => void;
-
   // ========== ADVANCED TYPESCRIPT ==========
 
   /**
-   * Union type with null
-   */
-  nullableValue?: string | null;
-
-  /**
-   * Multiple union types
-   */
-  mixedUnion?: string | number | boolean;
-
-  /**
-   * Array or single item
-   */
-  flexible?: string | string[];
-
-  /**
-   * Record type
-   */
-  metadata?: Record<string, any>;
-
-  /**
-   * Optional deep nested object
+   * Optional deep nested object demonstrating complex TypeScript types
    */
   settings?: {
     display?: {
@@ -189,8 +128,8 @@ export interface ComprehensiveExampleProps {
  *
  * @fires userAction - Dispatched when user performs an action
  * @fires dataLoad - Dispatched when data is loaded
- * @fires statusChange - Dispatched when status changes
  * @fires error - Dispatched when an error occurs
+ * @fires hover - Dispatched when user hovers (also demonstrates callback prop pattern)
  */
 export class ComprehensiveExampleElement extends HTMLElement implements ComprehensiveExampleProps {
   // ========== PRIVATE FIELDS ==========
@@ -198,29 +137,19 @@ export class ComprehensiveExampleElement extends HTMLElement implements Comprehe
 
   // ========== PROP STORAGE WITH DEFAULTS ==========
   private _userName: string = 'Guest';
-  private _age?: number;
   private _isActive: boolean = false;
   private _theme: Theme = 'light';
   private _status: Status = 'idle';
   private _config?: Configuration;
   private _user?: User;
-  private _tags: string[] = [];
-  private _users?: User[];
-  private _nullableValue?: string | null;
-  private _mixedUnion?: string | number | boolean;
-  private _flexible?: string | string[];
-  private _metadata?: Record<string, any>;
   private _settings?: ComprehensiveExampleProps['settings'];
 
   // ========== CALLBACK HANDLERS ==========
-  private _onClick?: (x: number, y: number) => void;
-  private _onChange?: (value: string) => void;
   private _onHover?: () => void;
-  private _onSubmit?: (data: User) => void;
 
   // ========== STATIC OBSERVED ATTRIBUTES ==========
   static get observedAttributes() {
-    return ['user-name', 'age', 'is-active', 'theme', 'status'];
+    return ['user-name', 'is-active', 'theme', 'status'];
   }
 
   // ========== CONSTRUCTOR ==========
@@ -244,25 +173,6 @@ export class ComprehensiveExampleElement extends HTMLElement implements Comprehe
   set userName(value: string) {
     this._userName = value;
     this.setAttribute('user-name', value);
-    this.render();
-  }
-
-  /**
-   * Age property
-   * @property {number} age
-   * @attribute age
-   */
-  get age(): number | undefined {
-    return this._age;
-  }
-
-  set age(value: number | undefined) {
-    this._age = value;
-    if (value !== undefined) {
-      this.setAttribute('age', String(value));
-    } else {
-      this.removeAttribute('age');
-    }
     this.render();
   }
 
@@ -339,64 +249,7 @@ export class ComprehensiveExampleElement extends HTMLElement implements Comprehe
     this.render();
   }
 
-  /**
-   * Tags property
-   * @default []
-   */
-  get tags(): string[] {
-    return this._tags;
-  }
-
-  set tags(value: string[]) {
-    this._tags = value;
-    this.render();
-  }
-
-  /**
-   * Users array property
-   */
-  get users(): User[] | undefined {
-    return this._users;
-  }
-
-  set users(value: User[] | undefined) {
-    this._users = value;
-    this.render();
-  }
-
   // Advanced TypeScript getters/setters
-  get nullableValue() {
-    return this._nullableValue;
-  }
-  set nullableValue(value: string | null | undefined) {
-    this._nullableValue = value;
-    this.render();
-  }
-
-  get mixedUnion() {
-    return this._mixedUnion;
-  }
-  set mixedUnion(value: string | number | boolean | undefined) {
-    this._mixedUnion = value;
-    this.render();
-  }
-
-  get flexible() {
-    return this._flexible;
-  }
-  set flexible(value: string | string[] | undefined) {
-    this._flexible = value;
-    this.render();
-  }
-
-  get metadata() {
-    return this._metadata;
-  }
-  set metadata(value: Record<string, any> | undefined) {
-    this._metadata = value;
-    this.render();
-  }
-
   get settings() {
     return this._settings;
   }
@@ -406,32 +259,11 @@ export class ComprehensiveExampleElement extends HTMLElement implements Comprehe
   }
 
   // Callback prop getters/setters
-  get onClick() {
-    return this._onClick;
-  }
-  set onClick(handler: ((x: number, y: number) => void) | undefined) {
-    this._onClick = handler;
-  }
-
-  get onChange() {
-    return this._onChange;
-  }
-  set onChange(handler: ((value: string) => void) | undefined) {
-    this._onChange = handler;
-  }
-
   get onHover() {
     return this._onHover;
   }
   set onHover(handler: (() => void) | undefined) {
     this._onHover = handler;
-  }
-
-  get onSubmit() {
-    return this._onSubmit;
-  }
-  set onSubmit(handler: ((data: User) => void) | undefined) {
-    this._onSubmit = handler;
   }
 
   // ========== LIFECYCLE METHODS ==========
@@ -449,9 +281,6 @@ export class ComprehensiveExampleElement extends HTMLElement implements Comprehe
     switch (name) {
       case 'user-name':
         this._userName = newValue || 'Guest';
-        break;
-      case 'age':
-        this._age = newValue ? parseInt(newValue, 10) : undefined;
         break;
       case 'is-active':
         this._isActive = newValue !== null;
@@ -504,20 +333,6 @@ export class ComprehensiveExampleElement extends HTMLElement implements Comprehe
   }
 
   /**
-   * Dispatch status change event
-   * @fires statusChange
-   */
-  dispatchStatusChange(oldStatus: Status, newStatus: Status) {
-    this.dispatchEvent(
-      new CustomEvent<{ oldStatus: Status; newStatus: Status }>('statusChange', {
-        detail: { oldStatus, newStatus },
-        bubbles: true,
-        composed: true,
-      })
-    );
-  }
-
-  /**
    * Dispatch error event
    * @fires error
    */
@@ -532,43 +347,7 @@ export class ComprehensiveExampleElement extends HTMLElement implements Comprehe
   }
 
   /**
-   * Handle click with callback
-   */
-  handleClick(x: number, y: number) {
-    // Call callback prop if provided
-    if (this._onClick) {
-      this._onClick(x, y);
-    }
-
-    // Also dispatch CustomEvent
-    this.dispatchEvent(
-      new CustomEvent('click', {
-        detail: { x, y },
-        bubbles: true,
-        composed: true,
-      })
-    );
-  }
-
-  /**
-   * Handle change with callback
-   */
-  handleChange(value: string) {
-    if (this._onChange) {
-      this._onChange(value);
-    }
-
-    this.dispatchEvent(
-      new CustomEvent('change', {
-        detail: { value },
-        bubbles: true,
-        composed: true,
-      })
-    );
-  }
-
-  /**
-   * Handle hover with callback
+   * Handle hover with callback (demonstrates dual pattern: callback + CustomEvent)
    */
   handleHover() {
     if (this._onHover) {
@@ -576,23 +355,6 @@ export class ComprehensiveExampleElement extends HTMLElement implements Comprehe
     }
 
     this.dispatchEvent(new CustomEvent('hover', { bubbles: true, composed: true }));
-  }
-
-  /**
-   * Handle submit with callback
-   */
-  handleSubmit(data: User) {
-    if (this._onSubmit) {
-      this._onSubmit(data);
-    }
-
-    this.dispatchEvent(
-      new CustomEvent('submit', {
-        detail: { data },
-        bubbles: true,
-        composed: true,
-      })
-    );
   }
 
   // ========== PRIVATE RENDER METHOD ==========

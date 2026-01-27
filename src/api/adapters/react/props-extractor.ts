@@ -32,6 +32,22 @@ function extractClassComponentProps(classDecl: ts.ClassDeclaration, typeChecker:
   if (heritageClause && heritageClause.types.length > 0) {
     const extendsType = heritageClause.types[0];
 
+    // Check if extends HTMLElement
+    const extendsText = extendsType.expression.getText();
+    if (extendsText === 'HTMLElement') {
+      // Check for implements clause
+      const implementsClause = classDecl.heritageClauses?.find((clause) => clause.token === ts.SyntaxKind.ImplementsKeyword);
+
+      if (implementsClause && implementsClause.types.length > 0) {
+        // Extract props from the first implemented interface
+        const implementsType = implementsClause.types[0];
+        const type = typeChecker.getTypeAtLocation(implementsType);
+        return extractPropsFromTypeObject(type, typeChecker);
+      }
+
+      return props;
+    }
+
     // Check for type arguments: Component<Props, State>
     if (extendsType.typeArguments && extendsType.typeArguments.length > 0) {
       const propsType = extendsType.typeArguments[0];

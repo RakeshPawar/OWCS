@@ -125,40 +125,6 @@ function extractPropertyName(value: string): string {
 }
 
 /**
- * Extract attribute name from JSDoc or decorator
- */
-export function extractAttributeName(node: ts.Node, _propertyName: string): string | undefined {
-  const metadata = extractJSDocMetadata(node);
-
-  if (metadata.attribute) {
-    return metadata.attribute;
-  }
-
-  // Check for decorator attribute alias
-  if (ts.isPropertyDeclaration(node) || ts.isPropertySignature(node)) {
-    // This will be implemented per-framework
-  }
-
-  return undefined;
-}
-
-/**
- * Extract event names from JSDoc @fires tags
- */
-export function extractEventNamesFromJSDoc(node: ts.Node): string[] {
-  const metadata = extractJSDocMetadata(node);
-  return metadata.fires || [];
-}
-
-/**
- * Check if a node has JSDoc deprecation marker
- */
-export function isDeprecated(node: ts.Node): boolean {
-  const metadata = extractJSDocMetadata(node);
-  return metadata.deprecated || false;
-}
-
-/**
  * Extract default value from property initializer
  */
 export function extractDefaultValue(property: ts.PropertyDeclaration): unknown {
