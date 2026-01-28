@@ -8,7 +8,7 @@
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/src/cli/index.ts",
       "preLaunchTask": "npm: build",
-      "args": ["${workspaceFolder}/examples/angular/src/user-card.component.ts"],
+      "args": ["generate", "-p", "${workspaceFolder}/examples/angular", "-o", "${workspaceFolder}/debugowcs.yaml"],
       "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "sourceMaps": true,
       "console": "integratedTerminal"
@@ -20,11 +20,7 @@
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/src/cli/index.ts",
       "preLaunchTask": "npm: build",
-      "args": [
-        "${input:componentPath}",
-        "--output",
-        "${input:outputPath}"
-      ],
+      "args": ["${input:componentPath}", "--output", "${input:outputPath}"],
       "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "sourceMaps": true,
       "console": "integratedTerminal"
@@ -67,7 +63,7 @@
       "id": "componentPath",
       "type": "promptString",
       "description": "Path to the component file",
-      "default": "${workspaceFolder}/examples/angular/src/user-card.component.ts"
+      "default": "${workspaceFolder}/examples/angular/src/user-card/user-card.component.ts"
     },
     {
       "id": "outputPath",

@@ -7,4 +7,4 @@ dist/
 # Test coverage
 coverage/
 
-examples/owcs.yaml
+debugowcs.yaml
