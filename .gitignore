@@ -7,8 +7,4 @@ dist/
 # Test coverage
 coverage/
 
-# Verdaccio local registry
-verdaccio-storage/
-htpasswd
-
 examples/owcs.yaml

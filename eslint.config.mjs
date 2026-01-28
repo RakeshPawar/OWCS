@@ -31,7 +31,6 @@ export default defineConfig([
     '**/.husky',
     '**/package-lock.json',
     '**/vite.config.ts',
-    '**/verdaccio.yaml',
     'eslint.config.mjs',
     '**/*.test.ts',
     '**/examples/**',
