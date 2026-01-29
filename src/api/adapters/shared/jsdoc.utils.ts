@@ -1,8 +1,6 @@
 import * as ts from 'typescript';
 
-/**
- * JSDoc metadata extracted from a symbol
- */
+/** JSDoc metadata extracted from AST nodes */
 export interface JSDocMetadata {
   description?: string;
   default?: unknown;
@@ -14,21 +12,16 @@ export interface JSDocMetadata {
   tags?: Record<string, string>;
 }
 
-/**
- * Extracts JSDoc metadata from a node
- */
 export function extractJSDocMetadata(node: ts.Node): JSDocMetadata {
   const metadata: JSDocMetadata = {};
   const jsDocTags = ts.getJSDocTags(node);
   const jsDocComments = (node as any).jsDoc as ts.JSDoc[] | undefined;
 
-  // Extract main description
   if (jsDocComments && jsDocComments.length > 0) {
     const comment = jsDocComments[0].comment;
     if (typeof comment === 'string') {
       metadata.description = comment.trim();
     } else if (comment) {
-      // Handle NodeArray<JSDocComment>
       metadata.description = comment
         .map((c: any) => c.text)
         .join('')
@@ -36,7 +29,6 @@ export function extractJSDocMetadata(node: ts.Node): JSDocMetadata {
     }
   }
 
-  // Extract tags
   const tags: Record<string, string> = {};
 
   for (const tag of jsDocTags) {
@@ -53,7 +45,6 @@ export function extractJSDocMetadata(node: ts.Node): JSDocMetadata {
 
     tags[tagName] = tagValue;
 
-    // Handle specific tags
     switch (tagName) {
       case 'default':
         metadata.default = parseDefaultValue(tagValue);
@@ -91,17 +82,13 @@ export function extractJSDocMetadata(node: ts.Node): JSDocMetadata {
   return metadata;
 }
 
-/**
- * Parse default value from JSDoc @default tag
- */
+/** Parses JSDoc @default value as JSON or primitive type */
 function parseDefaultValue(value: string): unknown {
   const trimmed = value.trim();
 
-  // Try to parse as JSON
   try {
     return JSON.parse(trimmed);
   } catch {
-    // Return as string if not valid JSON
     if (trimmed === 'true') return true;
     if (trimmed === 'false') return false;
     if (trimmed === 'null') return null;
@@ -111,25 +98,16 @@ function parseDefaultValue(value: string): unknown {
   }
 }
 
-/**
- * Extract property name from JSDoc @property tag
- * Format: @property {type} name - description
- */
+/** Extracts property name from @property {type} name - description */
 function extractPropertyName(value: string): string {
-  // Remove type annotation: {type}
   const withoutType = value.replace(/^\{[^}]+\}\s*/, '');
 
-  // Extract name (first word)
   const match = withoutType.match(/^(\S+)/);
   return match ? match[1] : '';
 }
 
-/**
- * Extract default value from property initializer
- */
 export function extractDefaultValue(property: ts.PropertyDeclaration): unknown {
   if (property.initializer) {
-    // Try to extract literal values
     if (ts.isStringLiteral(property.initializer)) {
       return property.initializer.text;
     }

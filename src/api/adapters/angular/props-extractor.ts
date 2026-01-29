@@ -4,9 +4,7 @@ import { getClassProperties, findDecorator, getDecoratorArgument, getStringLiter
 import { typeNodeToJsonSchema } from '../shared/type.utils.js';
 import { extractJSDocMetadata, extractDefaultValue } from '../shared/jsdoc.utils.js';
 
-/**
- * Extracts props from an Angular component class using @Input() decorators and input signals
- */
+/** Extracts props from @Input decorators and input signals */
 export function extractProps(classDecl: ts.ClassDeclaration, typeChecker: ts.TypeChecker): PropModel[] {
   const props: PropModel[] = [];
   const properties = getClassProperties(classDecl);
@@ -20,7 +18,6 @@ export function extractProps(classDecl: ts.ClassDeclaration, typeChecker: ts.Typ
         props.push(prop);
       }
     } else if (property.initializer) {
-      // Check for input signal: input() or input.required()
       const prop = extractInputSignalProp(property, typeChecker);
       if (prop) {
         props.push(prop);
@@ -31,9 +28,6 @@ export function extractProps(classDecl: ts.ClassDeclaration, typeChecker: ts.Typ
   return props;
 }
 
-/**
- * Extracts a single prop from a property with @Input() decorator
- */
 function extractInputProp(property: ts.PropertyDeclaration, decorator: ts.Decorator, typeChecker: ts.TypeChecker): PropModel | undefined {
   const propertyName = property.name;
 
@@ -43,23 +37,18 @@ function extractInputProp(property: ts.PropertyDeclaration, decorator: ts.Decora
 
   const name = propertyName.text;
 
-  // Check for @Input('alias') pattern
   const decoratorArg = getDecoratorArgument(decorator, 0);
   const decoratorAlias = getStringLiteralValue(decoratorArg);
 
-  // Extract JSDoc metadata
   const jsDocMetadata = extractJSDocMetadata(property);
 
-  // Determine attribute name (decorator alias > JSDoc @attribute > property name)
+  // Precedence: decorator alias > @attribute > property name
   const attribute = decoratorAlias || jsDocMetadata.attribute || name;
 
-  // Determine if required
   const required = !isPropertyOptional(property);
 
-  // Convert TypeScript type to JSON Schema
   const schema = typeNodeToJsonSchema(property.type, typeChecker);
 
-  // Extract default value
   let defaultValue = jsDocMetadata.default;
   if (defaultValue === undefined) {
     defaultValue = extractDefaultValue(property);
@@ -78,9 +67,6 @@ function extractInputProp(property: ts.PropertyDeclaration, decorator: ts.Decora
   };
 }
 
-/**
- * Extracts a single prop from a property with input signal (input() or input.required())
- */
 function extractInputSignalProp(property: ts.PropertyDeclaration, typeChecker: ts.TypeChecker): PropModel | undefined {
   const propertyName = property.name;
 
@@ -95,20 +81,16 @@ function extractInputSignalProp(property: ts.PropertyDeclaration, typeChecker: t
     return undefined;
   }
 
-  // Check if it's a call to input() or input.required()
   let callExpression: ts.CallExpression | undefined;
   let isRequired = false;
 
   if (ts.isCallExpression(initializer)) {
     const expr = initializer.expression;
 
-    // Check for input() direct call
     if (ts.isIdentifier(expr) && expr.text === 'input') {
       callExpression = initializer;
       isRequired = false;
-    }
-    // Check for input.required() call
-    else if (ts.isPropertyAccessExpression(expr)) {
+    } else if (ts.isPropertyAccessExpression(expr)) {
       if (ts.isIdentifier(expr.expression) && expr.expression.text === 'input' && expr.name.text === 'required') {
         callExpression = initializer;
         isRequired = true;
@@ -120,17 +102,14 @@ function extractInputSignalProp(property: ts.PropertyDeclaration, typeChecker: t
     return undefined;
   }
 
-  // Extract type from generic type argument
   let schema: JSONSchema = { type: 'any' };
 
   if (callExpression.typeArguments && callExpression.typeArguments.length > 0) {
     schema = typeNodeToJsonSchema(callExpression.typeArguments[0], typeChecker);
   }
 
-  // Extract JSDoc metadata
   const jsDocMetadata = extractJSDocMetadata(property);
 
-  // Check for alias in options: input({ alias: 'customName' })
   let attribute = name;
   let defaultValue = jsDocMetadata.default;
 
@@ -142,7 +121,6 @@ function extractInputSignalProp(property: ts.PropertyDeclaration, typeChecker: t
     }
     const secondArg = callExpression.arguments[1];
 
-    // Check if it's an options object with alias property
     if (secondArg && ts.isObjectLiteralExpression(secondArg)) {
       for (const prop of secondArg.properties) {
         if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name)) {
@@ -157,7 +135,6 @@ function extractInputSignalProp(property: ts.PropertyDeclaration, typeChecker: t
     }
   }
 
-  // JSDoc @attribute takes precedence if specified
   if (jsDocMetadata.attribute) {
     attribute = jsDocMetadata.attribute;
   }
@@ -175,9 +152,6 @@ function extractInputSignalProp(property: ts.PropertyDeclaration, typeChecker: t
   };
 }
 
-/**
- * Extract literal value from expression
- */
 function extractLiteralValue(expr: ts.Expression): unknown {
   if (ts.isStringLiteral(expr)) {
     return expr.text;

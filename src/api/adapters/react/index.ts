@@ -6,11 +6,7 @@ import { extractProps } from './props-extractor.js';
 import { extractEvents } from './events-extractor.js';
 import { extractFederationConfig } from './federation-extractor.js';
 
-/**
- * React adapter - analyzes React source code and produces IntermediateModel
- * Supports both class and function components
- * Supports both webpack and vite bundlers
- */
+/** React adapter - analyzes source code and produces IntermediateModel */
 export class ReactAdapter {
   private program: ts.Program;
   private typeChecker: ts.TypeChecker;
@@ -22,9 +18,6 @@ export class ReactAdapter {
     this.typeChecker = this.program.getTypeChecker();
   }
 
-  /**
-   * Creates TypeScript program for analysis
-   */
   private createProgram(projectRoot: string, tsConfigPath?: string): ts.Program {
     const configPath = tsConfigPath || this.findTsConfig(projectRoot);
 
@@ -38,7 +31,6 @@ export class ReactAdapter {
       });
     }
 
-    // Fallback: create program with all TS/TSX files in src/
     const srcDir = path.join(projectRoot, 'src');
     const files = this.findTsFiles(srcDir);
 
@@ -53,9 +45,6 @@ export class ReactAdapter {
     });
   }
 
-  /**
-   * Finds tsconfig.json in the project
-   */
   private findTsConfig(projectRoot: string): string | undefined {
     const possiblePaths = [
       path.join(projectRoot, 'tsconfig.json'),
@@ -72,9 +61,6 @@ export class ReactAdapter {
     return undefined;
   }
 
-  /**
-   * Recursively finds all .ts and .tsx files in a directory
-   */
   private findTsFiles(dir: string): string[] {
     const files: string[] = [];
 
@@ -88,14 +74,9 @@ export class ReactAdapter {
     return files;
   }
 
-  /**
-   * Analyzes the project and produces IntermediateModel
-   */
   public analyze(): IntermediateModel {
-    // Extract runtime configuration
     const runtime = extractFederationConfig(this.projectRoot);
 
-    // Discover all web components
     const registrations = discoverComponents(this.program);
 
     // Extract component details
@@ -114,13 +95,9 @@ export class ReactAdapter {
     };
   }
 
-  /**
-   * Extracts details for a single component
-   */
   private extractComponentDetails(registration: { tagName: string; className: string; sourceFile: ts.SourceFile }): WebComponentModel | undefined {
     const { tagName, className, sourceFile } = registration;
 
-    // Find the component declaration
     const componentDecl = findComponentByName(sourceFile, className);
 
     if (!componentDecl) {
@@ -128,13 +105,10 @@ export class ReactAdapter {
       return undefined;
     }
 
-    // Extract props
     const props = extractProps(componentDecl, this.typeChecker);
 
-    // Extract events
     const events = extractEvents(componentDecl, this.typeChecker);
 
-    // Get module path
     const modulePath = getModulePath(sourceFile, this.projectRoot);
 
     return {
@@ -147,9 +121,7 @@ export class ReactAdapter {
   }
 }
 
-/**
- * Convenience function to analyze a React project
- */
+/** Convenience function for analyzing React projects */
 export function analyzeReactProject(projectRoot: string, tsConfigPath?: string): IntermediateModel {
   const adapter = new ReactAdapter(projectRoot, tsConfigPath);
   return adapter.analyze();
