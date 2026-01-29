@@ -4,10 +4,7 @@ import path from 'node:path';
 import { RuntimeModel } from '../../model/intermediate.js';
 import { extractFederationConfigFromObject, extractWebpackFederationConfig } from '../shared/webpack-federation-extractor.js';
 
-/**
- * Extracts Module Federation and bundler configuration
- * Supports both webpack and vite
- */
+/** Extracts Module Federation and bundler config (webpack or vite) */
 export function extractFederationConfig(projectRoot: string): RuntimeModel {
   const viteConfig = findViteConfig(projectRoot);
   if (viteConfig) {
@@ -18,13 +15,9 @@ export function extractFederationConfig(projectRoot: string): RuntimeModel {
     };
   }
 
-  // Default to webpack if no config found
   return extractWebpackFederationConfig(projectRoot);
 }
 
-/**
- * Finds vite config file in the project
- */
 function findViteConfig(projectRoot: string): string | undefined {
   const possibleNames = ['vite.config.js', 'vite.config.ts', 'vite.config.mjs'];
 
@@ -38,9 +31,6 @@ function findViteConfig(projectRoot: string): string | undefined {
   return undefined;
 }
 
-/**
- * Parses vite config to extract Module Federation settings
- */
 function parseViteConfig(configPath: string): RuntimeModel['federation'] | undefined {
   try {
     const content = fs.readFileSync(configPath, 'utf-8');
@@ -53,16 +43,12 @@ function parseViteConfig(configPath: string): RuntimeModel['federation'] | undef
   }
 }
 
-/**
- * Extracts vite-plugin-federation configuration from vite config AST
- */
 function extractViteFederationPlugin(sourceFile: ts.SourceFile): RuntimeModel['federation'] | undefined {
   let federationConfig: RuntimeModel['federation'] | undefined;
 
   function visit(node: ts.Node): void {
     if (federationConfig) return;
 
-    // Look for "federation({ ... })" in plugins array
     if (ts.isCallExpression(node)) {
       const expression = node.expression;
 

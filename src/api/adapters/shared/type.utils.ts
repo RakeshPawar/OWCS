@@ -1,15 +1,11 @@
 import { JSONSchema } from '../../model/intermediate.js';
 import * as ts from 'typescript';
 
-/**
- * Converts a TypeScript type to JSON Schema
- */
 export function typeNodeToJsonSchema(typeNode: ts.TypeNode | undefined, typeChecker: ts.TypeChecker): JSONSchema {
   if (!typeNode) {
     return { type: 'any' };
   }
 
-  // Handle primitive types
   if (typeNode.kind === ts.SyntaxKind.StringKeyword) {
     return { type: 'string' };
   }
@@ -38,7 +34,6 @@ export function typeNodeToJsonSchema(typeNode: ts.TypeNode | undefined, typeChec
     return { type: 'null' };
   }
 
-  // Handle array types
   if (ts.isArrayTypeNode(typeNode)) {
     return {
       type: 'array',
@@ -46,17 +41,14 @@ export function typeNodeToJsonSchema(typeNode: ts.TypeNode | undefined, typeChec
     };
   }
 
-  // Handle union types
   if (ts.isUnionTypeNode(typeNode)) {
     const types = typeNode.types.map((t) => typeNodeToJsonSchema(t, typeChecker));
 
-    // Check if all types are literals of the same primitive type (e.g., 'light' | 'dark')
     const allEnums = types.every((t) => t.enum && Array.isArray(t.enum));
     if (allEnums && types.length > 0) {
       const firstType = types[0].type;
       const allSameType = types.every((t) => t.type === firstType);
       if (allSameType) {
-        // Combine all enum values into a single enum array
         const allEnumValues = types.flatMap((t) => t.enum as any[]);
         return {
           type: firstType,
@@ -65,7 +57,6 @@ export function typeNodeToJsonSchema(typeNode: ts.TypeNode | undefined, typeChec
       }
     }
 
-    // Check if it's a simple type union (e.g., string | number)
     const simpleTypes = types.filter((t) => typeof t.type === 'string' && !t.enum);
     if (simpleTypes.length === types.length) {
       return {
@@ -76,7 +67,6 @@ export function typeNodeToJsonSchema(typeNode: ts.TypeNode | undefined, typeChec
     return { oneOf: types };
   }
 
-  // Handle literal types
   if (ts.isLiteralTypeNode(typeNode)) {
     const literal = typeNode.literal;
 
@@ -93,14 +83,12 @@ export function typeNodeToJsonSchema(typeNode: ts.TypeNode | undefined, typeChec
     }
   }
 
-  // Handle type references (interfaces, classes, etc.)
   if (ts.isTypeReferenceNode(typeNode)) {
     const typeName = typeNode.typeName;
 
     if (ts.isIdentifier(typeName)) {
       const name = typeName.text;
 
-      // Handle common built-in types
       if (name === 'Array') {
         const typeArg = typeNode.typeArguments?.[0];
         return {
@@ -117,13 +105,11 @@ export function typeNodeToJsonSchema(typeNode: ts.TypeNode | undefined, typeChec
         return { type: 'object' };
       }
 
-      // For other types, try to resolve with type checker
       const type = typeChecker.getTypeAtLocation(typeNode);
       return typeToJsonSchema(type, typeChecker);
     }
   }
 
-  // Handle object types
   if (ts.isTypeLiteralNode(typeNode)) {
     const properties: Record<string, JSONSchema> = {};
     const required: string[] = [];
@@ -146,15 +132,11 @@ export function typeNodeToJsonSchema(typeNode: ts.TypeNode | undefined, typeChec
     };
   }
 
-  // Fallback
   return { type: 'any' };
 }
 
-/**
- * Resolves a TypeScript Type to JSON Schema using type checker
- */
+/** Resolves TypeScript Type to JSON Schema using type checker */
 export function typeToJsonSchema(type: ts.Type, typeChecker: ts.TypeChecker): JSONSchema {
-  // Handle string literal types
   if (type.isStringLiteral()) {
     return {
       type: 'string',
@@ -162,7 +144,6 @@ export function typeToJsonSchema(type: ts.Type, typeChecker: ts.TypeChecker): JS
     };
   }
 
-  // Handle number literal types
   if (type.isNumberLiteral()) {
     return {
       type: 'number',
@@ -170,7 +151,6 @@ export function typeToJsonSchema(type: ts.Type, typeChecker: ts.TypeChecker): JS
     };
   }
 
-  // Check for primitive types
   if (type.flags & ts.TypeFlags.String) {
     return { type: 'string' };
   }
@@ -187,11 +167,9 @@ export function typeToJsonSchema(type: ts.Type, typeChecker: ts.TypeChecker): JS
     return { type: 'null' };
   }
 
-  // Handle union types
   if (type.isUnion()) {
     const schemas = type.types.map((t) => typeToJsonSchema(t, typeChecker));
 
-    // If all are string literals, create an enum
     if (schemas.every((s) => s.type === 'string' && s.enum)) {
       const enumValues = schemas.flatMap((s) => s.enum || []);
       return {
@@ -202,11 +180,10 @@ export function typeToJsonSchema(type: ts.Type, typeChecker: ts.TypeChecker): JS
 
     return { oneOf: schemas };
   }
-  // Check for object types
+
   if (type.flags & ts.TypeFlags.Object) {
     const objectType = type as ts.ObjectType;
 
-    // Handle arrays
     if (typeChecker.isArrayType(objectType)) {
       const typeArgs = typeChecker.getTypeArguments(objectType as ts.TypeReference);
       if (typeArgs.length > 0) {
@@ -218,7 +195,6 @@ export function typeToJsonSchema(type: ts.Type, typeChecker: ts.TypeChecker): JS
       return { type: 'array', items: { type: 'any' } };
     }
 
-    // Handle object properties
     const properties: Record<string, JSONSchema> = {};
     const required: string[] = [];
     const props = typeChecker.getPropertiesOfType(type);
@@ -228,7 +204,6 @@ export function typeToJsonSchema(type: ts.Type, typeChecker: ts.TypeChecker): JS
       const propType = typeChecker.getTypeOfSymbolAtLocation(prop, prop.valueDeclaration!);
       properties[propName] = typeToJsonSchema(propType, typeChecker);
 
-      // Check if property is optional
       if (!(prop.flags & ts.SymbolFlags.Optional)) {
         required.push(propName);
       }
@@ -245,7 +220,6 @@ export function typeToJsonSchema(type: ts.Type, typeChecker: ts.TypeChecker): JS
     return { type: 'object' };
   }
 
-  // Handle function types
   if (type.getCallSignatures().length > 0) {
     return { type: 'function' };
   }

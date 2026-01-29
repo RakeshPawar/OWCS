@@ -6,9 +6,7 @@ import { extractProps } from './props-extractor.js';
 import { extractEvents } from './events-extractor.js';
 import { extractWebpackFederationConfig } from '../shared/webpack-federation-extractor.js';
 
-/**
- * Angular adapter - analyzes Angular source code and produces IntermediateModel
- */
+/** Angular adapter - analyzes source code and produces IntermediateModel */
 export class AngularAdapter {
   private program: ts.Program;
   private typeChecker: ts.TypeChecker;
@@ -20,9 +18,6 @@ export class AngularAdapter {
     this.typeChecker = this.program.getTypeChecker();
   }
 
-  /**
-   * Creates TypeScript program for analysis
-   */
   private createProgram(projectRoot: string, tsConfigPath?: string): ts.Program {
     const configPath = tsConfigPath || this.findTsConfig(projectRoot);
 
@@ -36,7 +31,6 @@ export class AngularAdapter {
       });
     }
 
-    // Fallback: create program with all TS files in src/
     const srcDir = path.join(projectRoot, 'src');
     const files = this.findTsFiles(srcDir);
 
@@ -51,9 +45,6 @@ export class AngularAdapter {
     });
   }
 
-  /**
-   * Finds tsconfig.json in the project
-   */
   private findTsConfig(projectRoot: string): string | undefined {
     const possiblePaths = [
       path.join(projectRoot, 'tsconfig.json'),
@@ -70,9 +61,6 @@ export class AngularAdapter {
     return undefined;
   }
 
-  /**
-   * Recursively finds all .ts files in a directory
-   */
   private findTsFiles(dir: string): string[] {
     const files: string[] = [];
 
@@ -87,17 +75,11 @@ export class AngularAdapter {
     return files;
   }
 
-  /**
-   * Analyzes the project and produces IntermediateModel
-   */
   public analyze(): IntermediateModel {
-    // Extract runtime configuration
     const runtime = extractWebpackFederationConfig(this.projectRoot);
 
-    // Discover all web components
     const registrations = discoverComponents(this.program);
 
-    // Extract component details
     const components: WebComponentModel[] = [];
 
     for (const registration of registrations) {
@@ -113,11 +95,7 @@ export class AngularAdapter {
     };
   }
 
-  /**
-   * Analyzes a single component
-   */
   private analyzeComponent(registration: { tagName: string; className: string; sourceFile: ts.SourceFile }): WebComponentModel | undefined {
-    // Find the class declaration
     const classDecl = findClassByName(this.program, registration.className, registration.sourceFile);
 
     if (!classDecl) {
@@ -125,13 +103,10 @@ export class AngularAdapter {
       return undefined;
     }
 
-    // Extract props
     const props = extractProps(classDecl, this.typeChecker);
 
-    // Extract events
     const events = extractEvents(classDecl, this.typeChecker);
 
-    // Get module path
     const modulePath = getModulePath(registration.sourceFile, this.projectRoot);
 
     return {
@@ -144,9 +119,7 @@ export class AngularAdapter {
   }
 }
 
-/**
- * Convenience function to analyze an Angular project
- */
+/** Convenience function for analyzing Angular projects */
 export function analyzeAngularProject(projectRoot: string, tsConfigPath?: string): IntermediateModel {
   const adapter = new AngularAdapter(projectRoot, tsConfigPath);
   return adapter.analyze();

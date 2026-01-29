@@ -3,9 +3,6 @@ import path from 'node:path';
 import { RuntimeModel } from '../../model/intermediate.js';
 import * as ts from 'typescript';
 
-/**
- * Extracts Module Federation configuration from webpack config
- */
 export function extractWebpackFederationConfig(projectRoot: string): RuntimeModel {
   const webpackConfigPath = findWebpackConfig(projectRoot);
 
@@ -21,9 +18,6 @@ export function extractWebpackFederationConfig(projectRoot: string): RuntimeMode
   };
 }
 
-/**
- * Finds webpack config file in the project
- */
 function findWebpackConfig(projectRoot: string): string | undefined {
   const possibleNames = ['webpack.config.js', 'webpack.config.ts', 'webpack.config.mjs', 'config/webpack.config.js', 'webpack/webpack.config.js'];
 
@@ -37,14 +31,10 @@ function findWebpackConfig(projectRoot: string): string | undefined {
   return undefined;
 }
 
-/**
- * Parses webpack config to extract Module Federation settings
- */
 function parseWebpackConfig(configPath: string): RuntimeModel['federation'] | undefined {
   try {
     const content = fs.readFileSync(configPath, 'utf-8');
 
-    // Create a program to parse the webpack config
     const sourceFile = ts.createSourceFile(configPath, content, ts.ScriptTarget.Latest, true);
 
     const federationConfig = extractModuleFederationPlugin(sourceFile);
@@ -56,16 +46,12 @@ function parseWebpackConfig(configPath: string): RuntimeModel['federation'] | un
   }
 }
 
-/**
- * Extracts ModuleFederationPlugin configuration from AST
- */
 function extractModuleFederationPlugin(sourceFile: ts.SourceFile): RuntimeModel['federation'] | undefined {
   let federationConfig: RuntimeModel['federation'] | undefined;
 
   function visit(node: ts.Node): void {
     if (federationConfig) return;
 
-    // Look for "new ModuleFederationPlugin({ ... })"
     if (ts.isNewExpression(node)) {
       const expression = node.expression;
 
@@ -74,7 +60,6 @@ function extractModuleFederationPlugin(sourceFile: ts.SourceFile): RuntimeModel[
         return;
       }
 
-      // Also check for namespaced access: container.ModuleFederationPlugin
       if (ts.isPropertyAccessExpression(expression)) {
         const property = expression.name;
         if (ts.isIdentifier(property) && property.text === 'ModuleFederationPlugin') {
@@ -84,7 +69,6 @@ function extractModuleFederationPlugin(sourceFile: ts.SourceFile): RuntimeModel[
       }
     }
 
-    // Look for "withModuleFederationPlugin({ ... })"
     if (ts.isCallExpression(node)) {
       const expression = node.expression;
 
@@ -105,9 +89,6 @@ function extractModuleFederationPlugin(sourceFile: ts.SourceFile): RuntimeModel[
   visit(sourceFile);
   return federationConfig;
 }
-/**
- * Extracts plugin config from new ModuleFederationPlugin() call
- */
 export function extractPluginConfig(newExpr: ts.NewExpression): RuntimeModel['federation'] | undefined {
   if (!newExpr.arguments || newExpr.arguments.length === 0) {
     return undefined;
@@ -122,9 +103,6 @@ export function extractPluginConfig(newExpr: ts.NewExpression): RuntimeModel['fe
   return extractFederationConfigFromObject(configArg);
 }
 
-/**
- * Extracts federation config from an object literal
- */
 export function extractFederationConfigFromObject(objLiteral: ts.ObjectLiteralExpression): RuntimeModel['federation'] | undefined {
   let remoteName: string | undefined;
   let libraryType: string | undefined;
@@ -137,14 +115,12 @@ export function extractFederationConfigFromObject(objLiteral: ts.ObjectLiteralEx
       if (ts.isIdentifier(propName)) {
         const name = propName.text;
 
-        // Extract 'name' property
         if (name === 'name') {
           if (ts.isStringLiteral(prop.initializer)) {
             remoteName = prop.initializer.text;
           }
         }
 
-        // Extract 'library.type' or 'libraryType'
         if (name === 'library') {
           if (ts.isObjectLiteralExpression(prop.initializer)) {
             const typeProp = prop.initializer.properties.find((p) => ts.isPropertyAssignment(p) && ts.isIdentifier(p.name) && p.name.text === 'type');
@@ -161,7 +137,6 @@ export function extractFederationConfigFromObject(objLiteral: ts.ObjectLiteralEx
           }
         }
 
-        // Extract 'exposes' property
         if (name === 'exposes') {
           if (ts.isObjectLiteralExpression(prop.initializer)) {
             for (const exposeProp of prop.initializer.properties) {

@@ -2,26 +2,18 @@ import * as ts from 'typescript';
 import { findCallExpressions, getStringLiteralValue } from '../../core/ast-walker.js';
 import path from 'node:path';
 
-/**
- * Component registration info extracted from customElements.define()
- */
+/** Registration info from customElements.define() */
 export interface ComponentRegistration {
   tagName: string;
   className: string;
   sourceFile: ts.SourceFile;
 }
 
-/**
- * Discovers web components by finding customElements.define() calls
- *
- * Example pattern:
- * customElements.define('my-component', MyComponent);
- */
+/** Discovers web components from customElements.define() calls */
 export function discoverComponents(program: ts.Program): ComponentRegistration[] {
   const registrations: ComponentRegistration[] = [];
 
   for (const sourceFile of program.getSourceFiles()) {
-    // Skip declaration files and node_modules
     if (sourceFile.isDeclarationFile || sourceFile.fileName.includes('node_modules')) {
       continue;
     }
@@ -34,19 +26,13 @@ export function discoverComponents(program: ts.Program): ComponentRegistration[]
   return registrations;
 }
 
-/**
- * Finds all customElements.define() calls in a source file
- */
 function findCustomElementsDefine(sourceFile: ts.SourceFile): ComponentRegistration[] {
   const registrations: ComponentRegistration[] = [];
-
-  // First, build a map of createCustomElement calls: variable -> component class
   const customElementMap = buildCustomElementMap(sourceFile);
 
   const calls = findCallExpressions(sourceFile, (call) => {
     const expression = call.expression;
 
-    // Check for customElements.define pattern
     if (ts.isPropertyAccessExpression(expression)) {
       const obj = expression.expression;
       const method = expression.name;
@@ -69,28 +55,19 @@ function findCustomElementsDefine(sourceFile: ts.SourceFile): ComponentRegistrat
   return registrations;
 }
 
-/**
- * Builds a map of variables created by createCustomElement() calls
- * Maps variable name to the component class name used in createCustomElement()
- * Searches recursively through all nested contexts (functions, blocks, etc.)
- */
+/** Maps createCustomElement() variables to their component class names */
 function buildCustomElementMap(sourceFile: ts.SourceFile): Map<string, string> {
   const map = new Map<string, string>();
 
   function visit(node: ts.Node): void {
-    // Look for: const ce = createCustomElement(ComponentClass, {...})
-    // This can be nested inside functions, if statements, etc.
     if (ts.isVariableDeclaration(node)) {
       if (node.initializer && ts.isCallExpression(node.initializer)) {
         const call = node.initializer;
 
-        // Check if it's a createCustomElement call
         if (ts.isIdentifier(call.expression) && call.expression.text === 'createCustomElement') {
-          // First argument should be the component class
           if (call.arguments.length > 0 && ts.isIdentifier(call.arguments[0])) {
             const componentClass = call.arguments[0].text;
 
-            // Get the variable name
             if (ts.isIdentifier(node.name)) {
               const variableName = node.name.text;
               map.set(variableName, componentClass);
@@ -101,7 +78,6 @@ function buildCustomElementMap(sourceFile: ts.SourceFile): Map<string, string> {
       }
     }
 
-    // Recursively visit all child nodes
     ts.forEachChild(node, visit);
   }
 
@@ -109,16 +85,11 @@ function buildCustomElementMap(sourceFile: ts.SourceFile): Map<string, string> {
   return map;
 }
 
-/**
- * Extracts registration info from a customElements.define() call
- */
 function extractRegistration(call: ts.CallExpression, sourceFile: ts.SourceFile, customElementMap: Map<string, string>): ComponentRegistration | undefined {
-  // customElements.define() must have at least 2 arguments
   if (call.arguments.length < 2) {
     return undefined;
   }
 
-  // First argument must be a string literal (tag name)
   const tagNameArg = call.arguments[0];
   const tagName = getStringLiteralValue(tagNameArg);
 
@@ -127,21 +98,17 @@ function extractRegistration(call: ts.CallExpression, sourceFile: ts.SourceFile,
     return undefined;
   }
 
-  // Second argument can be either:
-  // 1. Direct class reference: customElements.define('tag', ComponentClass)
-  // 2. Variable from createCustomElement: customElements.define('tag', ce)
+  // Can be direct class reference or createCustomElement variable
   const classArg = call.arguments[1];
   let className: string | undefined;
 
   if (ts.isIdentifier(classArg)) {
     const argText = classArg.text;
 
-    // Check if this is a variable from createCustomElement
     if (customElementMap.has(argText)) {
       className = customElementMap.get(argText);
       console.log(`Resolved ${argText} -> ${className} for tag ${tagName}`);
     } else {
-      // Direct class reference
       className = argText;
     }
   }
@@ -158,19 +125,14 @@ function extractRegistration(call: ts.CallExpression, sourceFile: ts.SourceFile,
   };
 }
 
-/**
- * Finds a class declaration by name in the program
- * Prioritizes imports since component classes are typically imported into registration files
- */
+/** Finds class by name, prioritizing imports over local declarations */
 export function findClassByName(program: ts.Program, className: string, sourceFile: ts.SourceFile): ts.ClassDeclaration | undefined {
-  // First, try to resolve through imports (most common case)
   const importedClass = resolveImportedClass(sourceFile, className, program);
   if (importedClass) {
     console.log(`Found ${className} via import in ${sourceFile.fileName}`);
     return importedClass;
   }
 
-  // Fallback: check if defined locally in the same source file
   const localClass = findClassInFile(sourceFile, className);
   if (localClass) {
     console.log(`Found ${className} locally in ${sourceFile.fileName}`);
@@ -181,9 +143,6 @@ export function findClassByName(program: ts.Program, className: string, sourceFi
   return undefined;
 }
 
-/**
- * Finds a class declaration in a specific source file
- */
 function findClassInFile(sourceFile: ts.SourceFile, className: string): ts.ClassDeclaration | undefined {
   let result: ts.ClassDeclaration | undefined;
 
@@ -202,15 +161,12 @@ function findClassInFile(sourceFile: ts.SourceFile, className: string): ts.Class
   return result;
 }
 
-/**
- * Resolves an imported class by following import statements
- */
+/** Resolves imported class by traversing import statements */
 function resolveImportedClass(sourceFile: ts.SourceFile, className: string, program: ts.Program): ts.ClassDeclaration | undefined {
   const typeChecker = program.getTypeChecker();
 
   console.log(`Resolving imported class ${className} in ${sourceFile.fileName}`);
 
-  // Find import declaration for the class
   for (const statement of sourceFile.statements) {
     if (ts.isImportDeclaration(statement)) {
       const importClause = statement.importClause;
@@ -240,7 +196,6 @@ function resolveImportedClass(sourceFile: ts.SourceFile, className: string, prog
               }
             }
 
-            // Method 2: Manually resolve the import path
             console.log(`  Attempting manual import resolution...`);
             const moduleSpecifier = statement.moduleSpecifier;
             if (ts.isStringLiteral(moduleSpecifier)) {
@@ -262,25 +217,14 @@ function resolveImportedClass(sourceFile: ts.SourceFile, className: string, prog
   return undefined;
 }
 
-/**
- * Manually resolves an import by searching for the file
- */
+/** Resolves imports by searching filesystem for target file */
 function resolveImportManually(sourceFile: ts.SourceFile, importPath: string, className: string, program: ts.Program): ts.ClassDeclaration | undefined {
   const sourceDir = path.dirname(sourceFile.fileName);
-
-  // Handle relative imports
   let resolvedPath: string;
   if (importPath.startsWith('./') || importPath.startsWith('../')) {
     resolvedPath = path.resolve(sourceDir, importPath);
 
-    // Try with different extensions
-    const possiblePaths = [
-      `${resolvedPath}.ts`,
-      `${resolvedPath}.tsx`,
-      `${resolvedPath}/index.ts`,
-      `${resolvedPath}/index.tsx`,
-      resolvedPath, // In case it already has extension
-    ];
+    const possiblePaths = [`${resolvedPath}.ts`, `${resolvedPath}.tsx`, `${resolvedPath}/index.ts`, `${resolvedPath}/index.tsx`, resolvedPath];
 
     for (const filePath of possiblePaths) {
       console.log(`    Trying: ${filePath}`);
@@ -298,9 +242,7 @@ function resolveImportManually(sourceFile: ts.SourceFile, importPath: string, cl
   return undefined;
 }
 
-/**
- * Gets the module path for a component (relative to project root)
- */
+/** Returns module path relative to project root */
 export function getModulePath(sourceFile: ts.SourceFile, projectRoot: string): string {
   let path = sourceFile.fileName;
 
@@ -308,7 +250,6 @@ export function getModulePath(sourceFile: ts.SourceFile, projectRoot: string): s
     path = path.substring(projectRoot.length);
   }
 
-  // Remove leading slash
   if (path.startsWith('/')) {
     path = path.substring(1);
   }

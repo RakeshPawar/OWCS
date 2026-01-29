@@ -4,22 +4,16 @@ import { getClassProperties, findDecorator, findCallExpressions, isMethodCall, g
 import { typeNodeToJsonSchema } from '../shared/type.utils.js';
 import { extractJSDocMetadata } from '../shared/jsdoc.utils.js';
 
-/**
- * Extracts events from an Angular component class
- * Supports both @Output() EventEmitter and dispatchEvent patterns
- */
+/** Extracts events from @Output decorators and dispatchEvent calls */
 export function extractEvents(classDecl: ts.ClassDeclaration, typeChecker: ts.TypeChecker): EventModel[] {
   const events: EventModel[] = [];
 
-  // Extract @Output() decorators
   const outputEvents = extractOutputEvents(classDecl, typeChecker);
   events.push(...outputEvents);
 
-  // Extract dispatchEvent calls
   const dispatchEvents = extractDispatchEvents(classDecl, typeChecker);
   events.push(...dispatchEvents);
 
-  // Deduplicate by event name
   const uniqueEvents = new Map<string, EventModel>();
   for (const event of events) {
     if (!uniqueEvents.has(event.name)) {
@@ -30,9 +24,6 @@ export function extractEvents(classDecl: ts.ClassDeclaration, typeChecker: ts.Ty
   return Array.from(uniqueEvents.values());
 }
 
-/**
- * Extracts events from @Output() decorators and output signals
- */
 function extractOutputEvents(classDecl: ts.ClassDeclaration, typeChecker: ts.TypeChecker): EventModel[] {
   const events: EventModel[] = [];
   const properties = getClassProperties(classDecl);
@@ -46,7 +37,6 @@ function extractOutputEvents(classDecl: ts.ClassDeclaration, typeChecker: ts.Typ
         events.push(event);
       }
     } else if (property.initializer) {
-      // Check for output signal: output()
       const event = extractOutputSignalEvent(property, typeChecker);
       if (event) {
         events.push(event);
@@ -57,9 +47,6 @@ function extractOutputEvents(classDecl: ts.ClassDeclaration, typeChecker: ts.Typ
   return events;
 }
 
-/**
- * Extracts a single event from @Output() property
- */
 function extractOutputEvent(property: ts.PropertyDeclaration, typeChecker: ts.TypeChecker): EventModel | undefined {
   const propertyName = property.name;
 
@@ -69,18 +56,15 @@ function extractOutputEvent(property: ts.PropertyDeclaration, typeChecker: ts.Ty
 
   const name = propertyName.text;
 
-  // Check for @Output('alias') pattern
   const outputDecorator = findDecorator(property, 'Output');
   const decoratorArg = outputDecorator ? getDecoratorArgument(outputDecorator, 0) : undefined;
   const decoratorAlias = decoratorArg ? getStringLiteralValue(decoratorArg) : undefined;
 
-  // Extract JSDoc metadata
   const jsDocMetadata = extractJSDocMetadata(property);
 
-  // Determine event name (decorator alias > JSDoc @attribute > property name)
+  // Precedence: decorator alias > @attribute > property name
   const eventName = decoratorAlias || jsDocMetadata.attribute || name;
 
-  // Extract payload type from EventEmitter<T>
   const payloadSchema = extractEventEmitterPayload(property, typeChecker);
 
   return {
@@ -93,9 +77,6 @@ function extractOutputEvent(property: ts.PropertyDeclaration, typeChecker: ts.Ty
   };
 }
 
-/**
- * Extracts a single event from a property with output signal (output())
- */
 function extractOutputSignalEvent(property: ts.PropertyDeclaration, typeChecker: ts.TypeChecker): EventModel | undefined {
   const propertyName = property.name;
 
@@ -110,13 +91,11 @@ function extractOutputSignalEvent(property: ts.PropertyDeclaration, typeChecker:
     return undefined;
   }
 
-  // Check if it's a call to output()
   let callExpression: ts.CallExpression | undefined;
 
   if (ts.isCallExpression(initializer)) {
     const expr = initializer.expression;
 
-    // Check for output() direct call
     if (ts.isIdentifier(expr) && expr.text === 'output') {
       callExpression = initializer;
     }
@@ -126,23 +105,19 @@ function extractOutputSignalEvent(property: ts.PropertyDeclaration, typeChecker:
     return undefined;
   }
 
-  // Extract type from generic type argument
   let payloadSchema: JSONSchema | undefined;
 
   if (callExpression.typeArguments && callExpression.typeArguments.length > 0) {
     payloadSchema = typeNodeToJsonSchema(callExpression.typeArguments[0], typeChecker);
   }
 
-  // Extract JSDoc metadata
   const jsDocMetadata = extractJSDocMetadata(property);
 
-  // Check for alias in options: output({ alias: 'customName' })
   let eventName = name;
 
   if (callExpression.arguments.length > 0) {
     const firstArg = callExpression.arguments[0];
 
-    // Check if it's an options object with alias property
     if (ts.isObjectLiteralExpression(firstArg)) {
       for (const prop of firstArg.properties) {
         if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name) && prop.name.text === 'alias') {
@@ -155,7 +130,6 @@ function extractOutputSignalEvent(property: ts.PropertyDeclaration, typeChecker:
     }
   }
 
-  // JSDoc @attribute takes precedence if specified
   if (jsDocMetadata.attribute) {
     eventName = jsDocMetadata.attribute;
   }
@@ -170,9 +144,6 @@ function extractOutputSignalEvent(property: ts.PropertyDeclaration, typeChecker:
   };
 }
 
-/**
- * Extracts payload type from EventEmitter<T>
- */
 function extractEventEmitterPayload(property: ts.PropertyDeclaration, typeChecker: ts.TypeChecker): JSONSchema | undefined {
   const typeNode = property.type;
 
@@ -186,7 +157,6 @@ function extractEventEmitterPayload(property: ts.PropertyDeclaration, typeChecke
     return undefined;
   }
 
-  // Get type argument
   const typeArgs = typeNode.typeArguments;
   if (!typeArgs || typeArgs.length === 0) {
     return undefined;
@@ -196,20 +166,15 @@ function extractEventEmitterPayload(property: ts.PropertyDeclaration, typeChecke
   return typeNodeToJsonSchema(payloadType, typeChecker);
 }
 
-/**
- * Extracts events from dispatchEvent calls in class methods
- */
 function extractDispatchEvents(classDecl: ts.ClassDeclaration, typeChecker: ts.TypeChecker): EventModel[] {
   const events: EventModel[] = [];
 
-  // Visit all methods in the class
   for (const member of classDecl.members) {
     if (ts.isMethodDeclaration(member) && member.body) {
       const methodEvents = extractDispatchEventsFromBlock(member.body, typeChecker);
       events.push(...methodEvents);
     }
 
-    // Also check property initializers (arrow functions)
     if (ts.isPropertyDeclaration(member) && member.initializer) {
       if (ts.isArrowFunction(member.initializer) && member.initializer.body) {
         if (ts.isBlock(member.initializer.body)) {
@@ -223,13 +188,9 @@ function extractDispatchEvents(classDecl: ts.ClassDeclaration, typeChecker: ts.T
   return events;
 }
 
-/**
- * Extracts dispatchEvent calls from a block of code
- */
 function extractDispatchEventsFromBlock(block: ts.Block, typeChecker: ts.TypeChecker): EventModel[] {
   const events: EventModel[] = [];
 
-  // Find all this.dispatchEvent() calls
   const calls = findCallExpressions(block as unknown as ts.SourceFile, (call) => {
     return isMethodCall(call, 'this', 'dispatchEvent');
   });
@@ -244,19 +205,14 @@ function extractDispatchEventsFromBlock(block: ts.Block, typeChecker: ts.TypeChe
   return events;
 }
 
-/**
- * Extracts event info from a dispatchEvent call
- * Pattern: this.dispatchEvent(new CustomEvent('event-name', { detail: payload }))
- */
+/** Extracts event from: this.dispatchEvent(new CustomEvent('name', { detail })) */
 function extractDispatchEvent(call: ts.CallExpression, typeChecker: ts.TypeChecker): EventModel | undefined {
-  // dispatchEvent must have at least 1 argument
   if (call.arguments.length === 0) {
     return undefined;
   }
 
   const eventArg = call.arguments[0];
 
-  // Check if it's "new CustomEvent(...)"
   if (!ts.isNewExpression(eventArg)) {
     return undefined;
   }
@@ -266,7 +222,6 @@ function extractDispatchEvent(call: ts.CallExpression, typeChecker: ts.TypeCheck
     return undefined;
   }
 
-  // Extract event name from first argument
   if (!eventArg.arguments || eventArg.arguments.length === 0) {
     return undefined;
   }
@@ -276,7 +231,6 @@ function extractDispatchEvent(call: ts.CallExpression, typeChecker: ts.TypeCheck
     return undefined;
   }
 
-  // Extract payload schema and event options from detail property
   let payloadSchema: JSONSchema | undefined;
   let bubbles: boolean | undefined;
   let composed: boolean | undefined;
@@ -288,7 +242,6 @@ function extractDispatchEvent(call: ts.CallExpression, typeChecker: ts.TypeCheck
       for (const prop of optionsArg.properties) {
         if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name)) {
           if (prop.name.text === 'detail') {
-            // Try to infer schema from the detail value
             payloadSchema = inferSchemaFromExpression(prop.initializer, typeChecker);
           } else if (prop.name.text === 'bubbles') {
             if (prop.initializer.kind === ts.SyntaxKind.TrueKeyword) {
@@ -308,12 +261,10 @@ function extractDispatchEvent(call: ts.CallExpression, typeChecker: ts.TypeCheck
     }
   }
 
-  // Try to extract type from CustomEvent<T> generic
   if (!payloadSchema && eventArg.typeArguments && eventArg.typeArguments.length > 0) {
     payloadSchema = typeNodeToJsonSchema(eventArg.typeArguments[0], typeChecker);
   }
 
-  // Try to extract JSDoc metadata from the containing method
   const method = findContainingMethod(call);
   const jsDocMetadata = method ? extractJSDocMetadata(method) : {};
 
@@ -329,9 +280,6 @@ function extractDispatchEvent(call: ts.CallExpression, typeChecker: ts.TypeCheck
   };
 }
 
-/**
- * Find the containing method for a node
- */
 function findContainingMethod(node: ts.Node): ts.MethodDeclaration | undefined {
   let current = node.parent;
 
@@ -345,11 +293,8 @@ function findContainingMethod(node: ts.Node): ts.MethodDeclaration | undefined {
   return undefined;
 }
 
-/**
- * Infers JSON Schema from an expression (best effort)
- */
+/** Infers JSON Schema from AST expression (best-effort analysis) */
 function inferSchemaFromExpression(expression: ts.Expression, typeChecker: ts.TypeChecker): JSONSchema {
-  // Object literal
   if (ts.isObjectLiteralExpression(expression)) {
     const properties: Record<string, JSONSchema> = {};
 
@@ -366,22 +311,18 @@ function inferSchemaFromExpression(expression: ts.Expression, typeChecker: ts.Ty
     return { type: 'object', properties };
   }
 
-  // String literal
   if (ts.isStringLiteral(expression)) {
     return { type: 'string' };
   }
 
-  // Numeric literal
   if (ts.isNumericLiteral(expression)) {
     return { type: 'number' };
   }
 
-  // Boolean
   if (expression.kind === ts.SyntaxKind.TrueKeyword || expression.kind === ts.SyntaxKind.FalseKeyword) {
     return { type: 'boolean' };
   }
 
-  // Array literal
   if (ts.isArrayLiteralExpression(expression)) {
     if (expression.elements.length > 0) {
       return {
