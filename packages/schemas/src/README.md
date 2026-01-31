@@ -12,10 +12,10 @@ Most users don't need to work with schemas directly. OWCS handles validation aut
 
 ```bash
 # Validation happens automatically during generation
-npx owcs generate --adapter angular
+npx @owcs/cli generate --adapter angular
 
 # Manually validate a specification
-npx owcs validate owcs.yaml
+npx @owcs/cli validate owcs.yaml
 ```
 
 ## For Developers
