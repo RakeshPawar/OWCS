@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/RakeshPawar/OWCS/compare/@owcs/schemas-v0.1.1...@owcs/schemas-v0.1.2) (2026-01-31)
+
+
+### Bug Fixes
+
+* **api:** documentationfix for release ([#29](https://github.com/RakeshPawar/OWCS/issues/29)) ([adaba14](https://github.com/RakeshPawar/OWCS/commit/adaba143fe8610a4ed18ddf9a18ae065f5ee4891))
+
 ## [0.1.1](https://github.com/RakeshPawar/OWCS/compare/@owcs/schemas-v0.1.0...@owcs/schemas-v0.1.1) (2026-01-31)
 
 

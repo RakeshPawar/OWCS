@@ -1,6 +1,6 @@
 {
   "name": "@owcs/api",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "OWCS API for analyzing components and generating specifications",
   "type": "module",
   "main": "./dist/src/index.js",
