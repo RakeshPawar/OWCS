@@ -2,24 +2,8 @@
   "name": "owcs",
   "version": "0.1.0",
   "description": "Open Web Component Specification - Generate OWCS specs from framework code",
+  "private": true,
   "type": "module",
-  "bin": {
-    "owcs": "./dist/cli/index.js"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/types/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./adapters/angular": {
-      "types": "./dist/types/adapters/angular/index.d.ts",
-      "default": "./dist/adapters/angular/index.js"
-    }
-  },
-  "files": [
-    "dist"
-  ],
-  "sideEffects": false,
   "engines": {
     "node": ">=18.0.0"
   },
@@ -27,21 +11,19 @@
     "type": "git",
     "url": "https://github.com/RakeshPawar/OWCS"
   },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
-    "prepublishOnly": "npm run build",
-    "prepare": "husky",
-    "format": "prettier --write \"src/**/*.{ts,json,md}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,json,md}\"",
-    "lint": "eslint \"src/**/*.ts\"",
-    "lint:fix": "eslint \"src/**/*.ts\" --fix",
-    "sanity:angular": "tsc && node dist/cli/index.js generate -p examples/angular --format yaml --output examples/angular/owcs-angular-webpack.yaml",
-    "sanity:react-vite": "tsc && node dist/cli/index.js generate -p examples/react-vite --adapter react --format yaml  --output examples/react-vite/owcs-react-vite.yaml",
-    "sanity:react-webpack": "tsc && node dist/cli/index.js generate -p examples/react-webpack --adapter react --format yaml  --output examples/react-webpack/owcs-react-webpack.yaml"
+    "build": "nx run-many -t build",
+    "build:cli": "nx build cli",
+    "test": "nx run-many -t test",
+    "lint": "nx run-many -t lint",
+    "lint:fix": "nx run-many -t lint --fix",
+    "format": "prettier --write \"**/*.{ts,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,json,md}\"",
+    "prepare": "husky"
   },
   "keywords": [
     "web-components",
@@ -63,6 +45,8 @@
   "devDependencies": {
     "@commitlint/cli": "^20.3.1",
     "@commitlint/config-conventional": "^20.3.1",
+    "@nx/js": "^22.4.2",
+    "@nx/workspace": "^22.4.2",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.0.6",
     "@typescript-eslint/eslint-plugin": "^8.52.0",
@@ -74,6 +58,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
+    "nx": "^22.4.2",
     "prettier": "^3.7.4",
     "vite": "^7.3.1",
     "vitest": "^4.0.16"

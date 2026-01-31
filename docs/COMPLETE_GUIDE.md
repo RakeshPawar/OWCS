@@ -7,7 +7,7 @@ This guide covers advanced usage, API details, and development setup for OWCS co
 ```bash
 git clone <repository-url>
 cd OWCS
-npm install && npm run build
+pnpm install && pnpm run build
 ```
 
 ## Architecture
@@ -469,7 +469,7 @@ config:
 
 ```bash
 # 1. Generate from examples
-node dist/cli/index.js generate -p examples/angular
+node dist/cli/index.js generate -p app/angular
 
 # 2. Validate
 node dist/cli/index.js validate owcs.yaml

@@ -2,6 +2,14 @@
 
 Generate standardized specifications for your web components automatically. OWCS analyzes your Angular and React components and creates documentation and configuration files that help you share and use components across projects.
 
+## Monorepo Structure
+
+This project is organized as an Nx monorepo with three packages:
+
+- **[@owcs/schemas](packages/schemas)** - JSON Schema definitions and validation utilities
+- **[@owcs/api](packages/api)** - Core API for analyzing components and generating specifications
+- **[@owcs/cli](packages/cli)** - Command-line interface
+
 ## What is OWCS?
 
 OWCS creates detailed specifications from your existing web components, including:
@@ -15,7 +23,13 @@ OWCS creates detailed specifications from your existing web components, includin
 ## Installation
 
 ```bash
-npm install owcs
+pnpm add -g @owcs/cli
+```
+
+Or use directly with npx:
+
+```bash
+npx owcs generate --adapter angular
 ```
 
 ## Requirements
@@ -61,12 +75,16 @@ npx owcs validate owcs.yaml
 
 ## Using in Code
 
-If you need to generate specifications programmatically:
+If you need to generate specifications programmatically, install the API package:
+
+```bash
+pnpm add @owcs/api
+```
 
 ### Angular
 
 ```typescript
-import { analyzeAngularProject, buildOWCSSpec, writeOWCSSpec } from 'owcs';
+import { analyzeAngularProject, buildOWCSSpec, writeOWCSSpec } from '@owcs/api';
 
 // Analyze your Angular project
 const analysis = analyzeAngularProject('./src');
@@ -84,7 +102,7 @@ writeOWCSSpec(spec, 'owcs.yaml', 'yaml');
 ### React
 
 ```typescript
-import { analyzeReactProject, buildOWCSSpec, writeOWCSSpec } from 'owcs';
+import { analyzeReactProject, buildOWCSSpec, writeOWCSSpec } from '@owcs/api';
 
 // Analyze your React project
 const analysis = analyzeReactProject('./src');
@@ -257,12 +275,79 @@ This creates both `owcs.yaml` and `openapi.yaml` files, making your components d
 - `--version <version>` - Specification version
 - `--openapi` - Also generate OpenAPI documentation
 
+## Development
+
+This project uses [Nx](https://nx.dev) for monorepo management.
+
+### Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/RakeshPawar/OWCS.git
+cd OWCS
+
+# Install dependencies
+pnpm install
+```
+
+### Build
+
+```bash
+# Build all packages
+pnpm run build
+
+# Build specific package
+npx nx build schemas
+npx nx build api
+npx nx build cli
+```
+
+### Test
+
+```bash
+# Run all tests
+pnpm test
+
+# Test specific package
+npx nx test schemas
+npx nx test api
+```
+
+### Lint
+
+```bash
+# Lint all packages
+pnpm run lint
+
+# Lint specific package
+npx nx lint api
+```
+
+### Package Structure
+
+- `packages/schemas` - JSON Schema definitions
+- `packages/api` - Core analysis and spec generation
+- `packages/cli` - CLI application (bundled for publishing)
+- `apps/*-example` - Example applications for testing
+- `tools/` - Build scripts and utilities
+
+### Example Apps
+
+Test the CLI with example applications:
+
+```bash
+# Generate specs for examples
+npx nx generate-spec angular-example
+npx nx generate-spec react-vite-example
+npx nx generate-spec react-webpack-example
+```
+
 ## Contributing
 
 Want to help improve OWCS? Contributions are welcome! The project is designed to support multiple frameworks:
 
-- **Add framework support** - Create adapters for React, Vue, or other frameworks
-- **Enhance Angular support** - Add features like template parsing or CSS custom properties
+- **Add framework support** - Create adapters for Vue, Svelte, or other frameworks
+- **Enhance existing adapters** - Add features like template parsing or CSS custom properties
 - **Improve documentation** - Help make the docs even more user-friendly
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.

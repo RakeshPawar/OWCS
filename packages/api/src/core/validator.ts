@@ -1,7 +1,7 @@
 import Ajv, { ValidateFunction } from 'ajv';
 import fs from 'node:fs';
 import yaml from 'js-yaml';
-import { getSchema, SchemaVersion, DEFAULT_SCHEMA_VERSION, getAvailableVersions, AVAILABLE_SCHEMAS } from '../../schemas/index.js';
+import { getSchema, SchemaVersion, DEFAULT_SCHEMA_VERSION, getAvailableVersions, AVAILABLE_SCHEMAS } from '@owcs/schemas';
 
 /**
  * Validates OWCS specifications against the schema

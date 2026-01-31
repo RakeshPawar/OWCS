@@ -4,7 +4,18 @@ dist/
 .DS_Store
 *.tsbuildinfo
 
+# Lock files
+package-lock.json
+yarn.lock
+
 # Test coverage
 coverage/
 
 debugowcs.yaml
+
+# Nx
+.nx/cache
+.nx/workspace-data
+static/
+tmp/
+

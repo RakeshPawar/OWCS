@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import path from 'node:path';
 import fs from 'node:fs';
 import yaml from 'js-yaml';
-import { analyzeAngularProject, analyzeReactProject, buildOWCSSpec, writeOWCSSpec, OutputFormat, convertToOpenAPI, validateOWCSFile } from '../api/index.js';
+import { analyzeAngularProject, analyzeReactProject, buildOWCSSpec, writeOWCSSpec, OutputFormat, convertToOpenAPI, validateOWCSFile } from '@owcs/api';
 
 const program = new Command();
 

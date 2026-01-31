@@ -3,10 +3,10 @@ const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPl
 module.exports = {
   output: {
     uniqueName: 'userComponents',
-    publicPath: 'auto'
+    publicPath: 'auto',
   },
   optimization: {
-    runtimeChunk: false
+    runtimeChunk: false,
   },
   plugins: [
     new ModuleFederationPlugin({
@@ -14,12 +14,12 @@ module.exports = {
       library: { type: 'module' },
       filename: 'remoteEntry.js',
       exposes: {
-        './user-card': './examples/angular/user-card.wc.ts',
+        './user-card': './src/user-card/user-card.wc.ts',
       },
       shared: {
         '@angular/core': { singleton: true, strictVersion: true },
-        '@angular/common': { singleton: true, strictVersion: true }
-      }
-    })
-  ]
+        '@angular/common': { singleton: true, strictVersion: true },
+      },
+    }),
+  ],
 };

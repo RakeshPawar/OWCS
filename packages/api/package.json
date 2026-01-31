@@ -1,0 +1,38 @@
+{
+  "name": "@owcs/api",
+  "version": "0.1.0",
+  "description": "OWCS API for analyzing components and generating specifications",
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./adapters/angular": {
+      "types": "./dist/src/adapters/angular/index.d.ts",
+      "default": "./dist/src/adapters/angular/index.js"
+    },
+    "./adapters/react": {
+      "types": "./dist/src/adapters/react/index.d.ts",
+      "default": "./dist/src/adapters/react/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@owcs/schemas": "workspace:*",
+    "ajv": "^8.17.1",
+    "js-yaml": "^4.1.1",
+    "typescript": "^5.9.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

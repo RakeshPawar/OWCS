@@ -22,9 +22,6 @@ export default defineConfig([
     '**/coverage',
     '**/*.config.ts',
     '**/*.config.js',
-    '**/node_modules',
-    '**/dist',
-    '**/coverage',
     '**/*.log',
     '**/*.min.js',
     '**/.git',
@@ -33,7 +30,8 @@ export default defineConfig([
     '**/vite.config.ts',
     'eslint.config.mjs',
     '**/*.test.ts',
-    '**/examples/**',
+    '**/apps/**',
+    '**/tools/**',
   ]),
   {
     extends: compat.extends('eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'),
@@ -51,7 +49,7 @@ export default defineConfig([
       ecmaVersion: 'latest',
       sourceType: 'module',
       parserOptions: {
-        project: ['./tsconfig.json'],
+        project: ['./tsconfig.base.json', './packages/*/tsconfig.json'],
         tsconfigRootDir: __dirname,
       },
     },
