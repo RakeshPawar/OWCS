@@ -4,17 +4,20 @@
     "packages/api": {
       "release-type": "node",
       "component": "@owcs/api",
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "pull-request-title-pattern": "chore(${component}): release ${version}"
     },
     "packages/cli": {
       "release-type": "node",
       "component": "@owcs/cli",
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "pull-request-title-pattern": "chore(${component}): release ${version}"
     },
     "packages/schemas": {
       "release-type": "node",
       "component": "@owcs/schemas",
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "pull-request-title-pattern": "chore(${component}): release ${version}"
     }
   },
   "changelog-sections": [
@@ -51,7 +54,6 @@
       "section": "Continuous Integration"
     }
   ],
-  "group-pull-request-title-pattern": "chore: release ${version}",
   "versioning": "always-bump-patch",
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true
