@@ -1,0 +1,35 @@
+{
+  "name": "api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/api/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "packages/api/dist",
+        "main": "packages/api/src/index.ts",
+        "tsConfig": "packages/api/tsconfig.json",
+        "assets": []
+      },
+      "dependsOn": ["schemas:build"]
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint packages/api/src/**/*.ts",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/coverage"],
+      "options": {
+        "command": "vitest run --config vite.config.ts --coverage.reportsDirectory=../../coverage/packages/api",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  },
+  "tags": []
+}

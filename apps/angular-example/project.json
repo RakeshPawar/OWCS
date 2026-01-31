@@ -1,0 +1,25 @@
+{
+  "name": "angular-example",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/angular-example/src",
+  "projectType": "application",
+  "targets": {
+    "generate-spec": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node packages/cli/dist/src/index.js generate -p apps/angular-example --adapter angular --format yaml --output apps/angular-example/owcs-angular-webpack.yaml",
+        "cwd": "{workspaceRoot}"
+      },
+      "dependsOn": ["cli:build"]
+    },
+    "verify": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node packages/cli/dist/src/index.js validate apps/angular-example/owcs-angular-webpack.yaml",
+        "cwd": "{workspaceRoot}"
+      },
+      "dependsOn": ["generate-spec"]
+    }
+  },
+  "tags": ["type:example"]
+}

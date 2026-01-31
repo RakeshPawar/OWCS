@@ -16,6 +16,7 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
+      - run: npm run build
       - run: npm test
 
   publish-npm:
@@ -28,4 +29,17 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - run: npm ci
-      - run: npm publish
+      - run: npm run build
+
+      # Publish each package individually
+      - name: Publish @owcs/schemas
+        run: npm publish
+        working-directory: ./packages/schemas
+
+      - name: Publish @owcs/api
+        run: npm publish
+        working-directory: ./packages/api
+
+      - name: Publish @owcs/cli
+        run: npm publish
+        working-directory: ./packages/cli

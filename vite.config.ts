@@ -5,23 +5,19 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['src/**/*.test.ts', 'src/**/*.spec.ts'],
+    include: ['packages/**/*.test.ts', 'packages/**/*.spec.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      include: ['src/**/*.ts'],
-      exclude: [
-        'src/**/*.test.ts',
-        'src/**/*.spec.ts',
-        'src/cli/**',
-        'node_modules/**',
-        'dist/**',
-      ],
+      include: ['packages/**/*.ts'],
+      exclude: ['packages/**/*.test.ts', 'packages/**/*.spec.ts', 'packages/cli/**', 'node_modules/**', 'dist/**'],
     },
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@owcs/schemas': path.resolve(__dirname, './packages/schemas/src'),
+      '@owcs/api': path.resolve(__dirname, './packages/api/src'),
+      '@owcs/cli': path.resolve(__dirname, './packages/cli/src'),
     },
   },
 });

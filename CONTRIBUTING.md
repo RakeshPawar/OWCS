@@ -6,6 +6,7 @@ Thank you for contributing to OWCS! We welcome help making web component develop
 
 - [Getting Started](#getting-started)
 - [Development Setup](#development-setup)
+- [Monorepo Structure](#monorepo-structure)
 - [How to Contribute](#how-to-contribute)
 - [Code Guidelines](#code-guidelines)
 - [Testing](#testing)
@@ -17,8 +18,8 @@ Thank you for contributing to OWCS! We welcome help making web component develop
 
 OWCS is designed to be extensible and framework-agnostic. We're particularly interested in:
 
-- **Framework adapters**: Adding support for Vue, Svelte, or other frameworks (React adapter is already implemented)
-- **Enhanced Angular support**: Template parsing, CSS custom properties, lifecycle hooks
+- **Framework adapters**: Adding support for Vue, Svelte, or other frameworks
+- **Enhanced adapters**: Template parsing, CSS custom properties, lifecycle hooks
 - **Tooling integrations**: Webpack plugins, Vite plugins, build tool integrations
 - **Documentation improvements**: Examples, guides, and API documentation
 - **Bug fixes and optimizations**: Performance improvements and reliability enhancements
@@ -32,9 +33,45 @@ See [docs/COMPLETE_GUIDE.md](docs/COMPLETE_GUIDE.md) for detailed setup, archite
 ```bash
 git clone https://github.com/RakeshPawar/OWCS.git
 cd OWCS
-npm install && npm run build
-npm test  # Run tests
-npm run dev  # Watch mode
+npm install
+npm run build
+npm test
+```
+
+## Monorepo Structure
+
+This project uses [Nx](https://nx.dev) for monorepo management:
+
+```
+packages/
+├── schemas/      # JSON Schema definitions
+├── api/          # Core analysis and generation logic
+└── cli/          # CLI application
+
+apps/
+├── angular-example/
+├── react-vite-example/
+└── react-webpack-example/
+```
+
+### Working with Packages
+
+```bash
+# Build all packages
+npm run build
+
+# Build specific package
+npx nx build schemas
+npx nx build api
+npx nx build cli
+
+# Run tests
+npx nx test api
+npx nx run-many -t test
+
+# Lint code
+npx nx lint api
+npm run lint
 ```
 
 ## How to Contribute
@@ -45,15 +82,16 @@ npm run dev  # Watch mode
 
 To add support for a new framework:
 
-1. Create adapter directory: `src/api/adapters/[framework]/`
-2. Implement adapter interface (see Angular adapter)
+1. Create adapter directory: `packages/api/src/adapters/[framework]/`
+2. Implement adapter interface (see Angular or React adapters)
 3. Add extractors for:
    - Component registration/discovery
    - Properties/props extraction
    - Event handling extraction
    - Module federation (if applicable)
 4. Write comprehensive tests
-5. Update documentation
+5. Add example app in `apps/[framework]-example/`
+6. Update documentation
 
 #### Bug Fixes and Features
 
@@ -71,7 +109,7 @@ To add support for a new framework:
    git checkout -b fix/issue-description
    ```
 
-2. **Make your changes** following the code guidelines below
+2. **Make your changes** in the appropriate package following the code guidelines below
 
 3. **Add or update tests** for your changes
 
@@ -100,7 +138,7 @@ To add support for a new framework:
 ### Code Style
 
 - **TypeScript**: Use strict TypeScript with proper type annotations
-- **Formatting**: The project uses ESLint and Prettier (run `npm run lint:fix`)
+- **Formatting**: The project uses ESLint and Prettier (run `pnpm run lint:fix`)
 - **Naming**: Use descriptive names for functions, variables, and classes
 - **Imports**: Use absolute imports for internal modules when possible
 
@@ -180,7 +218,7 @@ npm run test:coverage
 1. **API Documentation**: JSDoc comments for all public APIs
 2. **User Documentation**: README updates for new features
 3. **Developer Documentation**: Architecture and implementation details
-4. **Examples**: Real-world usage examples in `examples/` directory
+4. **Examples**: Real-world usage examples in `app/` directory
 
 ### Documentation Guidelines
 

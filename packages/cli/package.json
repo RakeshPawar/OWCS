@@ -1,0 +1,43 @@
+{
+  "name": "@owcs/cli",
+  "version": "0.1.0",
+  "description": "Open Web Component Specification CLI - Generate OWCS specs from framework code",
+  "type": "module",
+  "bin": {
+    "owcs": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RakeshPawar/OWCS"
+  },
+  "keywords": [
+    "web-components",
+    "angular",
+    "react",
+    "specification",
+    "ast",
+    "typescript",
+    "owcs",
+    "open-web-component-specification",
+    "cli"
+  ],
+  "author": "Rakesh Pawar <rakesh.u.pawar@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@owcs/api": "workspace:*",
+    "@owcs/schemas": "workspace:*",
+    "commander": "^14.0.2",
+    "typescript": "^5.9.3",
+    "ajv": "^8.17.1",
+    "js-yaml": "^4.1.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
