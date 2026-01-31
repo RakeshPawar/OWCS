@@ -143,7 +143,7 @@ customElements.define('user-card', UserCardComponent);
 ```typescript
 @Output() clicked = new EventEmitter<{userId: string}>();
 
-// Also detects custom events
+// Also detects custom events.
 this.dispatchEvent(new CustomEvent('userChanged', {
   detail: { name: 'John', age: 30 }
 }));
