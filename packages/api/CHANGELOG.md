@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/RakeshPawar/OWCS/compare/@owcs/api-v0.1.0...@owcs/api-v0.1.1) (2026-01-31)
+
+
+### Bug Fixes
+
+* incorrect optional property check ([#21](https://github.com/RakeshPawar/OWCS/issues/21)) ([5f52e90](https://github.com/RakeshPawar/OWCS/commit/5f52e90f8f3742e81a1085862a291e7ba78ae767))
+
 ## [0.1.0](https://github.com/RakeshPawar/OWCS/compare/@owcs/api-v0.1.0...@owcs/api-v0.1.0) (2026-01-31)
 
 
