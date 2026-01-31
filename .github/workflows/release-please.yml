@@ -15,11 +15,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v4
+        id: release
         with:
-          # this assumes that you have created a personal access token
-          # (PAT) and configured it as a GitHub action secret named
-          # `MY_RELEASE_PLEASE_TOKEN` (this secret name is not important).
           token: ${{ secrets.MY_RELEASE_PLEASE_TOKEN }}
-          # Optional: provide a config file
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+      
+      # Checkout code if releases were created
+      - uses: actions/checkout@v4
+        if: ${{ steps.release.outputs.releases_created }}
+      
+      # The action automatically creates tags and GitHub releases when PR merges
+      # You can add additional steps here like triggering npm publish
+      
+      # Optional: Trigger npm publish workflow
+      - name: Trigger npm publish
+        if: ${{ steps.release.outputs.releases_created }}
+        run: echo "Releases created, npm-publish workflow will trigger via release event"
