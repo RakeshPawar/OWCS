@@ -1,12 +1,6 @@
 {
   "bootstrap-sha": "main",
   "packages": {
-    ".": {
-      "release-type": "node",
-      "component": "owcs",
-      "include-component-in-tag": false,
-      "changelog-path": "CHANGELOG.md"
-    },
     "packages/api": {
       "release-type": "node",
       "component": "@owcs/api",
