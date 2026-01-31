@@ -115,7 +115,7 @@ export function getClassProperties(classDecl: ts.ClassDeclaration): ts.PropertyD
  * Checks if a property is optional
  */
 export function isPropertyOptional(property: ts.PropertyDeclaration): boolean {
-  return property.questionToken !== undefined || property.exclamationToken !== undefined;
+  return property.questionToken !== undefined;
 }
 
 /**
