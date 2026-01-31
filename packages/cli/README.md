@@ -20,20 +20,20 @@ npx @owcs/cli generate --adapter angular
 
 ```bash
 # Angular project
-owcs generate --adapter angular
+npx @owcs/cli generate --adapter angular
 
 # React project
-owcs generate --adapter react
+npx @owcs/cli generate --adapter react
 
 # Custom options
-owcs generate --adapter react \
+npx @owcs/cli generate --adapter react \
   --format json \
   --output my-spec.json \
   --title "My Components" \
   --version "2.0.0"
 
 # With OpenAPI output
-owcs generate --adapter angular --openapi
+npx @owcs/cli generate --adapter angular --openapi
 ```
 
 ### Validate Specification
@@ -87,7 +87,7 @@ Display information about an OWCS specification.
 ### Basic Angular Component Analysis
 
 ```bash
-owcs generate --adapter angular
+npx @owcs/cli generate --adapter angular
 ```
 
 Analyzes your Angular components and creates `owcs.yaml` describing:
@@ -100,7 +100,7 @@ Analyzes your Angular components and creates `owcs.yaml` describing:
 ### React with Module Federation
 
 ```bash
-owcs generate \
+npx @owcs/cli generate \
   --adapter react \
   --project ./src \
   --format json \
