@@ -12,8 +12,6 @@ This package provides:
 
 ## Installation
 
-This package is bundled with `@owcs/cli`. For standalone use:
-
 ```bash
 pnpm add @owcs/schemas
 ```

@@ -15,8 +15,6 @@ This package provides:
 
 ## Installation
 
-This package is bundled with `@owcs/cli`. For programmatic use:
-
 ```bash
 pnpm add @owcs/api
 ```
