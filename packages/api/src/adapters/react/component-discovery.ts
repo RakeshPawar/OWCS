@@ -9,7 +9,7 @@ export interface ComponentRegistration {
   sourceFile: ts.SourceFile;
 }
 
-/** Discovers React web components from customElements.define() calls */
+/** Discovers React web components from customElements.define() calls  */
 export function discoverComponents(program: ts.Program): ComponentRegistration[] {
   const registrations: ComponentRegistration[] = [];
 

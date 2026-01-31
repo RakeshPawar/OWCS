@@ -14,7 +14,7 @@ Most users don't need to work with schemas directly. OWCS handles validation aut
 # Validation happens automatically during generation
 npx @owcs/cli generate --adapter angular
 
-# Manually validate a specification
+# Manually validate a  specification
 npx @owcs/cli validate owcs.yaml
 ```
 
