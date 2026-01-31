@@ -1,5 +1,5 @@
 {
-  "packages/api": "0.1.0",
-  "packages/cli": "0.1.0",
-  "packages/schemas": "0.1.0"
+  "packages/api": "0.1.1",
+  "packages/cli": "0.1.1",
+  "packages/schemas": "0.1.1"
 }
