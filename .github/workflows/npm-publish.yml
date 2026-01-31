@@ -45,13 +45,13 @@ jobs:
 
       # Publish each package individually
       - name: Publish @owcs/schemas
-        run: pnpm publish --no-git-checks
+        run: pnpm publish --no-git-checks --provenance
         working-directory: ./packages/schemas
 
       - name: Publish @owcs/api
-        run: pnpm publish --no-git-checks
+        run: pnpm publish --no-git-checks --provenance
         working-directory: ./packages/api
 
       - name: Publish @owcs/cli
-        run: pnpm publish --no-git-checks
+        run: pnpm publish --no-git-checks --provenance
         working-directory: ./packages/cli

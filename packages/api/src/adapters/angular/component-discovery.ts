@@ -242,7 +242,7 @@ function resolveImportManually(sourceFile: ts.SourceFile, importPath: string, cl
   return undefined;
 }
 
-/** Returns module path relative to project root */
+/** Returns module path relative to project root  */
 export function getModulePath(sourceFile: ts.SourceFile, projectRoot: string): string {
   let path = sourceFile.fileName;
 
