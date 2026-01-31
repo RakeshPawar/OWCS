@@ -2,10 +2,6 @@
 
 Command-line interface for generating and validating OWCS (Open Web Component Specification) files.
 
-## Overview
-
-This is the main package published to npm. It bundles `@owcs/api` and `@owcs/schemas` for simplified installation and usage.
-
 ## Installation
 
 ```bash
