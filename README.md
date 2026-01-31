@@ -29,7 +29,7 @@ pnpm add -g @owcs/cli
 Or use directly with npx:
 
 ```bash
-npx owcs generate --adapter angular
+npx @owcs/cli generate --adapter angular
 ```
 
 ## Requirements
@@ -44,7 +44,7 @@ npx owcs generate --adapter angular
 **Generate a specification from your Angular project:**
 
 ```bash
-npx owcs generate --adapter angular
+npx @owcs/cli generate --adapter angular
 ```
 
 ### React Projects
@@ -52,7 +52,7 @@ npx owcs generate --adapter angular
 **Generate a specification from your React project:**
 
 ```bash
-npx owcs generate --adapter react
+npx @owcs/cli generate --adapter react
 ```
 
 This creates an `owcs.yaml` file describing your components.
@@ -61,16 +61,16 @@ This creates an `owcs.yaml` file describing your components.
 
 ```bash
 # Generate JSON instead of YAML
-npx owcs generate --adapter react --format json
+npx @owcs/cli generate --adapter react --format json
 
 # Specify output file
-npx owcs generate --adapter angular --output my-components.yaml
+npx @owcs/cli generate --adapter angular --output my-components.yaml
 
 # Also create OpenAPI documentation
-npx owcs generate --adapter react --openapi
+npx @owcs/cli generate --adapter react --openapi
 
 # Validate an existing specification
-npx owcs validate owcs.yaml
+npx @owcs/cli validate owcs.yaml
 ```
 
 ## Using in Code
@@ -252,7 +252,7 @@ components:
 Convert your component specification to OpenAPI format for API documentation:
 
 ```bash
-npx owcs generate --openapi
+npx @owcs/cli generate --openapi
 ```
 
 This creates both `owcs.yaml` and `openapi.yaml` files, making your components discoverable by API documentation tools like Swagger UI.
