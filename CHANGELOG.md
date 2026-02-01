@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/RakeshPawar/OWCS/compare/v0.1.5...v0.1.6) (2026-02-01)
+
+
+### Bug Fixes
+
+* used npm publish and latest node ([#40](https://github.com/RakeshPawar/OWCS/issues/40)) ([0b8fc83](https://github.com/RakeshPawar/OWCS/commit/0b8fc8304a4cffe81ea40757288efd0f57c6dd4d))
+
 ## [0.1.5](https://github.com/RakeshPawar/OWCS/compare/v0.1.4...v0.1.5) (2026-02-01)
 
 

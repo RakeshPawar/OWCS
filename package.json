@@ -1,6 +1,6 @@
 {
   "name": "owcs",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Open Web Component Specification - Generate OWCS specs from framework code",
   "private": true,
   "type": "module",
