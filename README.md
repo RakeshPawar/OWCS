@@ -329,7 +329,6 @@ npx nx lint api
 - `packages/api` - Core analysis and spec generation
 - `packages/cli` - CLI application (bundled for publishing)
 - `apps/*-example` - Example applications for testing
-- `tools/` - Build scripts and utilities
 
 ### Example Apps
 
