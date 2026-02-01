@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.10](https://github.com/RakeshPawar/OWCS/compare/v0.1.9...v0.1.10) (2026-02-01)
+
+
+### Documentation
+
+* cleanup old docs ([#49](https://github.com/RakeshPawar/OWCS/issues/49)) ([35d398a](https://github.com/RakeshPawar/OWCS/commit/35d398a46bcfa42c89f4677dacc7095ec0ec81f0))
+
 ## [0.1.9](https://github.com/RakeshPawar/OWCS/compare/v0.1.8...v0.1.9) (2026-02-01)
 
 
