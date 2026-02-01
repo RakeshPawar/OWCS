@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.7](https://github.com/RakeshPawar/OWCS/compare/v0.1.6...v0.1.7) (2026-02-01)
+
+
+### Bug Fixes
+
+* removed redundant assets ([#42](https://github.com/RakeshPawar/OWCS/issues/42)) ([1366c9c](https://github.com/RakeshPawar/OWCS/commit/1366c9c2bfd233d991a7c91d253683d3cc644ed1))
+
 ## [0.1.6](https://github.com/RakeshPawar/OWCS/compare/v0.1.5...v0.1.6) (2026-02-01)
 
 
