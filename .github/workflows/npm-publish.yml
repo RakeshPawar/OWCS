@@ -21,7 +21,7 @@ jobs:
           version: 9
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
@@ -37,8 +37,7 @@ jobs:
           version: 9
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org/
+          node-version: 24
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
@@ -47,13 +46,13 @@ jobs:
       # Trusted publishing uses OIDC (id-token: write permission) - no NPM_TOKEN needed
       # The --provenance flag enables attestation and verifiable builds
       - name: Publish @owcs/schemas
-        run: pnpm publish --no-git-checks --provenance --access public
         working-directory: ./packages/schemas
+        run: npm publish --provenance --access public
 
       - name: Publish @owcs/api
-        run: pnpm publish --no-git-checks --provenance --access public
         working-directory: ./packages/api
+        run: npm publish --provenance --access public
 
       - name: Publish @owcs/cli
-        run: pnpm publish --no-git-checks --provenance --access public
         working-directory: ./packages/cli
+        run: npm publish --provenance --access public
