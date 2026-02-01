@@ -1,25 +1,14 @@
 {
-  "bootstrap-sha": "main",
+  "release-type": "node",
+  "include-component-in-tag": false,
+  "include-v-in-tag": true,
   "packages": {
-    "packages/api": {
-      "release-type": "node",
-      "component": "@owcs/api",
-      "changelog-path": "CHANGELOG.md",
-      "pull-request-title-pattern": "chore(${component}): release ${version}"
-    },
-    "packages/cli": {
-      "release-type": "node",
-      "component": "@owcs/cli",
-      "changelog-path": "CHANGELOG.md",
-      "pull-request-title-pattern": "chore(${component}): release ${version}"
-    },
-    "packages/schemas": {
-      "release-type": "node",
-      "component": "@owcs/schemas",
-      "changelog-path": "CHANGELOG.md",
-      "pull-request-title-pattern": "chore(${component}): release ${version}"
+    ".": {
+      "component": "owcs"
     }
   },
+  "group-pull-request-title-pattern": "chore: release ${version}",
+  "changelog-path": "CHANGELOG.md",
   "changelog-sections": [
     {
       "type": "feat",
@@ -54,7 +43,7 @@
       "section": "Continuous Integration"
     }
   ],
-  "versioning": "always-bump-patch",
+  "extra-files": ["packages/api/package.json", "packages/cli/package.json", "packages/schemas/package.json"],
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true
 }

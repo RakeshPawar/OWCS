@@ -43,15 +43,17 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
 
-      # Publish each package individually
+      # Publish each package individually with unified version
+      # Trusted publishing uses OIDC (id-token: write permission) - no NPM_TOKEN needed
+      # The --provenance flag enables attestation and verifiable builds
       - name: Publish @owcs/schemas
-        run: pnpm publish --no-git-checks --provenance
+        run: pnpm publish --no-git-checks --provenance --access public
         working-directory: ./packages/schemas
 
       - name: Publish @owcs/api
-        run: pnpm publish --no-git-checks --provenance
+        run: pnpm publish --no-git-checks --provenance --access public
         working-directory: ./packages/api
 
       - name: Publish @owcs/cli
-        run: pnpm publish --no-git-checks --provenance
+        run: pnpm publish --no-git-checks --provenance --access public
         working-directory: ./packages/cli
