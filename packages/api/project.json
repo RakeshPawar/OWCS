@@ -10,8 +10,7 @@
       "options": {
         "outputPath": "packages/api/dist",
         "main": "packages/api/src/index.ts",
-        "tsConfig": "packages/api/tsconfig.json",
-        "assets": []
+        "tsConfig": "packages/api/tsconfig.json"
       },
       "dependsOn": ["schemas:build"]
     },
