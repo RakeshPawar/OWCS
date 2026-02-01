@@ -45,5 +45,11 @@
   ],
   "extra-files": ["packages/api/package.json", "packages/cli/package.json", "packages/schemas/package.json"],
   "bump-minor-pre-major": true,
-  "bump-patch-for-minor-pre-major": true
+  "bump-patch-for-minor-pre-major": true,
+  "plugins": [
+    {
+      "type": "node-workspace",
+      "updatePeerDependencies": true
+    }
+  ]
 }
