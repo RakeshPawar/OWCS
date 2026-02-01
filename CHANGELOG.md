@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.8](https://github.com/RakeshPawar/OWCS/compare/v0.1.7...v0.1.8) (2026-02-01)
+
+
+### Bug Fixes
+
+* added plugin to update peer dependency ([#44](https://github.com/RakeshPawar/OWCS/issues/44)) ([d00581f](https://github.com/RakeshPawar/OWCS/commit/d00581f470811ff1aca3a54047a5128bc352c61d))
+* switched to pnpm for publish and cleanup release please config ([#46](https://github.com/RakeshPawar/OWCS/issues/46)) ([8a10503](https://github.com/RakeshPawar/OWCS/commit/8a105038abc63c5d4de7c3943e4832c3e58cfd05))
+
 ## [0.1.7](https://github.com/RakeshPawar/OWCS/compare/v0.1.6...v0.1.7) (2026-02-01)
 
 
