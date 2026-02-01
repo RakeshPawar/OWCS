@@ -47,12 +47,12 @@ jobs:
       # The --provenance flag enables attestation and verifiable builds
       - name: Publish @owcs/schemas
         working-directory: ./packages/schemas
-        run: npm publish --provenance --access public
+        run: pnpm publish --provenance --access public
 
       - name: Publish @owcs/api
         working-directory: ./packages/api
-        run: npm publish --provenance --access public
+        run: pnpm publish --provenance --access public
 
       - name: Publish @owcs/cli
         working-directory: ./packages/cli
-        run: npm publish --provenance --access public
+        run: pnpm publish --provenance --access public
