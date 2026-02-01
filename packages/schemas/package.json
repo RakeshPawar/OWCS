@@ -1,6 +1,6 @@
 {
   "name": "@owcs/schemas",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "OWCS JSON Schema definitions and utilities",
   "type": "module",
   "main": "./dist/src/index.js",
