@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.9](https://github.com/RakeshPawar/OWCS/compare/v0.1.8...v0.1.9) (2026-02-01)
+
+
+### Bug Fixes
+
+* enable no-git-checks for pnpm publish ([#47](https://github.com/RakeshPawar/OWCS/issues/47)) ([5ec5b6e](https://github.com/RakeshPawar/OWCS/commit/5ec5b6ec05592ba7fe8e23d1b26c1718af350e9b))
+
 ## [0.1.8](https://github.com/RakeshPawar/OWCS/compare/v0.1.7...v0.1.8) (2026-02-01)
 
 
