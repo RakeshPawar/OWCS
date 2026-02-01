@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/RakeshPawar/OWCS/compare/v0.1.4...v0.1.5) (2026-02-01)
+
+
+### Bug Fixes
+
+* added git repo to package json ([#38](https://github.com/RakeshPawar/OWCS/issues/38)) ([50901ed](https://github.com/RakeshPawar/OWCS/commit/50901eddf5afe2e64639fd40722c36ae403fae11))
+
 ## [0.1.4](https://github.com/RakeshPawar/OWCS/compare/v0.1.3...v0.1.4) (2026-02-01)
 
 
