@@ -24,6 +24,7 @@ program
   .option('--title <title>', 'Specification title')
   .option('--version <version>', 'Specification version', '1.0.0')
   .option('--description <description>', 'Specification description')
+  .option('-r, --include-runtime-extension', 'Include x-owcs-runtime extension with bundler and module federation metadata')
   .option('--openapi', 'Also generate OpenAPI specification')
   .action(async (options) => {
     try {
@@ -61,6 +62,7 @@ program
         title: options.title,
         version: options.version,
         description: options.description,
+        includeRuntimeExtension: options.includeRuntimeExtension,
       });
 
       // Determine output path
