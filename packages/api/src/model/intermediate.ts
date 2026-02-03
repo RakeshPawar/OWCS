@@ -87,6 +87,30 @@ export interface IntermediateModel {
 }
 
 /**
+ * Build options for schema builder
+ */
+export interface BuildOptions {
+  title?: string;
+  version?: string;
+  description?: string;
+  includeRuntimeExtension?: boolean;
+}
+
+/**
+ * Runtime extension structure for x-owcs-runtime
+ */
+export interface RuntimeExtension {
+  bundler: {
+    name: string;
+    moduleFederation?: {
+      remoteName: string;
+      libraryType?: string;
+      exposes?: Record<string, string>;
+    };
+  };
+}
+
+/**
  * OWCS Specification - the final output format
  */
 export interface OWCSSpec {
@@ -96,19 +120,11 @@ export interface OWCSSpec {
     version: string;
     description?: string;
   };
-  runtime?: {
-    bundler: {
-      name: string;
-      moduleFederation?: {
-        remoteName: string;
-        libraryType?: string;
-        exposes?: Record<string, string>;
-      };
-    };
-  };
   components: {
     webComponents: Record<string, OWCSComponent>;
   };
+  'x-owcs-runtime'?: RuntimeExtension;
+  [key: string]: unknown;
 }
 
 /**
@@ -116,7 +132,6 @@ export interface OWCSSpec {
  */
 export interface OWCSComponent {
   tagName: string;
-  module?: string;
   props?: {
     schema: JSONSchema;
   };

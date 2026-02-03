@@ -30,7 +30,8 @@ npx @owcs/cli generate --adapter react \
   --format json \
   --output my-spec.json \
   --title "My Components" \
-  --version "2.0.0"
+  --version "2.0.0" \
+  --include-runtime-extension
 
 # With OpenAPI output
 npx @owcs/cli generate --adapter angular --openapi
@@ -61,6 +62,7 @@ Generate OWCS specification from source code.
 - `-o, --output <file>` - Output file path (default: `owcs.yaml`)
 - `-p, --project <path>` - Project root path (default: current directory)
 - `-t, --tsconfig <path>` - Path to tsconfig.json
+- `-r, --include-runtime-extension` - include runtime in spec
 - `--title <title>` - Specification title
 - `--version <version>` - Specification version (default: `1.0.0`)
 - `--description <description>` - Specification description

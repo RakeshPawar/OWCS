@@ -1,4 +1,4 @@
-import { OWCSSpec, JSONSchema, OWCSComponent, OWCSEvent } from '../model/intermediate.js';
+import { OWCSSpec, JSONSchema, OWCSComponent, OWCSEvent, RuntimeExtension } from '../model/intermediate.js';
 
 /**
  * OpenAPI 3.1 specification structure (partial)
@@ -14,6 +14,8 @@ export interface OpenAPISpec {
   components?: {
     schemas?: Record<string, JSONSchema>;
   };
+  'x-owcs-runtime'?: RuntimeExtension;
+  [key: string]: unknown;
 }
 
 export interface PathItem {
@@ -72,6 +74,11 @@ export class OpenAPIConverter {
         schemas: {},
       },
     };
+
+    // Copy x-owcs-runtime extension if present
+    if (owcsSpec['x-owcs-runtime']) {
+      openApiSpec['x-owcs-runtime'] = owcsSpec['x-owcs-runtime'];
+    }
 
     // Convert each web component to a path
     for (const [tagName, component] of Object.entries(owcsSpec.components.webComponents)) {

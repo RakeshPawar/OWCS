@@ -6,7 +6,6 @@ components:
   webComponents:
     product-search-webpack-element:
       tagName: product-search-webpack-element
-      module: ./ProductSearchWidget
       props:
         schema:
           type: object
@@ -67,7 +66,7 @@ components:
             type: boolean
         NO_INSTRUMENT_MESSAGE_ACTION:
           type: CustomEvent
-runtime:
+x-owcs-runtime:
   bundler:
     name: webpack
     moduleFederation:

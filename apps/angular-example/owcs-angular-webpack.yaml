@@ -170,11 +170,11 @@ components:
               - timestamp
         userUpdated:
           type: EventEmitter
-runtime:
+x-owcs-runtime:
   bundler:
     name: webpack
     moduleFederation:
       remoteName: userComponents
       libraryType: module
       exposes:
-        ./user-card: ./examples/angular/user-card.wc.ts
+        ./user-card: ./src/user-card/user-card.wc.ts

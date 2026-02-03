@@ -124,7 +124,6 @@ components:
           type: CustomEvent
     product-search-vite-element:
       tagName: product-search-vite-element
-      module: ./ProductSearchWidget
       props:
         schema:
           type: object
@@ -185,7 +184,7 @@ components:
             type: boolean
         NO_INSTRUMENT_MESSAGE_ACTION:
           type: CustomEvent
-runtime:
+x-owcs-runtime:
   bundler:
     name: vite
     moduleFederation:

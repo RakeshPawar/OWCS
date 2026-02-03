@@ -20,6 +20,7 @@ export class OWCSValidator {
       allErrors: true,
       strict: false,
       validateFormats: true,
+      allowUnionTypes: true,
     });
 
     const schema = getSchema(version);

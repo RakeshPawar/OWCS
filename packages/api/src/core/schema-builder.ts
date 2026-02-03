@@ -1,4 +1,4 @@
-import { IntermediateModel, OWCSSpec, OWCSComponent, JSONSchema, WebComponentModel, PropModel } from '../model/intermediate.js';
+import { IntermediateModel, OWCSSpec, OWCSComponent, JSONSchema, WebComponentModel, PropModel, BuildOptions } from '../model/intermediate.js';
 
 /**
  * Builds OWCS specification from IntermediateModel
@@ -7,29 +7,29 @@ export class SchemaBuilder {
   /**
    * Converts IntermediateModel to OWCSSpec
    */
-  public build(model: IntermediateModel, info?: { title?: string; version?: string; description?: string }): OWCSSpec {
+  public build(model: IntermediateModel, options?: BuildOptions): OWCSSpec {
     const spec: OWCSSpec = {
       owcs: '1.0.0',
       info: {
-        title: info?.title || this.inferTitle(model),
-        version: info?.version || '1.0.0',
-        description: info?.description,
+        title: options?.title || this.inferTitle(model),
+        version: options?.version || '1.0.0',
+        description: options?.description,
       },
       components: {
         webComponents: {},
       },
     };
 
-    // Add runtime configuration if present
-    if (model.runtime.bundler) {
-      spec.runtime = {
+    // Add x-owcs-runtime extension if includeRuntimeExtension is true
+    if (options?.includeRuntimeExtension && model.runtime.bundler) {
+      spec['x-owcs-runtime'] = {
         bundler: {
           name: model.runtime.bundler,
         },
       };
 
       if (model.runtime.federation) {
-        spec.runtime.bundler.moduleFederation = {
+        spec['x-owcs-runtime'].bundler.moduleFederation = {
           remoteName: model.runtime.federation.remoteName,
           libraryType: model.runtime.federation.libraryType,
           exposes: model.runtime.federation.exposes,
@@ -39,7 +39,7 @@ export class SchemaBuilder {
 
     // Add components
     for (const component of model.components) {
-      const owcsComponent = this.buildComponent(component, model.runtime.federation?.exposes);
+      const owcsComponent = this.buildComponent(component);
       spec.components.webComponents[component.tagName] = owcsComponent;
     }
 
@@ -49,20 +49,10 @@ export class SchemaBuilder {
   /**
    * Builds OWCS component from WebComponentModel
    */
-  private buildComponent(component: WebComponentModel, exposes?: Record<string, string>): OWCSComponent {
+  private buildComponent(component: WebComponentModel): OWCSComponent {
     const owcsComponent: OWCSComponent = {
       tagName: component.tagName,
     };
-
-    // Find exposed module path
-    if (exposes) {
-      for (const [exposeName, exposePath] of Object.entries(exposes)) {
-        if (exposePath.includes(component.modulePath) || exposePath.includes(component.className)) {
-          owcsComponent.module = exposeName;
-          break;
-        }
-      }
-    }
 
     // Add props schema
     if (component.props && component.props.length > 0) {
@@ -130,7 +120,7 @@ export class SchemaBuilder {
 /**
  * Convenience function to build OWCS spec
  */
-export function buildOWCSSpec(model: IntermediateModel, info?: { title?: string; version?: string; description?: string }): OWCSSpec {
+export function buildOWCSSpec(model: IntermediateModel, options?: BuildOptions): OWCSSpec {
   const builder = new SchemaBuilder();
-  return builder.build(model, info);
+  return builder.build(model, options);
 }

@@ -56,10 +56,9 @@ describe('SchemaBuilder', () => {
         components: [],
       };
 
-      const spec = buildOWCSSpec(model);
+      const spec = buildOWCSSpec(model, { includeRuntimeExtension: false });
 
-      expect(spec.runtime).toBeDefined();
-      expect(spec.runtime?.bundler?.name).toBe('webpack');
+      expect(spec.runtime).toBeUndefined();
     });
 
     it('should include module federation config', () => {
@@ -85,12 +84,12 @@ describe('SchemaBuilder', () => {
         ],
       };
 
-      const spec = buildOWCSSpec(model);
+      const spec = buildOWCSSpec(model, { includeRuntimeExtension: true });
 
-      expect(spec.runtime?.bundler?.moduleFederation).toBeDefined();
-      expect(spec.runtime?.bundler?.moduleFederation?.remoteName).toBe('myRemote');
-      expect(spec.runtime?.bundler?.moduleFederation?.libraryType).toBe('module');
-      expect(spec.runtime?.bundler?.moduleFederation?.exposes).toEqual({
+      expect(spec['x-owcs-runtime']?.bundler?.moduleFederation).toBeDefined();
+      expect(spec['x-owcs-runtime']?.bundler?.moduleFederation?.remoteName).toBe('myRemote');
+      expect(spec['x-owcs-runtime']?.bundler?.moduleFederation?.libraryType).toBe('module');
+      expect(spec['x-owcs-runtime']?.bundler?.moduleFederation?.exposes).toEqual({
         './UserCard': './src/user-card.wc.ts',
       });
     });
@@ -178,35 +177,6 @@ describe('SchemaBuilder', () => {
       expect(component.events?.userClick.type).toBe('CustomEvent');
       expect(component.events?.userClick.payload).toBeDefined();
       expect(component.events?.userClick.payload?.type).toBe('object');
-    });
-
-    it('should link component to exposed module', () => {
-      const model: IntermediateModel = {
-        runtime: {
-          bundler: 'webpack',
-          federation: {
-            remoteName: 'myRemote',
-            libraryType: 'module',
-            exposes: {
-              './user-card': './src/user-card.wc.ts',
-            },
-          },
-        },
-        components: [
-          {
-            tagName: 'user-card',
-            className: 'UserCardComponent',
-            modulePath: './src/user-card.wc.ts',
-            props: [],
-            events: [],
-          },
-        ],
-      };
-
-      const spec = buildOWCSSpec(model);
-      const component = spec.components.webComponents['user-card'];
-
-      expect(component.module).toBe('./user-card');
     });
 
     it('should handle empty props without required field', () => {
