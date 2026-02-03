@@ -174,7 +174,6 @@ interface FrameworkAdapter {
   discoverComponents(): ComponentInfo[];
   extractProps(component: ComponentInfo): PropInfo[];
   extractEvents(component: ComponentInfo): EventInfo[];
-  extractRuntimeConfig?(): RuntimeConfig;
 }
 ```
 

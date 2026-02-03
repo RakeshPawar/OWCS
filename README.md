@@ -215,7 +215,7 @@ info:
   title: My Components
   version: 1.0.0
 
-runtime:
+x-owcs-runtime:
   bundler:
     name: webpack
     moduleFederation:
