@@ -5,6 +5,12 @@
   "description": "Schema for OWCS specification format",
   "type": "object",
   "required": ["owcs", "info", "components"],
+  "patternProperties": {
+    "^x-": {
+      "type": "object",
+      "description": "Specification extensions for runtime and vendor-specific metadata"
+    }
+  },
   "properties": {
     "owcs": {
       "type": "string",
@@ -26,42 +32,6 @@
         "description": {
           "type": "string",
           "description": "A description of the component specification"
-        }
-      }
-    },
-    "runtime": {
-      "type": "object",
-      "properties": {
-        "bundler": {
-          "type": "object",
-          "required": ["name"],
-          "properties": {
-            "name": {
-              "type": "string",
-              "enum": ["webpack", "vite"],
-              "description": "The bundler used"
-            },
-            "moduleFederation": {
-              "type": "object",
-              "properties": {
-                "remoteName": {
-                  "type": "string",
-                  "description": "The name of the remote module"
-                },
-                "libraryType": {
-                  "type": "string",
-                  "description": "The library type (e.g., 'var', 'module')"
-                },
-                "exposes": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "description": "Map of exposed modules"
-                }
-              }
-            }
-          }
         }
       }
     },
@@ -87,10 +57,6 @@
           "type": "string",
           "description": "The custom element tag name",
           "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)+$"
-        },
-        "module": {
-          "type": "string",
-          "description": "The module path or exposed name"
         },
         "props": {
           "type": "object",

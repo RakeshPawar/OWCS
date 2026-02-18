@@ -1,0 +1,408 @@
+openapi: 3.1.0
+info:
+  title: userComponents
+  version: 1.0.0
+  description: Web Components specification
+paths:
+  /components/comprehensive-example-angular:
+    post:
+      summary: Interact with comprehensive-example-angular component
+      description: Send props to the comprehensive-example-angular web component
+      operationId: useComprehensiveExampleAngular
+      responses:
+        '200':
+          description: Component rendered successfully
+      requestBody:
+        description: Component properties
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+                isActive:
+                  type: boolean
+                theme:
+                  type: string
+                  enum:
+                    - light
+                    - dark
+                    - auto
+                status:
+                  type: string
+                  enum:
+                    - idle
+                    - loading
+                    - success
+                    - error
+                config:
+                  type: object
+                  properties:
+                    endpoint:
+                      type: string
+                    timeout:
+                      type: number
+                    retry:
+                      type: boolean
+                    headers:
+                      type: object
+                  required:
+                    - endpoint
+                    - timeout
+                user:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    name:
+                      type: string
+                    email:
+                      type: string
+                    roles:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                    - id
+                    - name
+                    - email
+                    - roles
+                emailAddress:
+                  type: string
+                settings:
+                  type: object
+                  properties:
+                    display:
+                      type: object
+                      properties:
+                        showHeader:
+                          type: boolean
+                        showFooter:
+                          type: boolean
+                    behavior:
+                      type: object
+                      properties:
+                        autoSave:
+                          type: boolean
+                        interval:
+                          type: number
+                signalName:
+                  type: string
+                counter:
+                  type: number
+                priority:
+                  type: number
+              required:
+                - userName
+                - isActive
+                - theme
+                - status
+                - signalName
+      callbacks:
+        userAction:
+          '{$request.body#/callbackUrl}':
+            post:
+              summary: userAction event callback
+              description: Triggered when comprehensive-example-angular emits userAction event
+              responses:
+                '200':
+                  description: Event received
+        dataLoad:
+          '{$request.body#/callbackUrl}':
+            post:
+              summary: dataLoad event callback
+              description: Triggered when comprehensive-example-angular emits dataLoad event
+              responses:
+                '200':
+                  description: Event received
+        error:
+          '{$request.body#/callbackUrl}':
+            post:
+              summary: error event callback
+              description: Triggered when comprehensive-example-angular emits error event
+              responses:
+                '200':
+                  description: Event received
+        hover:
+          '{$request.body#/callbackUrl}':
+            post:
+              summary: hover event callback
+              description: Triggered when comprehensive-example-angular emits hover event
+              responses:
+                '200':
+                  description: Event received
+        user-updated:
+          '{$request.body#/callbackUrl}':
+            post:
+              summary: user-updated event callback
+              description: Triggered when comprehensive-example-angular emits user-updated event
+              responses:
+                '200':
+                  description: Event received
+        notify:
+          '{$request.body#/callbackUrl}':
+            post:
+              summary: notify event callback
+              description: Triggered when comprehensive-example-angular emits notify event
+              requestBody:
+                description: Event payload
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                        type:
+                          type: string
+                          enum:
+                            - info
+                            - warning
+                            - error
+                      required:
+                        - message
+                        - type
+              responses:
+                '200':
+                  description: Event received
+        data-ready:
+          '{$request.body#/callbackUrl}':
+            post:
+              summary: data-ready event callback
+              description: Triggered when comprehensive-example-angular emits data-ready event
+              requestBody:
+                description: Event payload
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        ready:
+                          type: boolean
+                      required:
+                        - ready
+              responses:
+                '200':
+                  description: Event received
+  /components/user-card:
+    post:
+      summary: Interact with user-card component
+      description: Send props to the user-card web component
+      operationId: useUserCard
+      responses:
+        '200':
+          description: Component rendered successfully
+      requestBody:
+        description: Component properties
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    age:
+                      type: number
+                    email:
+                      type: string
+                    config:
+                      type: object
+                      properties:
+                        theme:
+                          type: string
+                          enum:
+                            - light
+                            - dark
+                        showAvatar:
+                          type: boolean
+                      required:
+                        - theme
+                        - showAvatar
+                  required:
+                    - name
+              required:
+                - data
+      callbacks:
+        clicked:
+          '{$request.body#/callbackUrl}':
+            post:
+              summary: clicked event callback
+              description: Triggered when user-card emits clicked event
+              requestBody:
+                description: Event payload
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: number
+                      required:
+                        - timestamp
+              responses:
+                '200':
+                  description: Event received
+        userUpdated:
+          '{$request.body#/callbackUrl}':
+            post:
+              summary: userUpdated event callback
+              description: Triggered when user-card emits userUpdated event
+              responses:
+                '200':
+                  description: Event received
+components:
+  schemas:
+    comprehensive-example-angular-props:
+      type: object
+      properties:
+        userName:
+          type: string
+        isActive:
+          type: boolean
+        theme:
+          type: string
+          enum:
+            - light
+            - dark
+            - auto
+        status:
+          type: string
+          enum:
+            - idle
+            - loading
+            - success
+            - error
+        config:
+          type: object
+          properties:
+            endpoint:
+              type: string
+            timeout:
+              type: number
+            retry:
+              type: boolean
+            headers:
+              type: object
+          required:
+            - endpoint
+            - timeout
+        user:
+          type: object
+          properties:
+            id:
+              type: number
+            name:
+              type: string
+            email:
+              type: string
+            roles:
+              type: array
+              items:
+                type: string
+          required:
+            - id
+            - name
+            - email
+            - roles
+        emailAddress:
+          type: string
+        settings:
+          type: object
+          properties:
+            display:
+              type: object
+              properties:
+                showHeader:
+                  type: boolean
+                showFooter:
+                  type: boolean
+            behavior:
+              type: object
+              properties:
+                autoSave:
+                  type: boolean
+                interval:
+                  type: number
+        signalName:
+          type: string
+        counter:
+          type: number
+        priority:
+          type: number
+      required:
+        - userName
+        - isActive
+        - theme
+        - status
+        - signalName
+    comprehensive-example-angular-notify-payload:
+      type: object
+      properties:
+        message:
+          type: string
+        type:
+          type: string
+          enum:
+            - info
+            - warning
+            - error
+      required:
+        - message
+        - type
+    comprehensive-example-angular-data-ready-payload:
+      type: object
+      properties:
+        ready:
+          type: boolean
+      required:
+        - ready
+    user-card-props:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            name:
+              type: string
+            age:
+              type: number
+            email:
+              type: string
+            config:
+              type: object
+              properties:
+                theme:
+                  type: string
+                  enum:
+                    - light
+                    - dark
+                showAvatar:
+                  type: boolean
+              required:
+                - theme
+                - showAvatar
+          required:
+            - name
+      required:
+        - data
+    user-card-clicked-payload:
+      type: object
+      properties:
+        timestamp:
+          type: number
+      required:
+        - timestamp
+x-owcs-runtime:
+  bundler:
+    name: webpack
+    moduleFederation:
+      remoteName: userComponents
+      libraryType: module
+      exposes:
+        ./user-card: ./src/user-card/user-card.wc.ts

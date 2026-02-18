@@ -66,6 +66,9 @@ npx @owcs/cli generate --adapter react --format json
 # Specify output file
 npx @owcs/cli generate --adapter angular --output my-components.yaml
 
+# Include runtime
+npx @owcs/cli generate --adapter angular --include-runtime-extension
+
 # Also create OpenAPI documentation
 npx @owcs/cli generate --adapter react --openapi
 
@@ -215,7 +218,7 @@ info:
   title: My Components
   version: 1.0.0
 
-runtime:
+x-owcs-runtime:
   bundler:
     name: webpack
     moduleFederation:
