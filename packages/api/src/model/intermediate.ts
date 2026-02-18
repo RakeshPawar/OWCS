@@ -94,6 +94,11 @@ export interface BuildOptions {
   version?: string;
   description?: string;
   includeRuntimeExtension?: boolean;
+  /**
+   * Custom extensions to add to the OWCS specification.
+   * All keys must start with 'x-' to follow the extension pattern.
+   */
+  extensions?: Record<string, string | number | boolean>;
 }
 
 /**

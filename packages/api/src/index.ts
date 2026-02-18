@@ -12,6 +12,7 @@ export { ReactAdapter, analyzeReactProject } from './adapters/react/index.js';
 export { SchemaBuilder, buildOWCSSpec } from './core/schema-builder.js';
 export { YAMLWriter, toYAML, toJSON, writeOWCSSpec, OutputFormat } from './core/yaml-writer.js';
 export { OWCSValidator, validateOWCSSpec, validateOWCSFile } from './core/validator.js';
+export { loadConfig, OWCSConfig } from './core/config-loader.js';
 export * from './core/ast-walker.js';
 
 // Models

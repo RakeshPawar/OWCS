@@ -261,6 +261,144 @@ describe('SchemaBuilder', () => {
 
       expect(spec.info.title).toBe('Web Components');
     });
+
+    it('should add custom extensions to spec', () => {
+      const model: IntermediateModel = {
+        runtime: {
+          bundler: 'webpack',
+        },
+        components: [],
+      };
+
+      const spec = buildOWCSSpec(model, {
+        extensions: {
+          'x-owner': 'platform-team',
+          'x-version': '2.0.0',
+          'x-repo': 'https://github.com/org/repo',
+        },
+      });
+
+      expect(spec['x-owner']).toBe('platform-team');
+      expect(spec['x-version']).toBe('2.0.0');
+      expect(spec['x-repo']).toBe('https://github.com/org/repo');
+    });
+
+    it('should support different extension value types', () => {
+      const model: IntermediateModel = {
+        runtime: {
+          bundler: 'webpack',
+        },
+        components: [],
+      };
+
+      const spec = buildOWCSSpec(model, {
+        extensions: {
+          'x-string': 'value',
+          'x-number': 123,
+          'x-boolean': true,
+        },
+      });
+
+      expect(spec['x-string']).toBe('value');
+      expect(spec['x-number']).toBe(123);
+      expect(spec['x-boolean']).toBe(true);
+    });
+
+    it('should throw error when extension keys do not start with x-', () => {
+      const model: IntermediateModel = {
+        runtime: {
+          bundler: 'webpack',
+        },
+        components: [],
+      };
+
+      expect(() => {
+        buildOWCSSpec(model, {
+          extensions: {
+            'x-valid': 'ok',
+            invalid: 'bad',
+          },
+        });
+      }).toThrow(/Invalid extension keys: invalid/);
+    });
+
+    it('should throw error for multiple invalid extension keys', () => {
+      const model: IntermediateModel = {
+        runtime: {
+          bundler: 'webpack',
+        },
+        components: [],
+      };
+
+      expect(() => {
+        buildOWCSSpec(model, {
+          extensions: {
+            'x-valid': 'ok',
+            invalid1: 'bad',
+            invalid2: 'bad',
+          },
+        });
+      }).toThrow(/Invalid extension keys/);
+      expect(() => {
+        buildOWCSSpec(model, {
+          extensions: {
+            'x-valid': 'ok',
+            invalid1: 'bad',
+            invalid2: 'bad',
+          },
+        });
+      }).toThrow(/invalid1/);
+      expect(() => {
+        buildOWCSSpec(model, {
+          extensions: {
+            'x-valid': 'ok',
+            invalid1: 'bad',
+            invalid2: 'bad',
+          },
+        });
+      }).toThrow(/invalid2/);
+    });
+
+    it('should allow both custom extensions and runtime extension', () => {
+      const model: IntermediateModel = {
+        runtime: {
+          bundler: 'webpack',
+          federation: {
+            remoteName: 'myRemote',
+            libraryType: 'module',
+            exposes: {},
+          },
+        },
+        components: [],
+      };
+
+      const spec = buildOWCSSpec(model, {
+        extensions: {
+          'x-owner': 'team',
+        },
+        includeRuntimeExtension: true,
+      });
+
+      expect(spec['x-owner']).toBe('team');
+      expect(spec['x-owcs-runtime']).toBeDefined();
+      expect(spec['x-owcs-runtime']?.bundler?.name).toBe('webpack');
+    });
+
+    it('should handle empty extensions object', () => {
+      const model: IntermediateModel = {
+        runtime: {
+          bundler: 'webpack',
+        },
+        components: [],
+      };
+
+      const spec = buildOWCSSpec(model, {
+        extensions: {},
+      });
+
+      expect(spec).toBeDefined();
+      expect(spec.owcs).toBe('1.0.0');
+    });
   });
 
   describe('SchemaBuilder class', () => {

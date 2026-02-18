@@ -75,9 +75,11 @@ export class OpenAPIConverter {
       },
     };
 
-    // Copy x-owcs-runtime extension if present
-    if (owcsSpec['x-owcs-runtime']) {
-      openApiSpec['x-owcs-runtime'] = owcsSpec['x-owcs-runtime'];
+    // Copy all x-* extensions from OWCS spec to OpenAPI spec
+    for (const [key, value] of Object.entries(owcsSpec)) {
+      if (key.startsWith('x-')) {
+        openApiSpec[key] = value;
+      }
     }
 
     // Convert each web component to a path

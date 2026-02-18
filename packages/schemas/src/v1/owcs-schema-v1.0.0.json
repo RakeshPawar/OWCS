@@ -7,8 +7,7 @@
   "required": ["owcs", "info", "components"],
   "patternProperties": {
     "^x-": {
-      "type": "object",
-      "description": "Specification extensions for runtime and vendor-specific metadata"
+      "description": "Specification extensions for runtime and vendor-specific metadata. All extension properties must start with 'x-'. Common examples: x-owner (team/owner name), x-package-version (package version), x-team-name (team name), x-git-repo (repository URL), x-vendor (vendor-specific data)."
     }
   },
   "properties": {

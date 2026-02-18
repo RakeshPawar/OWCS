@@ -62,7 +62,8 @@ Generate OWCS specification from source code.
 - `-o, --output <file>` - Output file path (default: `owcs.yaml`)
 - `-p, --project <path>` - Project root path (default: current directory)
 - `-t, --tsconfig <path>` - Path to tsconfig.json
-- `-r, --include-runtime-extension` - include runtime in spec
+- `-r, --include-runtime-extension` - Include x-owcs-runtime extension with bundler metadata
+- `--extensions` - Load vendor extensions from config file (owcs.config.js or owcs.config.json)
 - `--title <title>` - Specification title
 - `--version <version>` - Specification version (default: `1.0.0`)
 - `--description <description>` - Specification description
@@ -107,10 +108,47 @@ npx @owcs/cli generate \
   --project ./src \
   --format json \
   --title "Shared Components" \
+  --extensions \
   --openapi
 ```
 
 Creates both `owcs.json` and `openapi.json` for your React components.
+
+### Using Vendor Extensions
+
+Create an `owcs.config.js` file in your project:
+
+```javascript
+export default {
+  extensions: {
+    'x-owner': 'platform-team',
+    'x-package-version': '2.0.0',
+    'x-team-name': 'Frontend Core',
+    'x-git-repo': 'https://github.com/org/repo',
+  },
+};
+```
+
+Or use JSON format (`owcs.config.json`):
+
+```json
+{
+  "extensions": {
+    "x-owner": "platform-team",
+    "x-package-version": "2.0.0",
+    "x-team-name": "Frontend Core",
+    "x-git-repo": "https://github.com/org/repo"
+  }
+}
+```
+
+Then generate with extensions:
+
+```bash
+npx @owcs/cli generate --adapter angular --extensions
+```
+
+All extension keys must start with `x-`. The extensions will be added to the root level of your OWCS specification and preserved when converting to OpenAPI.
 
 ## What Gets Analyzed
 

@@ -30,6 +30,10 @@ const analysis = analyzeAngularProject('./src');
 const spec = buildOWCSSpec(analysis, {
   title: 'My Components',
   version: '1.0.0',
+  extensions: {
+    'x-owner': 'platform-team',
+    'x-version': '2.0.0',
+  },
 });
 writeOWCSSpec(spec, 'owcs.yaml', 'yaml');
 ```
@@ -43,8 +47,28 @@ const analysis = analyzeReactProject('./src');
 const spec = buildOWCSSpec(analysis, {
   title: 'My Components',
   version: '1.0.0',
+  extensions: {
+    'x-owner': 'frontend-team',
+    'x-git-repo': 'https://github.com/org/repo',
+  },
 });
 writeOWCSSpec(spec, 'owcs.yaml', 'yaml');
+```
+
+### Loading Extensions from Config
+
+```typescript
+import { loadConfig, analyzeReactProject, buildOWCSSpec } from '@owcs/api';
+
+// Load extensions from owcs.config.js or owcs.config.json
+const config = await loadConfig('./my-project');
+
+const analysis = analyzeReactProject('./my-project/src');
+const spec = buildOWCSSpec(analysis, {
+  title: 'My Components',
+  version: '1.0.0',
+  extensions: config?.extensions,
+});
 ```
 
 ### Validation
@@ -85,6 +109,11 @@ const openApiSpec = convertToOpenAPI(owcsSpec);
 
 - `buildOWCSSpec(analysis: AnalysisResult, metadata: SpecMetadata): OWCSSpec`
 - `writeOWCSSpec(spec: OWCSSpec, outputPath: string, format: 'yaml' | 'json'): void`
+
+### Configuration
+
+- `loadConfig(projectPath: string): Promise<OWCSConfig | null>` - Load config from owcs.config.js/json
+- `loadConfigSync(projectPath: string): OWCSConfig | null` - Synchronous config loader (JSON only)
 
 ### Validation
 

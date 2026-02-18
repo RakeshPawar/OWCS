@@ -4,7 +4,16 @@ import { Command } from 'commander';
 import path from 'node:path';
 import fs from 'node:fs';
 import yaml from 'js-yaml';
-import { analyzeAngularProject, analyzeReactProject, buildOWCSSpec, writeOWCSSpec, OutputFormat, convertToOpenAPI, validateOWCSFile } from '@owcs/api';
+import {
+  analyzeAngularProject,
+  analyzeReactProject,
+  buildOWCSSpec,
+  writeOWCSSpec,
+  OutputFormat,
+  convertToOpenAPI,
+  validateOWCSFile,
+  loadConfig,
+} from '@owcs/api';
 
 const program = new Command();
 
@@ -25,6 +34,7 @@ program
   .option('--version <version>', 'Specification version', '1.0.0')
   .option('--description <description>', 'Specification description')
   .option('-r, --include-runtime-extension', 'Include x-owcs-runtime extension with bundler and module federation metadata')
+  .option('--extensions', 'Load extensions from config file (owcs.config.js or owcs.config.json)')
   .option('--openapi', 'Also generate OpenAPI specification')
   .action(async (options) => {
     try {
@@ -42,6 +52,22 @@ program
       if (adapter !== 'angular' && adapter !== 'react') {
         console.error('❌ Error: Adapter must be either "angular" or "react"');
         process.exit(1);
+      }
+
+      // Load config file if --extensions flag is set
+      let configExtensions;
+      if (options.extensions) {
+        try {
+          const config = await loadConfig(projectRoot);
+          if (config?.extensions) {
+            configExtensions = config.extensions;
+            console.log(`📄 Loaded extensions from config file`);
+          } else {
+            console.log('⚠️  No extensions found in config file');
+          }
+        } catch (error) {
+          console.error('⚠️  Warning: Failed to load config file:', error instanceof Error ? error.message : error);
+        }
       }
 
       // Analyze the project based on adapter
@@ -63,6 +89,7 @@ program
         version: options.version,
         description: options.description,
         includeRuntimeExtension: options.includeRuntimeExtension,
+        extensions: configExtensions,
       });
 
       // Determine output path

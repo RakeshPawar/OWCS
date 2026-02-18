@@ -1,0 +1,8 @@
+{
+  "extensions": {
+    "x-owner": "webpack-team",
+    "x-package-version": "1.5.0",
+    "x-team-name": "React Webpack Team",
+    "x-git-repo": "https://github.com/owcs/react-webpack-example"
+  }
+}
