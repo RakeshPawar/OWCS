@@ -4,17 +4,8 @@ import { Command } from 'commander';
 import path from 'node:path';
 import fs from 'node:fs';
 import yaml from 'js-yaml';
-import {
-  analyzeAngularProject,
-  analyzeReactProject,
-  buildOWCSSpec,
-  writeOWCSSpec,
-  OutputFormat,
-  convertToOpenAPI,
-  validateOWCSFile,
-  loadConfig,
-} from '@owcs/api';
-
+import { analyzeAngularProject, analyzeReactProject, buildOWCSSpec, writeOWCSSpec, OutputFormat, convertToOpenAPI, validateOWCSFile } from '@owcs/api';
+import { loadConfig } from '@owcs/api/node';
 const program = new Command();
 
 program.name('owcs').description('Open Web Component Specification - Generate and validate OWCS specs').version('1.0.0');

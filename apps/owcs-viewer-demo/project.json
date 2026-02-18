@@ -1,0 +1,33 @@
+{
+  "name": "owcs-viewer-demo",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/owcs-viewer-demo/src",
+  "projectType": "application",
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vite",
+        "cwd": "apps/owcs-viewer-demo"
+      },
+      "dependsOn": ["ui:build"]
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "command": "vite build",
+        "cwd": "apps/owcs-viewer-demo"
+      },
+      "dependsOn": ["ui:build"]
+    },
+    "preview": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vite preview",
+        "cwd": "apps/owcs-viewer-demo"
+      }
+    }
+  },
+  "tags": []
+}

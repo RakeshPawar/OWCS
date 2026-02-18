@@ -4,11 +4,12 @@ Generate standardized specifications for your web components automatically. OWCS
 
 ## Monorepo Structure
 
-This project is organized as an Nx monorepo with three packages:
+This project is organized as an Nx monorepo with four packages:
 
 - **[@owcs/schemas](packages/schemas)** - JSON Schema definitions and validation utilities
 - **[@owcs/api](packages/api)** - Core API for analyzing components and generating specifications
 - **[@owcs/cli](packages/cli)** - Command-line interface
+- **[@owcs/ui](packages/ui)** - Web component for visualizing OWCS specifications
 
 ## What is OWCS?
 
@@ -300,6 +301,54 @@ npx @owcs/cli generate --openapi
 
 This creates both `owcs.yaml` and `openapi.yaml` files, making your components discoverable by API documentation tools like Swagger UI.
 
+## Visualizing OWCS Specifications
+
+The `@owcs/ui` package provides a beautiful web component for displaying OWCS specifications in a user-friendly, interactive format.
+
+### Installation
+
+```bash
+npm install @owcs/ui
+```
+
+### Usage
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="module" src="node_modules/@owcs/ui/dist/owcs-viewer.js"></script>
+  </head>
+  <body>
+    <!-- Load from inline YAML -->
+    <owcs-viewer yaml="owcs: 1.0.0..."></owcs-viewer>
+
+    <!-- Or load from URL -->
+    <owcs-viewer yaml-url="/path/to/owcs.yaml"></owcs-viewer>
+  </body>
+</html>
+```
+
+### Features
+
+- **Beautiful UI**: Professional, modern design with gradient headers and smooth animations
+- **Search & Filter**: Real-time search to filter components by tag name
+- **TypeScript Code Generation**: Automatically displays props and events as TypeScript code
+- **Schema Validation**: Built-in OWCS schema validation
+- **Responsive Design**: Works on all screen sizes
+- **Extensions Display**: Shows all custom vendor extensions
+
+### Try the Demo
+
+```bash
+cd apps/owcs-viewer-demo
+npm run dev
+```
+
+This will launch an interactive demo where you can see the OWCS viewer in action with the Angular example specification.
+
+For more details, see the [@owcs/ui README](packages/ui/README.md).
+
 ## Commands
 
 | Command                | Description                                                 |
@@ -371,7 +420,9 @@ npx nx lint api
 - `packages/schemas` - JSON Schema definitions
 - `packages/api` - Core analysis and spec generation
 - `packages/cli` - CLI application (bundled for publishing)
+- `packages/ui` - Web component for visualizing OWCS specs
 - `apps/*-example` - Example applications for testing
+- `apps/owcs-viewer-demo` - Demo app for the UI component
 
 ### Example Apps
 

@@ -17,6 +17,10 @@
     "./adapters/react": {
       "types": "./dist/src/adapters/react/index.d.ts",
       "default": "./dist/src/adapters/react/index.js"
+    },
+    "./node": {
+      "types": "./dist/src/node.d.ts",
+      "default": "./dist/src/node.js"
     }
   },
   "files": [
