@@ -7,7 +7,7 @@
     "generate-spec": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node packages/cli/dist/src/index.js generate  -r -p apps/react-vite-example --adapter react --format yaml --output apps/react-vite-example/owcs-react-vite.yaml",
+        "command": "node packages/cli/dist/src/index.js generate  -r -p apps/react-vite-example --adapter react --format yaml --output apps/react-vite-example/owcs-react-vite.yaml --extensions",
         "cwd": "{workspaceRoot}"
       },
       "dependsOn": ["cli:build"]

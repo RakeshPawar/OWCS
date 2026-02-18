@@ -7,7 +7,7 @@
     "generate-spec": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node packages/cli/dist/src/index.js generate  -r -p apps/react-webpack-example --adapter react --format yaml --output apps/react-webpack-example/owcs-react-webpack.yaml ",
+        "command": "node packages/cli/dist/src/index.js generate  -r -p apps/react-webpack-example --adapter react --format yaml --output apps/react-webpack-example/owcs-react-webpack.yaml --extensions ",
         "cwd": "{workspaceRoot}"
       },
       "dependsOn": ["cli:build"]

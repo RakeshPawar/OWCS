@@ -7,7 +7,7 @@
     "generate-spec": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node packages/cli/dist/src/index.js generate -r -p apps/angular-example --adapter angular --format yaml --output apps/angular-example/owcs-angular-webpack.yaml --openapi ",
+        "command": "node packages/cli/dist/src/index.js generate -r -p apps/angular-example --adapter angular --format yaml --output apps/angular-example/owcs-angular-webpack.yaml --extensions --openapi ",
         "cwd": "{workspaceRoot}"
       },
       "dependsOn": ["cli:build"]

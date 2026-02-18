@@ -66,8 +66,11 @@ npx @owcs/cli generate --adapter react --format json
 # Specify output file
 npx @owcs/cli generate --adapter angular --output my-components.yaml
 
-# Include runtime
+# Include runtime extension
 npx @owcs/cli generate --adapter angular --include-runtime-extension
+
+# Load vendor extensions from config file
+npx @owcs/cli generate --adapter angular --extensions
 
 # Also create OpenAPI documentation
 npx @owcs/cli generate --adapter react --openapi
@@ -75,6 +78,30 @@ npx @owcs/cli generate --adapter react --openapi
 # Validate an existing specification
 npx @owcs/cli validate owcs.yaml
 ```
+
+## Vendor Extensions
+
+Add custom metadata to your specifications using vendor extensions. Create an `owcs.config.js` or `owcs.config.json` file in your project root:
+
+```javascript
+// owcs.config.js
+export default {
+  extensions: {
+    'x-owner': 'platform-team',
+    'x-package-version': '2.0.0',
+    'x-team-name': 'Frontend Core',
+    'x-git-repo': 'https://github.com/org/repo',
+  },
+};
+```
+
+Then generate your spec with the `--extensions` flag:
+
+```bash
+npx @owcs/cli generate --adapter angular --extensions
+```
+
+All extension keys must start with `x-` to follow the extension pattern. These extensions are preserved when converting to OpenAPI format.
 
 ## Using in Code
 
@@ -96,6 +123,10 @@ const analysis = analyzeAngularProject('./src');
 const spec = buildOWCSSpec(analysis, {
   title: 'My Angular Components',
   version: '1.0.0',
+  extensions: {
+    'x-owner': 'platform-team',
+    'x-version': '2.0.0',
+  },
 });
 
 // Save to file
@@ -105,15 +136,19 @@ writeOWCSSpec(spec, 'owcs.yaml', 'yaml');
 ### React
 
 ```typescript
-import { analyzeReactProject, buildOWCSSpec, writeOWCSSpec } from '@owcs/api';
+import { analyzeReactProject, buildOWCSSpec, writeOWCSSpec, loadConfig } from '@owcs/api';
 
 // Analyze your React project
 const analysis = analyzeReactProject('./src');
+
+// Optionally load extensions from config file
+const config = await loadConfig('./my-project');
 
 // Build specification
 const spec = buildOWCSSpec(analysis, {
   title: 'My React Components',
   version: '1.0.0',
+  extensions: config?.extensions,
 });
 
 // Save to file
@@ -217,6 +252,11 @@ owcs: 1.0.0
 info:
   title: My Components
   version: 1.0.0
+
+x-owner: platform-team
+x-package-version: 2.0.0
+x-team-name: Frontend Core
+x-git-repo: https://github.com/org/repo
 
 x-owcs-runtime:
   bundler:
