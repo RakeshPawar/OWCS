@@ -251,15 +251,43 @@ export class OWCSViewer extends LitElement {
   }
 
   /**
-   * Render extensions section
+   * Render runtime section
+   */
+  private renderRuntime() {
+    const runtime = this.spec['x-owcs-runtime'];
+    if (!runtime) {
+      return nothing;
+    }
+
+    // Format bundler content as JSON if it exists
+    const bundlerContent = runtime.bundler ? JSON.stringify(runtime.bundler, null, 2) : null;
+
+    return html`
+      <div class="extensions">
+        <div class="extensions-card">
+          <h2 class="extensions-title">Runtime Configuration</h2>
+          ${bundlerContent
+            ? html`
+                <div class="code-block">
+                  <pre><code class="language-json">${bundlerContent}</code></pre>
+                </div>
+              `
+            : html`<div class="empty-state">No runtime configuration</div>`}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Render metadata section (extensions)
    */
   private renderExtensions() {
-    // Get all properties that start with 'x-' (extensions)
+    // Get all properties that start with 'x-' (extensions), excluding x-owcs-runtime
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const extensions: Record<string, any> = {};
     for (const [key, value] of Object.entries(this.spec)) {
-      if (key.startsWith('x-')) {
-        extensions[key] = value;
+      if (key.startsWith('x-') && key !== 'x-owcs-runtime') {
+        extensions[key.slice(2)] = value;
       }
     }
 
@@ -267,19 +295,24 @@ export class OWCSViewer extends LitElement {
       return nothing;
     }
 
+    // Format extensions as JSON
+    const metadataContent = JSON.stringify(extensions, null, 2);
+
     return html`
       <div class="extensions">
-        <h2 class="extensions-title">Extensions</h2>
-        <div class="extensions-list">
-          ${Object.entries(extensions).map(
-            ([key, value]) => html`
-              <div class="extension-item">
-                <span class="extension-key">${key}:</span>
-                <span class="extension-value">${JSON.stringify(value)}</span>
-              </div>
-            `
-          )}
-        </div>
+        <details class="metadata-card">
+          <summary class="metadata-header">
+            <h2 class="extensions-title">Metadata</h2>
+            <svg class="metadata-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </summary>
+          <div class="metadata-content">
+            <div class="code-block">
+              <pre><code class="language-json">${metadataContent}</code></pre>
+            </div>
+          </div>
+        </details>
       </div>
     `;
   }
@@ -356,45 +389,83 @@ export class OWCSViewer extends LitElement {
   }
 
   /**
-   * Render component accordion item
+   * Render component card item
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private renderComponent(key: string, component: any) {
     const tagName = component.tagName || key;
-    const propsCode = this.generatePropsCode(component);
-    const eventsCode = this.generateEventsCode(component);
-    const highlightedPropsCode = this.highlightCode(propsCode);
-    const highlightedEventsCode = this.highlightCode(eventsCode);
+    const hasProps = component.props?.schema;
+    const hasEvents = component.events && Object.keys(component.events).length > 0;
+
+    const propsCode = hasProps ? this.generatePropsCode(component) : '';
+    const eventsCode = hasEvents ? this.generateEventsCode(component) : '';
+
+    const highlightedPropsCode = hasProps ? this.highlightCode(propsCode) : '';
+    const highlightedEventsCode = hasEvents ? this.highlightCode(eventsCode) : '';
 
     return html`
-      <details class="accordion-item">
-        <summary class="accordion-header">
-          <h3 class="accordion-title">&lt;${tagName}&gt;</h3>
-          <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <details class="component-card">
+        <summary class="component-header">
+          <svg width="25" height="25" viewBox="0 0 161 132" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient x1="0%" y1="50%" y2="50%" id="a">
+                <stop stop-color="#2A3B8F" offset="0%" />
+                <stop stop-color="#29ABE2" offset="100%" />
+              </linearGradient>
+              <linearGradient x1="100%" y1="50%" x2="0%" y2="50%" id="c">
+                <stop stop-color="#B4D44E" offset="0%" />
+                <stop stop-color="#E7F716" offset="100%" />
+              </linearGradient>
+            </defs>
+            <g fill="none" fill-rule="evenodd">
+              <path fill="#166DA5" d="M160.6 65.9l-17.4 29.3-24.4-29.7 24.4-28.9z" />
+              <path fill="#8FDB69" d="M141.3 100.2l-26.5-31.7-15.9 26.6 24.7 36.1z" />
+              <path fill="#166DA5" d="M141 31.4l-26.2 31.8-15.9-26.6L123.6.9z" />
+              <path fill="url(#a)" opacity=".95" d="M61.1 31.4H141L123.4.7H78.7z M114.8 63.3H159l-15.9-26.8H98.8" />
+              <path fill="url(#c)" opacity=".95" d="M141.3 100.3H61l17.6 30.5h45z M114.8 68.4H159l-15.9 26.8H98.8" />
+              <path fill="#010101" d="M78.6 130.8L41 65.8 79.1.8H37.9L.4 65.8l37.5 65z" />
+            </g>
+          </svg>
+          <h3 class="component-tag">&lt;${tagName}&gt;</h3>
+          <svg class="component-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
         </summary>
-        <div class="accordion-content">
-          ${component.props?.schema
-            ? html`
-                <div class="code-section">
-                  <h4 class="code-label">Props</h4>
-                  <div class="code-block">
-                    <pre><code class="language-typescript">${unsafeHTML(highlightedPropsCode)}</code></pre>
-                  </div>
-                </div>
-              `
-            : nothing}
-          ${component.events && Object.keys(component.events).length > 0
-            ? html`
-                <div class="code-section">
-                  <h4 class="code-label">Events</h4>
-                  <div class="code-block">
-                    <pre><code class="language-typescript">${unsafeHTML(highlightedEventsCode)}</code></pre>
-                  </div>
-                </div>
-              `
-            : nothing}
+        <div class="component-body">
+          <details class="section-item" open>
+            <summary class="section-header">
+              <h4 class="section-title">Props</h4>
+              <svg class="section-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </summary>
+            <div class="section-content">
+              ${hasProps
+                ? html`
+                    <div class="code-block">
+                      <pre><code class="language-typescript">${unsafeHTML(highlightedPropsCode)}</code></pre>
+                    </div>
+                  `
+                : html`<div class="empty-state">No props defined</div>`}
+            </div>
+          </details>
+          <details class="section-item" open>
+            <summary class="section-header">
+              <h4 class="section-title">Events</h4>
+              <svg class="section-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </summary>
+            <div class="section-content">
+              ${hasEvents
+                ? html`
+                    <div class="code-block">
+                      <pre><code class="language-typescript">${unsafeHTML(highlightedEventsCode)}</code></pre>
+                    </div>
+                  `
+                : html`<div class="empty-state">No events defined</div>`}
+            </div>
+          </details>
         </div>
       </details>
     `;
@@ -438,7 +509,11 @@ export class OWCSViewer extends LitElement {
       `;
     }
 
-    return html` <div class="container">${this.renderHeader()} ${this.renderExtensions()} ${this.renderSearchBar()} ${this.renderComponents()}</div> `;
+    return html`
+      <div class="container">
+        ${this.renderHeader()} ${this.renderRuntime()} ${this.renderExtensions()} ${this.renderSearchBar()} ${this.renderComponents()}
+      </div>
+    `;
   }
 }
 
