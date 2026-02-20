@@ -6,193 +6,22 @@
 // Import the OWCS Viewer web component
 import '@owcs/ui';
 
-// Sample YAML from Angular example
-const angularExampleYaml = `owcs: 1.0.0
-info:
-  title: userComponents
-  version: 1.0.0
-components:
-  webComponents:
-    comprehensive-example-angular:
-      tagName: comprehensive-example-angular
-      props:
-        schema:
-          type: object
-          properties:
-            userName:
-              type: string
-            isActive:
-              type: boolean
-            theme:
-              type: string
-              enum:
-                - light
-                - dark
-                - auto
-            status:
-              type: string
-              enum:
-                - idle
-                - loading
-                - success
-                - error
-            config:
-              type: object
-              properties:
-                endpoint:
-                  type: string
-                timeout:
-                  type: number
-                retry:
-                  type: boolean
-                headers:
-                  type: object
-              required:
-                - endpoint
-                - timeout
-            user:
-              type: object
-              properties:
-                id:
-                  type: number
-                name:
-                  type: string
-                email:
-                  type: string
-                roles:
-                  type: array
-                  items:
-                    type: string
-              required:
-                - id
-                - name
-                - email
-                - roles
-            emailAddress:
-              type: string
-            settings:
-              type: object
-              properties:
-                display:
-                  type: object
-                  properties:
-                    showHeader:
-                      type: boolean
-                    showFooter:
-                      type: boolean
-                behavior:
-                  type: object
-                  properties:
-                    autoSave:
-                      type: boolean
-                    interval:
-                      type: number
-            signalName:
-              type: string
-            counter:
-              type: number
-            priority:
-              type: number
-          required:
-            - userName
-            - isActive
-            - theme
-            - status
-            - signalName
-      events:
-        userAction:
-          type: EventEmitter
-        dataLoad:
-          type: EventEmitter
-        error:
-          type: EventEmitter
-        hover:
-          type: EventEmitter
-        user-updated:
-          type: EventEmitter
-        notify:
-          type: OutputSignal
-          payload:
-            type: object
-            properties:
-              message:
-                type: string
-              type:
-                type: string
-                enum:
-                  - info
-                  - warning
-                  - error
-            required:
-              - message
-              - type
-        data-ready:
-          type: OutputSignal
-          payload:
-            type: object
-            properties:
-              ready:
-                type: boolean
-            required:
-              - ready
-    user-card:
-      tagName: user-card
-      props:
-        schema:
-          type: object
-          properties:
-            data:
-              type: object
-              properties:
-                name:
-                  type: string
-                age:
-                  type: number
-                email:
-                  type: string
-                config:
-                  type: object
-                  properties:
-                    theme:
-                      type: string
-                      enum:
-                        - light
-                        - dark
-                    showAvatar:
-                      type: boolean
-                  required:
-                    - theme
-                    - showAvatar
-              required:
-                - name
-          required:
-            - data
-      events:
-        clicked:
-          type: OutputSignal
-          payload:
-            type: object
-            properties:
-              timestamp:
-                type: number
-            required:
-              - timestamp
-        userUpdated:
-          type: EventEmitter
-x-owner: platform-team
-x-package-version: 1.0.0
-x-team-name: Frontend Core
-x-git-repo: https://github.com/owcs/angular-example
-x-owcs-runtime:
-  bundler:
-    name: webpack
-    moduleFederation:
-      remoteName: userComponents
-      libraryType: module
-      exposes:
-        ./user-card: ./src/user-card/user-card.wc.ts
+// Load YAML from public directory
+let angularExampleYaml = '';
 
-`;
+// Fetch the YAML file
+fetch('/owcs-angular-webpack.yaml')
+  .then((response) => response.text())
+  .then((yaml) => {
+    angularExampleYaml = yaml;
+    // Load Angular example by default after fetching
+    if (viewer) {
+      viewer.yaml = angularExampleYaml;
+    }
+  })
+  .catch((error) => {
+    console.error('Failed to load YAML file:', error);
+  });
 
 // Get viewer element
 const viewer = document.getElementById('viewer') as any;
@@ -217,8 +46,5 @@ document.getElementById('clearViewer')?.addEventListener('click', () => {
   viewer.yaml = '';
   viewer.yamlUrl = '';
 });
-
-// Load Angular example by default
-viewer.yaml = angularExampleYaml;
 
 console.log('OWCS Viewer Demo loaded successfully!');

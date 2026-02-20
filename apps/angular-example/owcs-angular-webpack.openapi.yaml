@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
-  title: userComponents
+  title: Angular Example Components
   version: 1.0.0
-  description: Web Components specification
+  description: Example Angular web components demonstrating OWCS
 paths:
   /components/comprehensive-example-angular:
     post:

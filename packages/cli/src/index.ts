@@ -26,14 +26,39 @@ program
   .option('--description <description>', 'Specification description')
   .option('-r, --include-runtime-extension', 'Include x-owcs-runtime extension with bundler and module federation metadata')
   .option('--extensions', 'Load extensions from config file (owcs.config.js or owcs.config.json)')
-  .option('--openapi', 'Also generate OpenAPI specification')
+  .option('--openapi', 'Also generate OpenAPI specification(partial support)')
   .action(async (options) => {
     try {
       console.log('🔍 Analyzing project...');
 
-      const projectRoot = path.resolve(options.project);
-      const format = options.format as OutputFormat;
-      const adapter = options.adapter.toLowerCase();
+      // Load config file first
+      const initialProjectRoot = path.resolve(options.project);
+      let config;
+      try {
+        config = await loadConfig(initialProjectRoot);
+        if (config) {
+          console.log(`📄 Loaded configuration from config file`);
+        }
+      } catch (error) {
+        console.error('⚠️  Warning: Failed to load config file:', error instanceof Error ? error.message : error);
+      }
+
+      // Merge config with CLI options - CLI options take precedence
+      const projectRoot =
+        options.project !== process.cwd()
+          ? path.resolve(options.project)
+          : config?.projectRoot
+            ? path.resolve(config.projectRoot)
+            : path.resolve(options.project);
+
+      const format = (options.format !== 'yaml' ? options.format : config?.format || options.format) as OutputFormat;
+      const adapter = (options.adapter !== 'angular' ? options.adapter : config?.adapter || options.adapter).toLowerCase();
+      const title = options.title || config?.title;
+      const version = options.version !== '1.0.0' ? options.version : config?.version || options.version;
+      const description = options.description || config?.description;
+      const includeRuntimeExtension = options.includeRuntimeExtension || config?.includeRuntimeExtension || false;
+      const outputPath = options.output !== 'owcs.yaml' ? options.output : config?.outputPath || options.output;
+      const configExtensions = options.extensions && config?.extensions ? config.extensions : undefined;
 
       if (format !== 'yaml' && format !== 'json') {
         console.error('❌ Error: Format must be either "yaml" or "json"');
@@ -43,22 +68,6 @@ program
       if (adapter !== 'angular' && adapter !== 'react') {
         console.error('❌ Error: Adapter must be either "angular" or "react"');
         process.exit(1);
-      }
-
-      // Load config file if --extensions flag is set
-      let configExtensions;
-      if (options.extensions) {
-        try {
-          const config = await loadConfig(projectRoot);
-          if (config?.extensions) {
-            configExtensions = config.extensions;
-            console.log(`📄 Loaded extensions from config file`);
-          } else {
-            console.log('⚠️  No extensions found in config file');
-          }
-        } catch (error) {
-          console.error('⚠️  Warning: Failed to load config file:', error instanceof Error ? error.message : error);
-        }
       }
 
       // Analyze the project based on adapter
@@ -76,28 +85,28 @@ program
 
       // Build OWCS spec
       const owcsSpec = buildOWCSSpec(intermediateModel, {
-        title: options.title,
-        version: options.version,
-        description: options.description,
-        includeRuntimeExtension: options.includeRuntimeExtension,
+        title: title,
+        version: version,
+        description: description,
+        includeRuntimeExtension: includeRuntimeExtension,
         extensions: configExtensions,
       });
 
       // Determine output path
-      let outputPath = options.output;
+      let resolvedOutputPath = outputPath;
       if (format === 'json' && outputPath === 'owcs.yaml') {
-        outputPath = 'owcs.json';
+        resolvedOutputPath = 'owcs.json';
       }
-      outputPath = path.resolve(outputPath);
+      resolvedOutputPath = path.resolve(resolvedOutputPath);
 
       // Write OWCS spec
-      writeOWCSSpec(owcsSpec, outputPath, format);
-      console.log(`📝 Generated OWCS specification: ${outputPath}`);
+      writeOWCSSpec(owcsSpec, resolvedOutputPath, format);
+      console.log(`📝 Generated OWCS specification: ${resolvedOutputPath}`);
 
       // Generate OpenAPI spec if requested
       if (options.openapi) {
         const openApiSpec = convertToOpenAPI(owcsSpec);
-        const openApiPath = outputPath.replace(/\.(yaml|json)$/, '.openapi.$1');
+        const openApiPath = resolvedOutputPath.replace(/\.(yaml|json)$/, '.openapi.$1');
 
         if (format === 'yaml') {
           const yamlContent = yaml.dump(openApiSpec, {

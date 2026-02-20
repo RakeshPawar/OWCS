@@ -26,13 +26,9 @@ export interface PropModel {
   schema: JSONSchema;
   required: boolean;
   source: 'input' | 'attribute';
-  /** JSDoc description */
+  /** JSDoc */
   description?: string;
-  /** Default value */
   default?: unknown;
-  /** Whether the property is deprecated */
-  deprecated?: boolean;
-  /** JSDoc tags */
   tags?: Record<string, string>;
 }
 
@@ -44,13 +40,9 @@ export interface EventModel {
   type: 'CustomEvent' | 'EventEmitter' | 'OutputSignal';
   payloadSchema?: JSONSchema;
   source: 'dispatchEvent' | 'output';
-  /** JSDoc description */
   description?: string;
-  /** Whether the event is deprecated */
   deprecated?: boolean;
-  /** Event bubbles setting (for CustomEvent) */
   bubbles?: boolean;
-  /** Event composed setting (for CustomEvent) */
   composed?: boolean;
 }
 
@@ -60,7 +52,6 @@ export interface EventModel {
 export interface WebComponentModel {
   tagName: string;
   className: string;
-  modulePath: string;
   props: PropModel[];
   events: EventModel[];
 }
@@ -137,6 +128,7 @@ export interface OWCSSpec {
  */
 export interface OWCSComponent {
   tagName: string;
+  className: string;
   props?: {
     schema: JSONSchema;
   };

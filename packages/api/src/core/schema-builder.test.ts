@@ -13,7 +13,6 @@ describe('SchemaBuilder', () => {
           {
             tagName: 'user-card',
             className: 'UserCardComponent',
-            modulePath: './src/user-card.component.ts',
             props: [],
             events: [],
           },
@@ -77,7 +76,6 @@ describe('SchemaBuilder', () => {
           {
             tagName: 'user-card',
             className: 'UserCardComponent',
-            modulePath: './src/user-card.component.ts',
             props: [],
             events: [],
           },
@@ -103,7 +101,6 @@ describe('SchemaBuilder', () => {
           {
             tagName: 'user-card',
             className: 'UserCardComponent',
-            modulePath: './src/user-card.component.ts',
             props: [
               {
                 name: 'name',
@@ -150,7 +147,6 @@ describe('SchemaBuilder', () => {
           {
             tagName: 'user-card',
             className: 'UserCardComponent',
-            modulePath: './src/user-card.component.ts',
             props: [],
             events: [
               {
@@ -188,7 +184,6 @@ describe('SchemaBuilder', () => {
           {
             tagName: 'simple-component',
             className: 'SimpleComponent',
-            modulePath: './src/simple.component.ts',
             props: [
               {
                 name: 'title',
@@ -237,7 +232,6 @@ describe('SchemaBuilder', () => {
           {
             tagName: 'user-card',
             className: 'UserCardComponent',
-            modulePath: './src/user-card.component.ts',
             props: [],
             events: [],
           },

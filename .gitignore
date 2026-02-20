@@ -13,6 +13,9 @@ coverage/
 
 debugowcs.yaml
 
+# Generated/copied assets
+apps/owcs-viewer-demo/public/owcs-angular-webpack.yaml
+
 # Nx
 .nx/cache
 .nx/workspace-data
