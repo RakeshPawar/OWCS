@@ -122,7 +122,6 @@ function extractPropsFromTypeObject(type: ts.Type, typeChecker: ts.TypeChecker):
       source: 'attribute',
       description: jsDocMetadata.description,
       default: defaultValue,
-      deprecated: jsDocMetadata.deprecated,
       tags: jsDocMetadata.tags,
     });
   }
@@ -158,7 +157,6 @@ function extractPropsFromTypeLiteral(typeLiteral: ts.TypeLiteralNode, typeChecke
         source: 'attribute',
         description: jsDocMetadata.description,
         default: jsDocMetadata.default,
-        deprecated: jsDocMetadata.deprecated,
         tags: jsDocMetadata.tags,
       });
     }

@@ -4,8 +4,6 @@
  * Node entry point for the library
  */
 
-// Adapters
-
 // Core
 
-export { loadConfig, OWCSConfig } from './core/config-loader.js';
+export { loadConfig, OWCSConfig, OutputFormat, AdapterType } from './core/config-loader.js';

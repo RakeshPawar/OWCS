@@ -92,7 +92,6 @@ describe('API Index Exports', () => {
           {
             tagName: 'test-component',
             className: 'TestComponent',
-            modulePath: './test.component.ts',
             props: [],
             events: [],
           },

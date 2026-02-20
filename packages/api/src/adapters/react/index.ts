@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
 import path from 'node:path';
 import { IntermediateModel, WebComponentModel } from '../../model/intermediate.js';
-import { discoverComponents, findComponentByName, getModulePath } from './component-discovery.js';
+import { discoverComponents, findComponentByName } from './component-discovery.js';
 import { extractProps } from './props-extractor.js';
 import { extractEvents } from './events-extractor.js';
 import { extractFederationConfig } from './federation-extractor.js';
@@ -109,12 +109,9 @@ export class ReactAdapter {
 
     const events = extractEvents(componentDecl, this.typeChecker);
 
-    const modulePath = getModulePath(sourceFile, this.projectRoot);
-
     return {
       tagName,
       className,
-      modulePath,
       props,
       events,
     };

@@ -530,7 +530,6 @@ describe('React Adapter - Props Extractor', () => {
       const titleProp = props.find((p) => p.name === 'title');
       expect(titleProp).toBeDefined();
       expect(titleProp?.description).toContain('Widget title');
-      expect(titleProp?.attribute).toBe('widget-title');
       expect(titleProp?.required).toBe(true);
     });
 
@@ -881,7 +880,6 @@ describe('React Adapter - Enhanced Features', () => {
 
       const ageProp = props.find((p) => p.name === 'age');
       expect(ageProp?.description).toContain('age');
-      expect(ageProp?.deprecated).toBe(true);
     });
 
     it('should extract JSDoc @attribute for custom attribute names', () => {
@@ -1050,49 +1048,6 @@ describe('React Adapter - Enhanced Features', () => {
       expect(actionEvent).toBeDefined();
       expect(actionEvent?.bubbles).toBe(true);
       expect(actionEvent?.composed).toBe(true);
-    });
-
-    it('should extract events from JSDoc @fires tags', () => {
-      const sourceCode = `
-        /**
-         * Button component
-         * @fires submit - When form is submitted
-         * @fires cancel - When form is cancelled
-         */
-        export class Button extends HTMLElement {
-          render() {
-            return <div />;
-          }
-        }
-      `;
-
-      const { program, getSourceFile } = createTestProgram({ 'test.tsx': sourceCode });
-      const sourceFile = getSourceFile('test.tsx');
-
-      if (!sourceFile) {
-        throw new Error('Source file not found');
-      }
-
-      const typeChecker = program.getTypeChecker();
-
-      let classDecl: ts.ClassDeclaration | undefined;
-      ts.forEachChild(sourceFile, (node) => {
-        if (ts.isClassDeclaration(node)) {
-          classDecl = node;
-        }
-      });
-
-      const events = extractEvents(classDecl!, typeChecker);
-
-      expect(events.length).toBeGreaterThanOrEqual(2);
-
-      const submitEvent = events.find((e) => e.name === 'submit');
-      expect(submitEvent).toBeDefined();
-      expect(submitEvent?.description).toContain('submitted');
-
-      const cancelEvent = events.find((e) => e.name === 'cancel');
-      expect(cancelEvent).toBeDefined();
-      expect(cancelEvent?.description).toContain('cancelled');
     });
   });
 

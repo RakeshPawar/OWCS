@@ -80,29 +80,45 @@ npx @owcs/cli generate --adapter react --openapi
 npx @owcs/cli validate owcs.yaml
 ```
 
-## Vendor Extensions
+## Configuration File
 
-Add custom metadata to your specifications using vendor extensions. Create an `owcs.config.js` or `owcs.config.json` file in your project root:
+Create an `owcs.config.js` or `owcs.config.json` file to set defaults for all CLI options. CLI arguments always override config values.
 
 ```javascript
 // owcs.config.js
 export default {
+  // Specification metadata
+  title: 'My Components',
+  description: 'A collection of reusable web components',
+  version: '2.0.0',
+
+  // Build options
+  adapter: 'react', // 'angular' or 'react'
+  format: 'yaml', // 'yaml' or 'json'
+  outputPath: './dist/owcs.yaml',
+  projectRoot: './src',
+  includeRuntimeExtension: true,
+
+  // Custom vendor extensions (all keys must start with 'x-')
   extensions: {
     'x-owner': 'platform-team',
-    'x-package-version': '2.0.0',
     'x-team-name': 'Frontend Core',
     'x-git-repo': 'https://github.com/org/repo',
   },
 };
 ```
 
-Then generate your spec with the `--extensions` flag:
+**With a config file, you can run:**
 
 ```bash
-npx @owcs/cli generate --adapter angular --extensions
+# Use all config defaults
+npx @owcs/cli generate
+
+# Override specific options
+npx @owcs/cli generate --title "Custom Title" --format json
 ```
 
-All extension keys must start with `x-` to follow the extension pattern. These extensions are preserved when converting to OpenAPI format.
+**Supported config formats:** `owcs.config.js`, `owcs.config.mjs`, `owcs.config.cjs`, `owcs.config.json`
 
 ## Using in Code
 
@@ -359,13 +375,19 @@ For more details, see the [@owcs/ui README](packages/ui/README.md).
 
 ### Generate Options
 
-- `-a, --adapter <adapter>` - Framework adapter: `angular` or `react` (required)
-- `-f, --format <format>` - Output format: `yaml` (default) or `json`
+All options can be set in `owcs.config.js` or provided via CLI. CLI options override config values.
+
+- `-a, --adapter <adapter>` - Framework adapter: `angular` or `react` (default: `angular`)
+- `-f, --format <format>` - Output format: `yaml` or `json` (default: `yaml`)
 - `-o, --output <file>` - Output file path (default: `owcs.yaml`)
-- `-p, --project <path>` - Project directory (default: current directory)
+- `-p, --project <path>` - Project root directory (default: current directory)
+- `-t, --tsconfig <path>` - Path to tsconfig.json
 - `--title <title>` - Specification title
-- `--version <version>` - Specification version
-- `--openapi` - Also generate OpenAPI documentation
+- `--version <version>` - Specification version (default: `1.0.0`)
+- `--description <description>` - Specification description
+- `-r, --include-runtime-extension` - Include bundler and module federation metadata
+- `--extensions` - Load custom vendor extensions from config file
+- `--openapi` - Also generate OpenAPI specification
 
 ## Development
 

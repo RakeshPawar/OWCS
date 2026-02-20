@@ -1,6 +1,5 @@
 import * as ts from 'typescript';
 import { findCallExpressions, getStringLiteralValue } from '../../core/ast-walker.js';
-import path from 'node:path';
 
 /** Registration info from customElements.define() */
 export interface ComponentRegistration {
@@ -129,10 +128,4 @@ export function findComponentByName(sourceFile: ts.SourceFile, name: string): ts
 
   visit(sourceFile);
   return result;
-}
-
-/** Returns module path relative to project root */
-export function getModulePath(sourceFile: ts.SourceFile, projectRoot: string): string {
-  const relativePath = path.relative(projectRoot, sourceFile.fileName);
-  return relativePath.replace(/\\/g, '/');
 }

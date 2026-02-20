@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
 import path from 'node:path';
 import { IntermediateModel, WebComponentModel } from '../../model/intermediate.js';
-import { discoverComponents, findClassByName, getModulePath } from './component-discovery.js';
+import { discoverComponents, findClassByName } from './component-discovery.js';
 import { extractProps } from './props-extractor.js';
 import { extractEvents } from './events-extractor.js';
 import { extractWebpackFederationConfig } from '../shared/webpack-federation-extractor.js';
@@ -107,12 +107,9 @@ export class AngularAdapter {
 
     const events = extractEvents(classDecl, this.typeChecker);
 
-    const modulePath = getModulePath(registration.sourceFile, this.projectRoot);
-
     return {
       tagName: registration.tagName,
       className: registration.className,
-      modulePath,
       props,
       events,
     };

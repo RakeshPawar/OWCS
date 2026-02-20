@@ -3,9 +3,59 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 /**
+ * Output format type
+ */
+export type OutputFormat = 'yaml' | 'json';
+
+/**
+ * Adapter type
+ */
+export type AdapterType = 'angular' | 'react';
+
+/**
  * OWCS configuration structure
  */
 export interface OWCSConfig {
+  /**
+   * Specification title
+   */
+  title?: string;
+
+  /**
+   * Specification description
+   */
+  description?: string;
+
+  /**
+   * Specification version
+   */
+  version?: string;
+
+  /**
+   * Include x-owcs-runtime extension with bundler and module federation metadata
+   */
+  includeRuntimeExtension?: boolean;
+
+  /**
+   * Output format (yaml or json)
+   */
+  format?: OutputFormat;
+
+  /**
+   * Framework adapter (angular or react)
+   */
+  adapter?: AdapterType;
+
+  /**
+   * Output file path
+   */
+  outputPath?: string;
+
+  /**
+   * Project root path
+   */
+  projectRoot?: string;
+
   /**
    * Custom extensions to add to the OWCS specification.
    * All keys must start with 'x-' to follow the extension pattern.
@@ -66,6 +116,46 @@ export async function loadConfig(projectPath: string): Promise<OWCSConfig | null
       }
 
       const owcsConfig = config as OWCSConfig;
+
+      // Validate format if present
+      if (owcsConfig.format && owcsConfig.format !== 'yaml' && owcsConfig.format !== 'json') {
+        throw new Error(`'format' must be either 'yaml' or 'json'`);
+      }
+
+      // Validate adapter if present
+      if (owcsConfig.adapter && owcsConfig.adapter !== 'angular' && owcsConfig.adapter !== 'react') {
+        throw new Error(`'adapter' must be either 'angular' or 'react'`);
+      }
+
+      // Validate version format if present
+      if (owcsConfig.version && typeof owcsConfig.version !== 'string') {
+        throw new Error(`'version' must be a string`);
+      }
+
+      // Validate title if present
+      if (owcsConfig.title && typeof owcsConfig.title !== 'string') {
+        throw new Error(`'title' must be a string`);
+      }
+
+      // Validate description if present
+      if (owcsConfig.description && typeof owcsConfig.description !== 'string') {
+        throw new Error(`'description' must be a string`);
+      }
+
+      // Validate includeRuntimeExtension if present
+      if (owcsConfig.includeRuntimeExtension !== undefined && typeof owcsConfig.includeRuntimeExtension !== 'boolean') {
+        throw new Error(`'includeRuntimeExtension' must be a boolean`);
+      }
+
+      // Validate outputPath if present
+      if (owcsConfig.outputPath && typeof owcsConfig.outputPath !== 'string') {
+        throw new Error(`'outputPath' must be a string`);
+      }
+
+      // Validate projectRoot if present
+      if (owcsConfig.projectRoot && typeof owcsConfig.projectRoot !== 'string') {
+        throw new Error(`'projectRoot' must be a string`);
+      }
 
       // Validate extensions if present
       if (owcsConfig.extensions) {

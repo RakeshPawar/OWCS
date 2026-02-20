@@ -1,11 +1,13 @@
 owcs: 1.0.0
 info:
-  title: userComponents
+  title: Angular Example Components
   version: 1.0.0
+  description: Example Angular web components demonstrating OWCS
 components:
   webComponents:
     comprehensive-example-angular:
       tagName: comprehensive-example-angular
+      className: ComprehensiveExampleComponent
       props:
         schema:
           type: object
@@ -128,6 +130,7 @@ components:
               - ready
     user-card:
       tagName: user-card
+      className: UserCardComponent
       props:
         schema:
           type: object

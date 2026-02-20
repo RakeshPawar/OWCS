@@ -72,6 +72,7 @@ export class SchemaBuilder {
   private buildComponent(component: WebComponentModel): OWCSComponent {
     const owcsComponent: OWCSComponent = {
       tagName: component.tagName,
+      className: component.className,
     };
 
     // Add props schema
