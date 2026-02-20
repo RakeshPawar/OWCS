@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@owcs/schemas": "workspace:*",
-    "ajv": "^8.17.1",
+    "ajv": "^8.18.0",
     "js-yaml": "^4.1.1",
     "typescript": "^5.9.3"
   },
