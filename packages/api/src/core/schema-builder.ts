@@ -20,7 +20,16 @@ export class SchemaBuilder {
       },
     };
 
+    // Add custom extensions first
+    if (options?.extensions) {
+      this.validateExtensions(options.extensions);
+      for (const [key, value] of Object.entries(options.extensions)) {
+        spec[key] = value;
+      }
+    }
+
     // Add x-owcs-runtime extension if includeRuntimeExtension is true
+    // This comes after custom extensions so runtime extension takes precedence
     if (options?.includeRuntimeExtension && model.runtime.bundler) {
       spec['x-owcs-runtime'] = {
         bundler: {
@@ -47,11 +56,23 @@ export class SchemaBuilder {
   }
 
   /**
+   * Validates that all extension keys start with 'x-'
+   */
+  private validateExtensions(extensions: Record<string, unknown>): void {
+    const invalidKeys = Object.keys(extensions).filter((key) => !key.startsWith('x-'));
+
+    if (invalidKeys.length > 0) {
+      throw new Error(`Invalid extension keys: ${invalidKeys.join(', ')}. All extension keys must start with 'x-'`);
+    }
+  }
+
+  /**
    * Builds OWCS component from WebComponentModel
    */
   private buildComponent(component: WebComponentModel): OWCSComponent {
     const owcsComponent: OWCSComponent = {
       tagName: component.tagName,
+      className: component.className,
     };
 
     // Add props schema

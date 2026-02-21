@@ -4,11 +4,12 @@ Generate standardized specifications for your web components automatically. OWCS
 
 ## Monorepo Structure
 
-This project is organized as an Nx monorepo with three packages:
+This project is organized as an Nx monorepo with four packages:
 
 - **[@owcs/schemas](packages/schemas)** - JSON Schema definitions and validation utilities
 - **[@owcs/api](packages/api)** - Core API for analyzing components and generating specifications
 - **[@owcs/cli](packages/cli)** - Command-line interface
+- **[@owcs/ui](packages/ui)** - Web component for visualizing OWCS specifications
 
 ## What is OWCS?
 
@@ -66,8 +67,11 @@ npx @owcs/cli generate --adapter react --format json
 # Specify output file
 npx @owcs/cli generate --adapter angular --output my-components.yaml
 
-# Include runtime
+# Include runtime extension
 npx @owcs/cli generate --adapter angular --include-runtime-extension
+
+# Load vendor extensions from config file
+npx @owcs/cli generate --adapter angular --extensions
 
 # Also create OpenAPI documentation
 npx @owcs/cli generate --adapter react --openapi
@@ -75,6 +79,46 @@ npx @owcs/cli generate --adapter react --openapi
 # Validate an existing specification
 npx @owcs/cli validate owcs.yaml
 ```
+
+## Configuration File
+
+Create an `owcs.config.js` or `owcs.config.json` file to set defaults for all CLI options. CLI arguments always override config values.
+
+```javascript
+// owcs.config.js
+export default {
+  // Specification metadata
+  title: 'My Components',
+  description: 'A collection of reusable web components',
+  version: '2.0.0',
+
+  // Build options
+  adapter: 'react', // 'angular' or 'react'
+  format: 'yaml', // 'yaml' or 'json'
+  outputPath: './dist/owcs.yaml',
+  projectRoot: './src',
+  includeRuntimeExtension: true,
+
+  // Custom vendor extensions (all keys must start with 'x-')
+  extensions: {
+    'x-owner': 'platform-team',
+    'x-team-name': 'Frontend Core',
+    'x-git-repo': 'https://github.com/org/repo',
+  },
+};
+```
+
+**With a config file, you can run:**
+
+```bash
+# Use all config defaults
+npx @owcs/cli generate
+
+# Override specific options
+npx @owcs/cli generate --title "Custom Title" --format json
+```
+
+**Supported config formats:** `owcs.config.js`, `owcs.config.mjs`, `owcs.config.cjs`, `owcs.config.json`
 
 ## Using in Code
 
@@ -96,6 +140,10 @@ const analysis = analyzeAngularProject('./src');
 const spec = buildOWCSSpec(analysis, {
   title: 'My Angular Components',
   version: '1.0.0',
+  extensions: {
+    'x-owner': 'platform-team',
+    'x-version': '2.0.0',
+  },
 });
 
 // Save to file
@@ -105,15 +153,19 @@ writeOWCSSpec(spec, 'owcs.yaml', 'yaml');
 ### React
 
 ```typescript
-import { analyzeReactProject, buildOWCSSpec, writeOWCSSpec } from '@owcs/api';
+import { analyzeReactProject, buildOWCSSpec, writeOWCSSpec, loadConfig } from '@owcs/api';
 
 // Analyze your React project
 const analysis = analyzeReactProject('./src');
+
+// Optionally load extensions from config file
+const config = await loadConfig('./my-project');
 
 // Build specification
 const spec = buildOWCSSpec(analysis, {
   title: 'My React Components',
   version: '1.0.0',
+  extensions: config?.extensions,
 });
 
 // Save to file
@@ -218,6 +270,11 @@ info:
   title: My Components
   version: 1.0.0
 
+x-owner: platform-team
+x-package-version: 2.0.0
+x-team-name: Frontend Core
+x-git-repo: https://github.com/org/repo
+
 x-owcs-runtime:
   bundler:
     name: webpack
@@ -260,6 +317,54 @@ npx @owcs/cli generate --openapi
 
 This creates both `owcs.yaml` and `openapi.yaml` files, making your components discoverable by API documentation tools like Swagger UI.
 
+## Visualizing OWCS Specifications
+
+The `@owcs/ui` package provides a beautiful web component for displaying OWCS specifications in a user-friendly, interactive format.
+
+### Installation
+
+```bash
+npm install @owcs/ui
+```
+
+### Usage
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="module" src="node_modules/@owcs/ui/dist/owcs-viewer.js"></script>
+  </head>
+  <body>
+    <!-- Load from inline YAML -->
+    <owcs-viewer yaml="owcs: 1.0.0..."></owcs-viewer>
+
+    <!-- Or load from URL -->
+    <owcs-viewer yaml-url="/path/to/owcs.yaml"></owcs-viewer>
+  </body>
+</html>
+```
+
+### Features
+
+- **Beautiful UI**: Professional, modern design with gradient headers and smooth animations
+- **Search & Filter**: Real-time search to filter components by tag name
+- **TypeScript Code Generation**: Automatically displays props and events as TypeScript code
+- **Schema Validation**: Built-in OWCS schema validation
+- **Responsive Design**: Works on all screen sizes
+- **Extensions Display**: Shows all custom vendor extensions
+
+### Try the Demo
+
+```bash
+cd apps/owcs-viewer-demo
+npm run dev
+```
+
+This will launch an interactive demo where you can see the OWCS viewer in action with the Angular example specification.
+
+For more details, see the [@owcs/ui README](packages/ui/README.md).
+
 ## Commands
 
 | Command                | Description                                                 |
@@ -270,13 +375,19 @@ This creates both `owcs.yaml` and `openapi.yaml` files, making your components d
 
 ### Generate Options
 
-- `-a, --adapter <adapter>` - Framework adapter: `angular` or `react` (required)
-- `-f, --format <format>` - Output format: `yaml` (default) or `json`
+All options can be set in `owcs.config.js` or provided via CLI. CLI options override config values.
+
+- `-a, --adapter <adapter>` - Framework adapter: `angular` or `react` (default: `angular`)
+- `-f, --format <format>` - Output format: `yaml` or `json` (default: `yaml`)
 - `-o, --output <file>` - Output file path (default: `owcs.yaml`)
-- `-p, --project <path>` - Project directory (default: current directory)
+- `-p, --project <path>` - Project root directory (default: current directory)
+- `-t, --tsconfig <path>` - Path to tsconfig.json
 - `--title <title>` - Specification title
-- `--version <version>` - Specification version
-- `--openapi` - Also generate OpenAPI documentation
+- `--version <version>` - Specification version (default: `1.0.0`)
+- `--description <description>` - Specification description
+- `-r, --include-runtime-extension` - Include bundler and module federation metadata
+- `--extensions` - Load custom vendor extensions from config file
+- `--openapi` - Also generate OpenAPI specification
 
 ## Development
 
@@ -331,7 +442,9 @@ npx nx lint api
 - `packages/schemas` - JSON Schema definitions
 - `packages/api` - Core analysis and spec generation
 - `packages/cli` - CLI application (bundled for publishing)
+- `packages/ui` - Web component for visualizing OWCS specs
 - `apps/*-example` - Example applications for testing
+- `apps/owcs-viewer-demo` - Demo app for the UI component
 
 ### Example Apps
 

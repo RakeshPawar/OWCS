@@ -53,25 +53,6 @@ export function extractJSDocMetadata(node: ts.Node): JSDocMetadata {
       case 'deprecated':
         metadata.deprecated = true;
         break;
-
-      case 'property':
-        metadata.property = extractPropertyName(tagValue);
-        break;
-
-      case 'attribute':
-        metadata.attribute = tagValue.trim();
-        break;
-
-      case 'event':
-        metadata.event = tagValue.trim();
-        break;
-
-      case 'fires':
-        if (!metadata.fires) {
-          metadata.fires = [];
-        }
-        metadata.fires.push(tagValue.trim());
-        break;
     }
   }
 
@@ -96,14 +77,6 @@ function parseDefaultValue(value: string): unknown {
     if (!isNaN(Number(trimmed))) return Number(trimmed);
     return trimmed;
   }
-}
-
-/** Extracts property name from @property {type} name - description */
-function extractPropertyName(value: string): string {
-  const withoutType = value.replace(/^\{[^}]+\}\s*/, '');
-
-  const match = withoutType.match(/^(\S+)/);
-  return match ? match[1] : '';
 }
 
 export function extractDefaultValue(property: ts.PropertyDeclaration): unknown {

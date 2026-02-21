@@ -1,11 +1,13 @@
 owcs: 1.0.0
 info:
-  title: reactUserCardVite
-  version: 1.0.0
+  title: React Vite Example Components
+  version: 2.1.0
+  description: Example React web components built with Vite
 components:
   webComponents:
     comprehensive-example-element:
       tagName: comprehensive-example-element
+      className: ComprehensiveExampleElement
       props:
         schema:
           type: object
@@ -124,6 +126,7 @@ components:
           type: CustomEvent
     product-search-vite-element:
       tagName: product-search-vite-element
+      className: ProductSearchWidgetElement
       props:
         schema:
           type: object
@@ -184,6 +187,10 @@ components:
             type: boolean
         NO_INSTRUMENT_MESSAGE_ACTION:
           type: CustomEvent
+x-owner: frontend-team
+x-package-version: 2.1.0
+x-team-name: React Team
+x-git-repo: https://github.com/owcs/react-vite-example
 x-owcs-runtime:
   bundler:
     name: vite

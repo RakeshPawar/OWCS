@@ -62,7 +62,6 @@ function extractInputProp(property: ts.PropertyDeclaration, decorator: ts.Decora
     source: 'input',
     description: jsDocMetadata.description,
     default: defaultValue,
-    deprecated: jsDocMetadata.deprecated,
     tags: jsDocMetadata.tags,
   };
 }
@@ -147,7 +146,6 @@ function extractInputSignalProp(property: ts.PropertyDeclaration, typeChecker: t
     source: 'input',
     description: jsDocMetadata.description,
     default: defaultValue,
-    deprecated: jsDocMetadata.deprecated,
     tags: jsDocMetadata.tags,
   };
 }

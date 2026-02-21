@@ -441,6 +441,75 @@ describe('OpenAPIConverter', () => {
       expect(operation.callbacks?.submit).toBeDefined();
       expect(openApiSpec.components?.schemas?.['user-card-submit-payload']).toBeDefined();
     });
+
+    it('should preserve x-owcs-runtime extension', () => {
+      const owcsSpec = createBasicSpec();
+      owcsSpec['x-owcs-runtime'] = {
+        bundler: {
+          name: 'webpack',
+          moduleFederation: {
+            remoteName: 'myRemote',
+            libraryType: 'module',
+            exposes: {
+              './UserCard': './src/user-card.wc.ts',
+            },
+          },
+        },
+      };
+
+      const converter = new OpenAPIConverter();
+      const openApiSpec = converter.convert(owcsSpec);
+
+      expect(openApiSpec['x-owcs-runtime']).toBeDefined();
+      expect(openApiSpec['x-owcs-runtime']?.bundler.name).toBe('webpack');
+      expect(openApiSpec['x-owcs-runtime']?.bundler.moduleFederation?.remoteName).toBe('myRemote');
+    });
+
+    it('should preserve custom x- extensions', () => {
+      const owcsSpec = createBasicSpec();
+      owcsSpec['x-owner'] = 'platform-team';
+      owcsSpec['x-version'] = '2.0.0';
+      owcsSpec['x-repo'] = 'https://github.com/org/repo';
+
+      const converter = new OpenAPIConverter();
+      const openApiSpec = converter.convert(owcsSpec);
+
+      expect(openApiSpec['x-owner']).toBe('platform-team');
+      expect(openApiSpec['x-version']).toBe('2.0.0');
+      expect(openApiSpec['x-repo']).toBe('https://github.com/org/repo');
+    });
+
+    it('should preserve all x- extensions including runtime', () => {
+      const owcsSpec = createBasicSpec();
+      owcsSpec['x-owner'] = 'team';
+      owcsSpec['x-enabled'] = true;
+      owcsSpec['x-count'] = 42;
+      owcsSpec['x-owcs-runtime'] = {
+        bundler: {
+          name: 'vite',
+        },
+      };
+
+      const converter = new OpenAPIConverter();
+      const openApiSpec = converter.convert(owcsSpec);
+
+      expect(openApiSpec['x-owner']).toBe('team');
+      expect(openApiSpec['x-enabled']).toBe(true);
+      expect(openApiSpec['x-count']).toBe(42);
+      expect(openApiSpec['x-owcs-runtime']).toBeDefined();
+    });
+
+    it('should not copy non-extension properties', () => {
+      const owcsSpec = createBasicSpec();
+      owcsSpec['x-custom'] = 'preserved';
+      owcsSpec['customProperty'] = 'not-preserved';
+
+      const converter = new OpenAPIConverter();
+      const openApiSpec = converter.convert(owcsSpec);
+
+      expect(openApiSpec['x-custom']).toBe('preserved');
+      expect(openApiSpec['customProperty']).toBeUndefined();
+    });
   });
 
   describe('convertToOpenAPI convenience function', () => {

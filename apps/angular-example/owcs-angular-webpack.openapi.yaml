@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
-  title: userComponents
+  title: Angular Example Components
   version: 1.0.0
-  description: Web Components specification
+  description: Example Angular web components demonstrating OWCS
 paths:
   /components/comprehensive-example-angular:
     post:
@@ -398,6 +398,10 @@ components:
           type: number
       required:
         - timestamp
+x-owner: platform-team
+x-package-version: 1.0.0
+x-team-name: Frontend Core
+x-git-repo: https://github.com/owcs/angular-example
 x-owcs-runtime:
   bundler:
     name: webpack

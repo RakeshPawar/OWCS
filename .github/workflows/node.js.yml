@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [22.x, 24.x]
+        node-version: [24.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -29,5 +29,5 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run build --if-present
+      - run: pnpm --if-present run build
       - run: pnpm test

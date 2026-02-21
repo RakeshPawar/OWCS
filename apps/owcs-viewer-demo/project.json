@@ -1,0 +1,40 @@
+{
+  "name": "owcs-viewer-demo",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/owcs-viewer-demo/src",
+  "projectType": "application",
+  "targets": {
+    "copy-assets": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cp ../angular-example/owcs-angular-webpack.yaml public/owcs-angular-webpack.yaml",
+        "cwd": "apps/owcs-viewer-demo"
+      }
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vite",
+        "cwd": "apps/owcs-viewer-demo"
+      },
+      "dependsOn": ["ui:build", "copy-assets"]
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "command": "vite build",
+        "cwd": "apps/owcs-viewer-demo"
+      },
+      "dependsOn": ["ui:build", "copy-assets"]
+    },
+    "preview": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vite preview",
+        "cwd": "apps/owcs-viewer-demo"
+      }
+    }
+  },
+  "tags": []
+}

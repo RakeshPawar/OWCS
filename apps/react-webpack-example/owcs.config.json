@@ -1,0 +1,15 @@
+{
+  "title": "React Webpack Example Components",
+  "description": "Example React web components built with Webpack",
+  "version": "1.5.0",
+  "adapter": "react",
+  "format": "yaml",
+  "outputPath": "./owcs-react-webpack.yaml",
+  "includeRuntimeExtension": true,
+  "extensions": {
+    "x-owner": "webpack-team",
+    "x-package-version": "1.5.0",
+    "x-team-name": "React Webpack Team",
+    "x-git-repo": "https://github.com/owcs/react-webpack-example"
+  }
+}

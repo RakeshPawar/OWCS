@@ -1,0 +1,32 @@
+{
+  "name": "@owcs/ui",
+  "version": "0.1.9",
+  "description": "OWCS UI - Web Component for rendering OWCS specifications",
+  "type": "module",
+  "main": "./dist/owcs-viewer.js",
+  "exports": {
+    ".": {
+      "default": "./dist/owcs-viewer.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RakeshPawar/OWCS"
+  },
+  "dependencies": {
+    "@owcs/api": "workspace:*",
+    "@owcs/schemas": "workspace:*",
+    "lit": "^3.1.2",
+    "highlight.js": "^11.9.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

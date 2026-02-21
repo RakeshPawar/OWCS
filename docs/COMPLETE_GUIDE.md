@@ -72,7 +72,6 @@ interface IntermediateModel {
 interface WebComponentModel {
   tagName: string; // HTML tag name
   className: string; // TypeScript class name
-  modulePath: string; // File path
   props: PropModel[]; // Input properties
   events: EventModel[]; // Output events
 }
