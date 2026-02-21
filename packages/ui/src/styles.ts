@@ -23,7 +23,9 @@ export const owcsViewerStyles = css`
 
   /* Header styles */
   .header {
-    color: #4052a2e3; /* slightly softer white for readability */
+    color:
+      ##96c2db,
+      #e5edf1; /* slightly softer white for readability */
     padding: 1rem 2rem;
     border-bottom: 0.5px solid #535b671c;
     margin: 4px;
@@ -89,7 +91,7 @@ export const owcsViewerStyles = css`
 
   /* Extensions section */
   .extensions {
-    padding: 1.5rem 2rem;
+    padding: 1rem 2rem;
   }
 
   .extensions-card {
@@ -133,7 +135,7 @@ export const owcsViewerStyles = css`
   .extension-value {
     color: #6b7280;
     font-size: 0.875rem;
-    font-family: 'Monaco', 'Courier New', monospace;
+    font-family: 'inter', monospace;
     word-break: break-word;
     overflow-wrap: break-word;
   }
@@ -184,10 +186,15 @@ export const owcsViewerStyles = css`
     background: #fafafa;
   }
 
+  .components-section-content {
+    border-top: 1px solid #e5e7eb;
+    background: #ffffff;
+  }
+
   /* Search bar */
   .search-bar {
     display: flex;
-    padding: 1.5rem 2rem 1rem 2rem;
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
     background: #ffffff;
   }
 
@@ -214,14 +221,14 @@ export const owcsViewerStyles = css`
 
   /* Components list */
   .components-list {
-    padding: 1.5rem 2rem 2rem 2rem;
+    padding: 0 1.5rem 1.5rem 1.5rem;
     display: grid;
     gap: 1rem;
   }
 
   .no-results {
     text-align: center;
-    padding: 3rem 2rem;
+    padding: 3rem 1.5rem;
     color: #6b7280;
     font-style: italic;
   }
@@ -254,6 +261,22 @@ export const owcsViewerStyles = css`
     background-color: #f9fafb;
   }
 
+  .component-header.exposed {
+    background: #f0fdf4;
+  }
+
+  .component-header.exposed:hover {
+    background-color: #dcfce7;
+  }
+
+  .component-header.not-exposed {
+    background: #fef2f2;
+  }
+
+  .component-header.not-exposed:hover {
+    background-color: #fee2e2;
+  }
+
   .component-method-badge {
     padding: 1rem 1.25rem;
     background: #6366f1;
@@ -271,7 +294,7 @@ export const owcsViewerStyles = css`
     font-size: 1rem;
     font-weight: 600;
     color: #1f2937;
-    font-family: 'Monaco', 'Courier New', monospace;
+    font-family: 'inter', monospace;
     margin: 0;
     word-break: break-word;
     padding: 1rem 0;
@@ -292,6 +315,27 @@ export const owcsViewerStyles = css`
   .component-body {
     border-top: 1px solid #e5e7eb;
     background: #fafafa;
+  }
+
+  /* Exposure status badge */
+  .exposure-status {
+    padding: 1rem 1.5rem;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .exposure-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .exposure-text {
+    font-family: 'inter', monospace;
+    font-size: 0.8125rem;
   }
 
   /* Sections - Props and Events (Swagger-style collapsible) */
@@ -351,7 +395,7 @@ export const owcsViewerStyles = css`
     padding: 1rem;
     border-radius: 4px;
     overflow-x: auto;
-    font-family: 'Monaco', 'Courier New', monospace;
+    font-family: 'inter', monospace;
     font-size: 0.8125rem;
     line-height: 1.6;
     max-width: 100%;
@@ -364,7 +408,7 @@ export const owcsViewerStyles = css`
   }
 
   .code-block pre code {
-    font-family: 'Monaco', 'Courier New', monospace;
+    font-family: 'inter', monospace;
     font-size: 0.8125rem;
     white-space: pre;
   }
@@ -421,5 +465,92 @@ export const owcsViewerStyles = css`
     to {
       transform: rotate(360deg);
     }
+  }
+
+  /* Highlight.js GitHub theme - inlined */
+  pre code.hljs {
+    display: block;
+    overflow-x: auto;
+    padding: 1em;
+  }
+  code.hljs {
+    padding: 3px 5px;
+  }
+  .hljs {
+    color: #24292e;
+    background: #fff;
+  }
+  .hljs-doctag,
+  .hljs-keyword,
+  .hljs-meta .hljs-keyword,
+  .hljs-template-tag,
+  .hljs-template-variable,
+  .hljs-type,
+  .hljs-variable.language_ {
+    color: #d73a49;
+  }
+  .hljs-title,
+  .hljs-title.class_,
+  .hljs-title.class_.inherited__,
+  .hljs-title.function_ {
+    color: #6f42c1;
+  }
+  .hljs-attr,
+  .hljs-attribute,
+  .hljs-literal,
+  .hljs-meta,
+  .hljs-number,
+  .hljs-operator,
+  .hljs-variable,
+  .hljs-selector-attr,
+  .hljs-selector-class,
+  .hljs-selector-id {
+    color: #005cc5;
+  }
+  .hljs-regexp,
+  .hljs-string,
+  .hljs-meta .hljs-string {
+    color: #032f62;
+  }
+  .hljs-built_in,
+  .hljs-symbol {
+    color: #e36209;
+  }
+  .hljs-comment,
+  .hljs-code,
+  .hljs-formula {
+    color: #6a737d;
+  }
+  .hljs-name,
+  .hljs-quote,
+  .hljs-selector-tag,
+  .hljs-selector-pseudo {
+    color: #22863a;
+  }
+  .hljs-subst {
+    color: #24292e;
+  }
+  .hljs-section {
+    color: #005cc5;
+    font-weight: 700;
+  }
+  .hljs-bullet {
+    color: #735c0f;
+  }
+  .hljs-emphasis {
+    color: #24292e;
+    font-style: italic;
+  }
+  .hljs-strong {
+    color: #24292e;
+    font-weight: 700;
+  }
+  .hljs-addition {
+    color: #22863a;
+    background-color: #f0fff4;
+  }
+  .hljs-deletion {
+    color: #b31d28;
+    background-color: #ffeef0;
   }
 `;

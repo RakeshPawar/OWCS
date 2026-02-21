@@ -3,107 +3,18 @@
  * Displays OWCS (Open Web Component Specification) YAML in a user-friendly format
  */
 
-import { LitElement, html, nothing, css } from 'lit';
+import { LitElement, html, nothing } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { customElement, property, state } from 'lit/decorators.js';
 import { OWCSValidator, generateComponentTypes } from '@owcs/api';
 import { owcsViewerStyles } from './styles.js';
 import { fetchYamlFromUrl, parseYaml, validateOwcsSpec, filterComponentsByTagName } from './utils.js';
+import { webComponentIcon, componentToggleIcon, metadataToggleIcon, sectionToggleIcon } from './icons.js';
 import hljs from 'highlight.js';
 
 @customElement('owcs-viewer')
 export class OWCSViewer extends LitElement {
-  static styles = [
-    owcsViewerStyles,
-    css`
-      /* Highlight.js GitHub theme - inlined */
-      pre code.hljs {
-        display: block;
-        overflow-x: auto;
-        padding: 1em;
-      }
-      code.hljs {
-        padding: 3px 5px;
-      }
-      .hljs {
-        color: #24292e;
-        background: #fff;
-      }
-      .hljs-doctag,
-      .hljs-keyword,
-      .hljs-meta .hljs-keyword,
-      .hljs-template-tag,
-      .hljs-template-variable,
-      .hljs-type,
-      .hljs-variable.language_ {
-        color: #d73a49;
-      }
-      .hljs-title,
-      .hljs-title.class_,
-      .hljs-title.class_.inherited__,
-      .hljs-title.function_ {
-        color: #6f42c1;
-      }
-      .hljs-attr,
-      .hljs-attribute,
-      .hljs-literal,
-      .hljs-meta,
-      .hljs-number,
-      .hljs-operator,
-      .hljs-variable,
-      .hljs-selector-attr,
-      .hljs-selector-class,
-      .hljs-selector-id {
-        color: #005cc5;
-      }
-      .hljs-regexp,
-      .hljs-string,
-      .hljs-meta .hljs-string {
-        color: #032f62;
-      }
-      .hljs-built_in,
-      .hljs-symbol {
-        color: #e36209;
-      }
-      .hljs-comment,
-      .hljs-code,
-      .hljs-formula {
-        color: #6a737d;
-      }
-      .hljs-name,
-      .hljs-quote,
-      .hljs-selector-tag,
-      .hljs-selector-pseudo {
-        color: #22863a;
-      }
-      .hljs-subst {
-        color: #24292e;
-      }
-      .hljs-section {
-        color: #005cc5;
-        font-weight: 700;
-      }
-      .hljs-bullet {
-        color: #735c0f;
-      }
-      .hljs-emphasis {
-        color: #24292e;
-        font-style: italic;
-      }
-      .hljs-strong {
-        color: #24292e;
-        font-weight: 700;
-      }
-      .hljs-addition {
-        color: #22863a;
-        background-color: #f0fff4;
-      }
-      .hljs-deletion {
-        color: #b31d28;
-        background-color: #ffeef0;
-      }
-    `,
-  ];
+  static styles = owcsViewerStyles;
 
   /**
    * OWCS YAML content as a string
@@ -264,16 +175,21 @@ export class OWCSViewer extends LitElement {
 
     return html`
       <div class="extensions">
-        <div class="extensions-card">
-          <h2 class="extensions-title">Runtime Configuration</h2>
-          ${bundlerContent
-            ? html`
-                <div class="code-block">
-                  <pre><code class="language-json">${bundlerContent}</code></pre>
-                </div>
-              `
-            : html`<div class="empty-state">No runtime configuration</div>`}
-        </div>
+        <details class="metadata-card">
+          <summary class="metadata-header">
+            <h2 class="extensions-title">Runtime Configuration</h2>
+            ${metadataToggleIcon}
+          </summary>
+          <div class="metadata-content">
+            ${bundlerContent
+              ? html`
+                  <div class="code-block">
+                    <pre><code class="language-json">${bundlerContent}</code></pre>
+                  </div>
+                `
+              : html`<div class="empty-state">No runtime configuration</div>`}
+          </div>
+        </details>
       </div>
     `;
   }
@@ -300,12 +216,10 @@ export class OWCSViewer extends LitElement {
 
     return html`
       <div class="extensions">
-        <details class="metadata-card">
+        <details class="metadata-card" open>
           <summary class="metadata-header">
             <h2 class="extensions-title">Metadata</h2>
-            <svg class="metadata-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
+            ${metadataToggleIcon}
           </summary>
           <div class="metadata-content">
             <div class="code-block">
@@ -324,6 +238,23 @@ export class OWCSViewer extends LitElement {
     return html`
       <div class="search-bar">
         <input type="text" class="search-input" placeholder="Search components by tag name..." .value=${this.searchQuery} @input=${this.handleSearch} />
+      </div>
+    `;
+  }
+
+  /**
+   * Render components section with search bar and components list
+   */
+  private renderComponentsSection() {
+    return html`
+      <div class="extensions">
+        <details class="metadata-card" open>
+          <summary class="metadata-header">
+            <h2 class="extensions-title">Components</h2>
+            ${metadataToggleIcon}
+          </summary>
+          <div class="components-section-content">${this.renderSearchBar()} ${this.renderComponents()}</div>
+        </details>
       </div>
     `;
   }
@@ -389,6 +320,32 @@ export class OWCSViewer extends LitElement {
   }
 
   /**
+   * Get exposed module name for a component based on tag name
+   * Returns the full module name (e.g., './user-card') if found, or null
+   */
+  private getExposedModuleForComponent(tagName: string): string | null {
+    const runtime = this.spec?.['x-owcs-runtime'];
+    if (!runtime?.bundler?.moduleFederation?.exposes) {
+      return null;
+    }
+
+    const exposes = runtime.bundler.moduleFederation.exposes;
+    const tagNameLower = tagName.toLowerCase();
+
+    // Check each exposed module
+    for (const [moduleName, _path] of Object.entries(exposes)) {
+      // Strip the './' prefix and convert to lowercase
+      const strippedModule = moduleName.replace(/^\.\//, '').toLowerCase();
+      // Check if the stripped module name is a substring of the tag name (case-insensitive)
+      if (tagNameLower.includes(strippedModule)) {
+        return moduleName; // Return the original module name with './' prefix
+      }
+    }
+
+    return null;
+  }
+
+  /**
    * Render component card item
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -403,41 +360,32 @@ export class OWCSViewer extends LitElement {
     const highlightedPropsCode = hasProps ? this.highlightCode(propsCode) : '';
     const highlightedEventsCode = hasEvents ? this.highlightCode(eventsCode) : '';
 
+    // Check if runtime configuration exists and get exposure status
+    const runtime = this.spec?.['x-owcs-runtime'];
+    const hasRuntime = runtime?.bundler?.moduleFederation?.exposes;
+    const exposedModule = hasRuntime ? this.getExposedModuleForComponent(tagName) : null;
+
     return html`
       <details class="component-card">
-        <summary class="component-header">
-          <svg width="25" height="25" viewBox="0 0 161 132" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient x1="0%" y1="50%" y2="50%" id="a">
-                <stop stop-color="#2A3B8F" offset="0%" />
-                <stop stop-color="#29ABE2" offset="100%" />
-              </linearGradient>
-              <linearGradient x1="100%" y1="50%" x2="0%" y2="50%" id="c">
-                <stop stop-color="#B4D44E" offset="0%" />
-                <stop stop-color="#E7F716" offset="100%" />
-              </linearGradient>
-            </defs>
-            <g fill="none" fill-rule="evenodd">
-              <path fill="#166DA5" d="M160.6 65.9l-17.4 29.3-24.4-29.7 24.4-28.9z" />
-              <path fill="#8FDB69" d="M141.3 100.2l-26.5-31.7-15.9 26.6 24.7 36.1z" />
-              <path fill="#166DA5" d="M141 31.4l-26.2 31.8-15.9-26.6L123.6.9z" />
-              <path fill="url(#a)" opacity=".95" d="M61.1 31.4H141L123.4.7H78.7z M114.8 63.3H159l-15.9-26.8H98.8" />
-              <path fill="url(#c)" opacity=".95" d="M141.3 100.3H61l17.6 30.5h45z M114.8 68.4H159l-15.9 26.8H98.8" />
-              <path fill="#010101" d="M78.6 130.8L41 65.8 79.1.8H37.9L.4 65.8l37.5 65z" />
-            </g>
-          </svg>
+        <summary class="component-header${hasRuntime ? (exposedModule ? ' exposed' : ' not-exposed') : ''}">
+          ${webComponentIcon}
           <h3 class="component-tag">&lt;${tagName}&gt;</h3>
-          <svg class="component-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
+          ${componentToggleIcon}
         </summary>
         <div class="component-body">
+          ${hasRuntime && exposedModule
+            ? html`
+                <div class="exposure-status">
+                  <div class="exposure-badge">
+                    <span class="exposure-text"><b>ModuleName:</b> ${exposedModule}</span>
+                  </div>
+                </div>
+              `
+            : nothing}
           <details class="section-item" open>
             <summary class="section-header">
               <h4 class="section-title">Props</h4>
-              <svg class="section-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
+              ${sectionToggleIcon}
             </summary>
             <div class="section-content">
               ${hasProps
@@ -452,9 +400,7 @@ export class OWCSViewer extends LitElement {
           <details class="section-item" open>
             <summary class="section-header">
               <h4 class="section-title">Events</h4>
-              <svg class="section-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
+              ${sectionToggleIcon}
             </summary>
             <div class="section-content">
               ${hasEvents
@@ -509,11 +455,7 @@ export class OWCSViewer extends LitElement {
       `;
     }
 
-    return html`
-      <div class="container">
-        ${this.renderHeader()} ${this.renderRuntime()} ${this.renderExtensions()} ${this.renderSearchBar()} ${this.renderComponents()}
-      </div>
-    `;
+    return html` <div class="container">${this.renderHeader()} ${this.renderExtensions()} ${this.renderRuntime()} ${this.renderComponentsSection()}</div> `;
   }
 }
 
