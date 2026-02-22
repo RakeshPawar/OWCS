@@ -52,6 +52,11 @@ jobs:
       - name: Publish @owcs/api
         working-directory: ./packages/api
         run: pnpm publish --no-git-checks --provenance --access public
+
       - name: Publish @owcs/cli
         working-directory: ./packages/cli
+        run: pnpm publish --no-git-checks --provenance --access public
+
+      - name: Publish @owcs/ui
+        working-directory: ./packages/ui
         run: pnpm publish --no-git-checks --provenance --access public
