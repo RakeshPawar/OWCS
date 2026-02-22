@@ -38,7 +38,7 @@ export interface PropModel {
 export interface EventModel {
   name: string;
   type: 'CustomEvent' | 'EventEmitter' | 'OutputSignal';
-  payloadSchema?: JSONSchema;
+  payload?: JSONSchema;
   source: 'dispatchEvent' | 'output';
   description?: string;
   deprecated?: boolean;

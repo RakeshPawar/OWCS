@@ -269,8 +269,14 @@ export class OWCSViewer extends LitElement {
     }
 
     try {
-      const tsCode = generateComponentTypes(component.tagName, component.props.schema, {}, { includeOptional: true, includeComments: false, indent: 2 });
-      return tsCode || '// No props defined';
+      const tsCode = generateComponentTypes(component.tagName, component.props.schema, component.events || {}, {
+        includeOptional: true,
+        includeComments: false,
+        indent: 2,
+      });
+      // Only return the props interface part (first section before events)
+      const parts = tsCode.split('\n\n');
+      return parts[0] || '// No props defined';
     } catch {
       return '// Error generating TypeScript';
     }
@@ -286,13 +292,17 @@ export class OWCSViewer extends LitElement {
     }
 
     try {
-      const lines: string[] = [];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      for (const [eventName, eventDef] of Object.entries(component.events as Record<string, any>)) {
-        const payloadType = eventDef.payloadSchema ? 'CustomEventPayload' : 'void';
-        lines.push(`  ${eventName}: CustomEvent<${payloadType}>;`);
-      }
-      return `type ${this.toPascalCase(component.tagName)}Events = {\n${lines.join('\n')}\n};`;
+      const hasProps = component.props?.schema?.properties && Object.keys(component.props.schema.properties).length > 0;
+      const tsCode = generateComponentTypes(component.tagName, component.props?.schema || {}, component.events, {
+        includeOptional: true,
+        includeComments: false,
+        indent: 2,
+      });
+      // Return the events part
+      const parts = tsCode.split('\n\n');
+      // If there are props, skip the first part (props interface), otherwise include everything
+      const eventsCode = hasProps ? parts.slice(1).join('\n\n') : tsCode;
+      return eventsCode || '// No events defined';
     } catch {
       return '// Error generating TypeScript';
     }

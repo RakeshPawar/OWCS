@@ -152,7 +152,7 @@ describe('SchemaBuilder', () => {
               {
                 name: 'userClick',
                 type: 'CustomEvent',
-                payloadSchema: {
+                payload: {
                   type: 'object',
                   properties: {
                     userId: { type: 'string' },

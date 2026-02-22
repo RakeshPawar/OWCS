@@ -89,7 +89,7 @@ export class SchemaBuilder {
       for (const event of component.events) {
         owcsComponent.events[event.name] = {
           type: event.type,
-          payload: event.payloadSchema,
+          payload: event.payload,
         };
       }
     }

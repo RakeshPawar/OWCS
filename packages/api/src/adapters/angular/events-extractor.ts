@@ -65,12 +65,12 @@ function extractOutputEvent(property: ts.PropertyDeclaration, typeChecker: ts.Ty
   // Precedence: decorator alias > @attribute > property name
   const eventName = decoratorAlias || jsDocMetadata.attribute || name;
 
-  const payloadSchema = extractEventEmitterPayload(property, typeChecker);
+  const payload = extractEventEmitterPayload(property, typeChecker);
 
   return {
     name: eventName,
     type: 'EventEmitter',
-    payloadSchema,
+    payload,
     source: 'output',
     description: jsDocMetadata.description,
     deprecated: jsDocMetadata.deprecated,
@@ -105,10 +105,10 @@ function extractOutputSignalEvent(property: ts.PropertyDeclaration, typeChecker:
     return undefined;
   }
 
-  let payloadSchema: JSONSchema | undefined;
+  let payload: JSONSchema | undefined;
 
   if (callExpression.typeArguments && callExpression.typeArguments.length > 0) {
-    payloadSchema = typeNodeToJsonSchema(callExpression.typeArguments[0], typeChecker);
+    payload = typeNodeToJsonSchema(callExpression.typeArguments[0], typeChecker);
   }
 
   const jsDocMetadata = extractJSDocMetadata(property);
@@ -137,7 +137,7 @@ function extractOutputSignalEvent(property: ts.PropertyDeclaration, typeChecker:
   return {
     name: eventName,
     type: 'OutputSignal',
-    payloadSchema,
+    payload,
     source: 'output',
     description: jsDocMetadata.description,
     deprecated: jsDocMetadata.deprecated,
@@ -231,7 +231,7 @@ function extractDispatchEvent(call: ts.CallExpression, typeChecker: ts.TypeCheck
     return undefined;
   }
 
-  let payloadSchema: JSONSchema | undefined;
+  let payload: JSONSchema | undefined;
   let bubbles: boolean | undefined;
   let composed: boolean | undefined;
 
@@ -242,7 +242,7 @@ function extractDispatchEvent(call: ts.CallExpression, typeChecker: ts.TypeCheck
       for (const prop of optionsArg.properties) {
         if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name)) {
           if (prop.name.text === 'detail') {
-            payloadSchema = inferSchemaFromExpression(prop.initializer, typeChecker);
+            payload = inferSchemaFromExpression(prop.initializer, typeChecker);
           } else if (prop.name.text === 'bubbles') {
             if (prop.initializer.kind === ts.SyntaxKind.TrueKeyword) {
               bubbles = true;
@@ -261,8 +261,8 @@ function extractDispatchEvent(call: ts.CallExpression, typeChecker: ts.TypeCheck
     }
   }
 
-  if (!payloadSchema && eventArg.typeArguments && eventArg.typeArguments.length > 0) {
-    payloadSchema = typeNodeToJsonSchema(eventArg.typeArguments[0], typeChecker);
+  if (!payload && eventArg.typeArguments && eventArg.typeArguments.length > 0) {
+    payload = typeNodeToJsonSchema(eventArg.typeArguments[0], typeChecker);
   }
 
   const method = findContainingMethod(call);
@@ -271,7 +271,7 @@ function extractDispatchEvent(call: ts.CallExpression, typeChecker: ts.TypeCheck
   return {
     name: eventName,
     type: 'CustomEvent',
-    payloadSchema,
+    payload,
     source: 'dispatchEvent',
     description: jsDocMetadata.description,
     deprecated: jsDocMetadata.deprecated,
