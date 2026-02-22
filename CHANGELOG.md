@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.11](https://github.com/RakeshPawar/OWCS/compare/v0.1.10...v0.1.11) (2026-02-22)
+
+
+### Features
+
+* added ui package to release please ([15647d4](https://github.com/RakeshPawar/OWCS/commit/15647d4b5ed50a64c3ff5bf034a647e4457b761e))
+
 ## [0.1.10](https://github.com/RakeshPawar/OWCS/compare/v0.1.9...v0.1.10) (2026-02-22)
 
 

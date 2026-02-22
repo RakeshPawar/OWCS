@@ -1,6 +1,6 @@
 {
   "name": "@owcs/ui",
-  "version": "0.1.9",
+  "version": "0.1.11",
   "description": "Open Web Component Specification UI - Web Component for rendering OWCS specifications",
   "type": "module",
   "main": "./dist/index.js",
