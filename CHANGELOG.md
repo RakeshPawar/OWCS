@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.12](https://github.com/RakeshPawar/OWCS/compare/v0.1.11...v0.1.12) (2026-02-22)
+
+
+### Bug Fixes
+
+* cli options cleanup and fixed typescript generator ([65c9c39](https://github.com/RakeshPawar/OWCS/commit/65c9c39ba0946fa338bcce96629b1ff1ec5a7866))
+
 ## [0.1.11](https://github.com/RakeshPawar/OWCS/compare/v0.1.10...v0.1.11) (2026-02-22)
 
 
