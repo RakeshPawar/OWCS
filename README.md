@@ -120,6 +120,8 @@ npx @owcs/cli generate --title "Custom Title" --format json
 
 **Supported config formats:** `owcs.config.js`, `owcs.config.mjs`, `owcs.config.cjs`, `owcs.config.json`
 
+**Note:** The CLI looks for the config file in the project root directory (specified by the `-p, --project` option or the current working directory by default).
+
 ## Using in Code
 
 If you need to generate specifications programmatically, install the API package:

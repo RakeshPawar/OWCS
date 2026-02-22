@@ -8,11 +8,16 @@ Command-line interface for generating and validating OWCS (Open Web Component Sp
 pnpm add -g @owcs/cli
 ```
 
-Or use with npx:
+Or use directly with npx:
 
 ```bash
 npx @owcs/cli generate --adapter angular
 ```
+
+## Requirements
+
+- Node.js 18+
+- TypeScript project with Angular or React components
 
 ## Usage
 
@@ -150,30 +155,120 @@ npx @owcs/cli generate --adapter angular --extensions
 
 All extension keys must start with `x-`. The extensions will be added to the root level of your OWCS specification and preserved when converting to OpenAPI.
 
+## Configuration File
+
+You can create an `owcs.config.js` or `owcs.config.json` file to set defaults for all CLI options. CLI arguments always override config values.
+
+```javascript
+// owcs.config.js
+export default {
+  // Specification metadata
+  title: 'My Components',
+  description: 'A collection of reusable web components',
+  version: '2.0.0',
+
+  // Build options
+  adapter: 'react', // 'angular' or 'react'
+  format: 'yaml', // 'yaml' or 'json'
+  outputPath: './dist/owcs.yaml',
+  projectRoot: './src',
+  includeRuntimeExtension: true,
+
+  // Custom vendor extensions (all keys must start with 'x-')
+  extensions: {
+    'x-owner': 'platform-team',
+    'x-team-name': 'Frontend Core',
+    'x-git-repo': 'https://github.com/org/repo',
+  },
+};
+```
+
+Or use JSON format (`owcs.config.json`):
+
+```json
+{
+  "extensions": {
+    "x-owner": "platform-team",
+    "x-package-version": "2.0.0",
+    "x-team-name": "Frontend Core",
+    "x-git-repo": "https://github.com/org/repo"
+  }
+}
+```
+
+**With a config file, you can run:**
+
+```bash
+# Use all config defaults
+npx @owcs/cli generate
+
+# Override specific options
+npx @owcs/cli generate --title "Custom Title" --format json
+```
+
+**Supported config formats:** `owcs.config.js`, `owcs.config.mjs`, `owcs.config.cjs`, `owcs.config.json`
+
+**Note:** The CLI looks for the config file in the project root directory (specified by the `-p, --project` option or the current working directory by default).
+
 ## What Gets Analyzed
 
 ### Angular
 
-- `@Input()` decorators
-- `@Output()` decorators and EventEmitters
-- Custom element definitions
-- Module federation configuration
+- `@Input()` decorators with types and custom attribute names
+- `@Output()` decorators and EventEmitters with payload types
+- Custom element definitions via `customElements.define()`
+- Module federation configuration from webpack config
+
+#### Example Angular Component
+
+```typescript
+export class UserCardComponent {
+  @Input() name: string; // Required string property
+  @Input() age?: number; // Optional number property
+  @Input('userId') id: string; // Property with custom attribute name
+
+  @Output() clicked = new EventEmitter<{ userId: string }>();
+}
+
+// Registration
+customElements.define('user-card', UserCardComponent);
+```
 
 ### React
 
 - Component props and TypeScript interfaces
-- Event handlers and callbacks
-- Custom element wrappings
+- Event handlers and callbacks with types
+- Custom element wrappings via `customElements.define()`
 - Webpack module federation config
+
+#### Example React Component
+
+```typescript
+interface UserCardProps {
+  name: string;           // Required string property
+  age?: number;           // Optional number property
+  theme: 'light' | 'dark'; // Union type (enum)
+  onClick?: (event: { userId: string }) => void; // Callback prop
+}
+
+const UserCard: React.FC<UserCardProps> = (props) => {
+  return <div>{props.name}</div>;
+};
+
+// Registration
+customElements.define('user-card', UserCardWC);
+```
 
 ## Bundled Dependencies
 
-This package includes:
+This CLI package includes:
 
 - Core analysis engine from `@owcs/api`
 - JSON schemas from `@owcs/schemas`
 - All necessary TypeScript analysis tools
 
+No additional dependencies are required to analyze your components.
+
 ## License
 
-MIT
+MIT - see [LICENSE](../../LICENSE) for details.
