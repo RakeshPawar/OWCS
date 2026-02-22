@@ -369,7 +369,7 @@ export class OWCSViewer extends LitElement {
       <details class="component-card">
         <summary class="component-header${hasRuntime ? (exposedModule ? ' exposed' : ' not-exposed') : ''}">
           ${webComponentIcon}
-          <h3 class="component-tag">&lt;${tagName}&gt;</h3>
+          <h3 class="component-tag" @click=${(e: Event) => e.stopPropagation()}>&lt;${tagName}&gt;</h3>
           ${componentToggleIcon}
         </summary>
         <div class="component-body">

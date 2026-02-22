@@ -15,6 +15,12 @@ A web component library for rendering OWCS (Open Web Component Specification) YA
 ## Installation
 
 ```bash
+pnpm add @owcs/ui
+```
+
+Or with npm:
+
+```bash
 npm install @owcs/ui
 ```
 
@@ -122,17 +128,23 @@ viewer.yamlUrl = 'https://example.com/owcs.yaml';
 
 ## Development
 
+### Install Dependencies
+
+```bash
+pnpm install
+```
+
 ### Build
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 ### Run Demo
 
 ```bash
 cd apps/owcs-viewer-demo
-npm run dev
+pnpm run dev
 ```
 
 ## Example Output
@@ -149,4 +161,4 @@ When rendering an OWCS specification, the viewer displays:
 
 ## License
 
-MIT
+MIT - see [LICENSE](../../LICENSE) for details.

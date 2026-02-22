@@ -298,6 +298,7 @@ export const owcsViewerStyles = css`
     margin: 0;
     word-break: break-word;
     padding: 1rem 0;
+    user-select: text;
   }
 
   .component-toggle-icon {
