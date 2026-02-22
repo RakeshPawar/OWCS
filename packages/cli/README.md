@@ -35,8 +35,7 @@ npx @owcs/cli generate --adapter react \
   --format json \
   --output my-spec.json \
   --title "My Components" \
-  --version "2.0.0" \
-  --include-runtime-extension
+  --version "2.0.0"
 
 # With OpenAPI output
 npx @owcs/cli generate --adapter angular --openapi
@@ -67,8 +66,6 @@ Generate OWCS specification from source code.
 - `-o, --output <file>` - Output file path (default: `owcs.yaml`)
 - `-p, --project <path>` - Project root path (default: current directory)
 - `-t, --tsconfig <path>` - Path to tsconfig.json
-- `-r, --include-runtime-extension` - Include x-owcs-runtime extension with bundler metadata
-- `--extensions` - Load vendor extensions from config file (owcs.config.js or owcs.config.json)
 - `--title <title>` - Specification title
 - `--version <version>` - Specification version (default: `1.0.0`)
 - `--description <description>` - Specification description
@@ -113,7 +110,6 @@ npx @owcs/cli generate \
   --project ./src \
   --format json \
   --title "Shared Components" \
-  --extensions \
   --openapi
 ```
 
@@ -147,10 +143,10 @@ Or use JSON format (`owcs.config.json`):
 }
 ```
 
-Then generate with extensions:
+The extensions will be automatically loaded from your config file when you run:
 
 ```bash
-npx @owcs/cli generate --adapter angular --extensions
+npx @owcs/cli generate --adapter angular
 ```
 
 All extension keys must start with `x-`. The extensions will be added to the root level of your OWCS specification and preserved when converting to OpenAPI.
@@ -209,6 +205,8 @@ npx @owcs/cli generate --title "Custom Title" --format json
 **Supported config formats:** `owcs.config.js`, `owcs.config.mjs`, `owcs.config.cjs`, `owcs.config.json`
 
 **Note:** The CLI looks for the config file in the project root directory (specified by the `-p, --project` option or the current working directory by default).
+
+**Note:** `includeRuntimeExtension` and `extensions` options are only available via the config file. They are automatically applied when present in your config.
 
 ## What Gets Analyzed
 

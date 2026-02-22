@@ -371,12 +371,12 @@ describe('Angular Adapter - Enhanced Features', () => {
       const clickedEvent = events.find((e) => e.name === 'clicked');
       expect(clickedEvent).toBeDefined();
       expect(clickedEvent?.type).toBe('OutputSignal');
-      expect(clickedEvent?.payloadSchema).toBeDefined();
-      expect(clickedEvent?.payloadSchema?.type).toBe('object');
+      expect(clickedEvent?.payload).toBeDefined();
+      expect(clickedEvent?.payload?.type).toBe('object');
 
       const changedEvent = events.find((e) => e.name === 'changed');
       expect(changedEvent).toBeDefined();
-      expect(changedEvent?.payloadSchema?.type).toBe('string');
+      expect(changedEvent?.payload?.type).toBe('string');
     });
 
     it('should extract alias from output signal options', () => {
@@ -697,7 +697,7 @@ describe('Angular Adapter - Enhanced Features', () => {
 
       const userActionEvent = events.find((e) => e.name === 'userAction');
       expect(userActionEvent).toBeDefined();
-      expect(userActionEvent?.payloadSchema).toBeDefined();
+      expect(userActionEvent?.payload).toBeDefined();
     });
   });
 

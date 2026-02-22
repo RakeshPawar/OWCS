@@ -24,8 +24,6 @@ program
   .option('--title <title>', 'Specification title')
   .option('--version <version>', 'Specification version', '1.0.0')
   .option('--description <description>', 'Specification description')
-  .option('-r, --include-runtime-extension', 'Include x-owcs-runtime extension with bundler and module federation metadata')
-  .option('--extensions', 'Load extensions from config file (owcs.config.js or owcs.config.json)')
   .option('--openapi', 'Also generate OpenAPI specification(partial support)')
   .action(async (options) => {
     try {
@@ -56,9 +54,9 @@ program
       const title = options.title || config?.title;
       const version = options.version !== '1.0.0' ? options.version : config?.version || options.version;
       const description = options.description || config?.description;
-      const includeRuntimeExtension = options.includeRuntimeExtension || config?.includeRuntimeExtension || false;
+      const includeRuntimeExtension = config?.includeRuntimeExtension || false;
       const outputPath = options.output !== 'owcs.yaml' ? options.output : config?.outputPath || options.output;
-      const configExtensions = options.extensions && config?.extensions ? config.extensions : undefined;
+      const configExtensions = config?.extensions;
 
       if (format !== 'yaml' && format !== 'json') {
         console.error('❌ Error: Format must be either "yaml" or "json"');

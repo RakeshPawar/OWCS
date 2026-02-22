@@ -35,6 +35,8 @@ function schemaTypeToTS(type: string): string {
       return 'unknown[]';
     case 'object':
       return 'object';
+    case 'any':
+      return 'any';
     default:
       return 'unknown';
   }
@@ -78,6 +80,21 @@ export function schemaToTypeScript(schema: JSONSchema, options: TypeScriptGenera
     return 'unknown';
   }
 
+  // Handle oneOf - generate union type
+  if (schema.oneOf && Array.isArray(schema.oneOf)) {
+    return schema.oneOf.map((s) => schemaToTypeScript(s, options, level)).join(' | ');
+  }
+
+  // Handle anyOf - generate union type
+  if (schema.anyOf && Array.isArray(schema.anyOf)) {
+    return schema.anyOf.map((s) => schemaToTypeScript(s, options, level)).join(' | ');
+  }
+
+  // Handle allOf - for now, just use the first one (proper merge would be complex)
+  if (schema.allOf && Array.isArray(schema.allOf) && schema.allOf.length > 0) {
+    return schemaToTypeScript(schema.allOf[0], options, level);
+  }
+
   if (schema.enum && Array.isArray(schema.enum)) {
     return schema.enum.map((v) => JSON.stringify(v)).join(' | ');
   }
@@ -98,6 +115,8 @@ export function schemaToTypeScript(schema: JSONSchema, options: TypeScriptGenera
       return 'boolean';
     case 'null':
       return 'null';
+    case 'any':
+      return 'any';
     case 'array':
       if (schema.items) {
         const itemType = schemaToTypeScript(schema.items, options, level);
@@ -129,23 +148,50 @@ export function generatePropsInterface(componentName: string, propsSchema: JSONS
  */
 export function generateEventsType(
   componentName: string,
-  events: Record<string, { type: string; payloadSchema?: JSONSchema }>,
+  events: Record<string, { type: string; payload?: JSONSchema }>,
   options: TypeScriptGeneratorOptions = {}
 ): string {
   const lines: string[] = [];
+  const payloadInterfaces: string[] = [];
   const indent = ' '.repeat(options.indent || 2);
 
   for (const [eventName, eventDef] of Object.entries(events)) {
-    const payloadType = eventDef.payloadSchema ? schemaToTypeScript(eventDef.payloadSchema, options) : 'void';
+    let payloadType: string;
 
-    lines.push(`${indent}${eventName}: CustomEvent<${payloadType}>;`);
+    if (eventDef.payload) {
+      // If payload schema is an object with properties, create a separate interface
+      if (eventDef.payload.type === 'object' && eventDef.payload.properties) {
+        const payloadInterfaceName = `${toPascalCase(eventName)}Payload`;
+        const typeDefinition = schemaToTypeScript(eventDef.payload, options);
+        payloadInterfaces.push(`interface ${payloadInterfaceName} ${typeDefinition}`);
+        payloadType = payloadInterfaceName;
+      } else {
+        // For simple types, inline them
+        payloadType = schemaToTypeScript(eventDef.payload, options);
+      }
+    } else {
+      payloadType = 'void';
+    }
+
+    lines.push(`${indent}${eventName}: ${eventDef.type}<${payloadType}>;`);
   }
 
   if (lines.length === 0) {
     return `type ${toPascalCase(componentName)}Events = Record<string, never>;`;
   }
 
-  return `type ${toPascalCase(componentName)}Events = {\n${lines.join('\n')}\n};`;
+  const result: string[] = [];
+
+  // Add payload interfaces first
+  if (payloadInterfaces.length > 0) {
+    result.push(...payloadInterfaces);
+    result.push('');
+  }
+
+  // Add events type
+  result.push(`type ${toPascalCase(componentName)}Events = {\n${lines.join('\n')}\n};`);
+
+  return result.join('\n');
 }
 
 /**
@@ -164,7 +210,7 @@ function toPascalCase(str: string): string {
 export function generateComponentTypes(
   tagName: string,
   propsSchema: JSONSchema,
-  events: Record<string, { type: string; payloadSchema?: JSONSchema }>,
+  events: Record<string, { type: string; payload?: JSONSchema }>,
   options: TypeScriptGeneratorOptions = {}
 ): string {
   const lines: string[] = [];

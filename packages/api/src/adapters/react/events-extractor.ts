@@ -126,7 +126,7 @@ function extractEventFromDispatchCall(call: ts.CallExpression, typeChecker: ts.T
             return undefined;
           }
 
-          let payloadSchema: JSONSchema | undefined;
+          let payload: JSONSchema | undefined;
           let bubbles: boolean | undefined;
           let composed: boolean | undefined;
 
@@ -140,7 +140,7 @@ function extractEventFromDispatchCall(call: ts.CallExpression, typeChecker: ts.T
 
               if (detailProp && ts.isPropertyAssignment(detailProp)) {
                 const detailType = typeChecker.getTypeAtLocation(detailProp.initializer);
-                payloadSchema = typeToJsonSchema(detailType, typeChecker);
+                payload = typeToJsonSchema(detailType, typeChecker);
               }
 
               const bubblesProp = detailArg.properties.find(
@@ -173,7 +173,7 @@ function extractEventFromDispatchCall(call: ts.CallExpression, typeChecker: ts.T
           return {
             name: eventName,
             type: 'CustomEvent',
-            payloadSchema,
+            payload,
             source: 'dispatchEvent',
             description: jsDocMetadata.description,
             deprecated: jsDocMetadata.deprecated,
@@ -256,12 +256,12 @@ function extractCallbackProps(component: ts.ClassDeclaration | ts.FunctionDeclar
         // Event name: onClick -> click
         const eventName = propName.substring(2).charAt(0).toLowerCase() + propName.substring(3);
 
-        let payloadSchema: JSONSchema | undefined;
+        let payload: JSONSchema | undefined;
 
         if (signature.parameters.length > 0) {
           const param = signature.parameters[0];
           const paramType = typeChecker.getTypeOfSymbolAtLocation(param, param.valueDeclaration!);
-          payloadSchema = typeToJsonSchema(paramType, typeChecker);
+          payload = typeToJsonSchema(paramType, typeChecker);
         }
 
         const jsDocMetadata = prop.valueDeclaration ? extractJSDocMetadata(prop.valueDeclaration) : {};
@@ -276,7 +276,7 @@ function extractCallbackProps(component: ts.ClassDeclaration | ts.FunctionDeclar
         events.push({
           name: finalEventName,
           type: 'CustomEvent',
-          payloadSchema,
+          payload,
           source: 'output',
           description: jsDocMetadata.description,
           deprecated: jsDocMetadata.deprecated,

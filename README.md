@@ -67,12 +67,6 @@ npx @owcs/cli generate --adapter react --format json
 # Specify output file
 npx @owcs/cli generate --adapter angular --output my-components.yaml
 
-# Include runtime extension
-npx @owcs/cli generate --adapter angular --include-runtime-extension
-
-# Load vendor extensions from config file
-npx @owcs/cli generate --adapter angular --extensions
-
 # Also create OpenAPI documentation
 npx @owcs/cli generate --adapter react --openapi
 
@@ -387,9 +381,9 @@ All options can be set in `owcs.config.js` or provided via CLI. CLI options over
 - `--title <title>` - Specification title
 - `--version <version>` - Specification version (default: `1.0.0`)
 - `--description <description>` - Specification description
-- `-r, --include-runtime-extension` - Include bundler and module federation metadata
-- `--extensions` - Load custom vendor extensions from config file
 - `--openapi` - Also generate OpenAPI specification
+
+**Note:** `includeRuntimeExtension` and `extensions` options are only available via the config file and are automatically applied when present.
 
 ## Development
 
