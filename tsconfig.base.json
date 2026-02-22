@@ -17,7 +17,8 @@
     "paths": {
       "@owcs/schemas": ["packages/schemas/src/index.ts"],
       "@owcs/api": ["packages/api/src/index.ts"],
-      "@owcs/cli": ["packages/cli/src/index.ts"]
+      "@owcs/cli": ["packages/cli/src/index.ts"],
+      "@owcs/ui": ["packages/ui/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "dist"]

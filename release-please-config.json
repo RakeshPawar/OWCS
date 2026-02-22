@@ -43,7 +43,7 @@
       "section": "Continuous Integration"
     }
   ],
-  "extra-files": ["packages/api/package.json", "packages/cli/package.json", "packages/schemas/package.json"],
+  "extra-files": ["packages/api/package.json", "packages/cli/package.json", "packages/schemas/package.json", "packages/ui/package.json"],
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true
 }
