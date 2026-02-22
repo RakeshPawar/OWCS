@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.1.10](https://github.com/RakeshPawar/OWCS/compare/v0.1.9...v0.1.10) (2026-02-22)
+
+
+### Features
+
+* add support for vendor extensions ([748d2d4](https://github.com/RakeshPawar/OWCS/commit/748d2d40261aff5d158a40f4df3370a35deb3a46))
+* added owcs viewer package ([d55314c](https://github.com/RakeshPawar/OWCS/commit/d55314cfff59fa5ebdf6de4881d3477f254ae7f2))
+* added runtime extension for owcs ([#51](https://github.com/RakeshPawar/OWCS/issues/51)) ([7bbf364](https://github.com/RakeshPawar/OWCS/commit/7bbf3640bab88674781aab1be101cd02800f7aa8))
+* improved ui style ([18e5bed](https://github.com/RakeshPawar/OWCS/commit/18e5bed3f7e9a7244935f887cb344ff59460845c))
+* improved ui viewer styles and view ([942b91c](https://github.com/RakeshPawar/OWCS/commit/942b91c8f80ceab5a7decba988ccc1a1629e95eb))
+* publish ui package ([d7da4e3](https://github.com/RakeshPawar/OWCS/commit/d7da4e37092c0cf32dc0172f5ecacd9980c67b61))
+* supported cli options through config file ([5edb397](https://github.com/RakeshPawar/OWCS/commit/5edb397691cd45035e5b47c5513db29d7c29132d))
+
+
+### Documentation
+
+* cleanup old docs ([#49](https://github.com/RakeshPawar/OWCS/issues/49)) ([35d398a](https://github.com/RakeshPawar/OWCS/commit/35d398a46bcfa42c89f4677dacc7095ec0ec81f0))
+* synced docs ([bab1b20](https://github.com/RakeshPawar/OWCS/commit/bab1b207882e4ca8e0fe373da557c4ca54b46db8))
+
 ## [0.1.9](https://github.com/RakeshPawar/OWCS/compare/v0.1.8...v0.1.9) (2026-02-01)
 
 
